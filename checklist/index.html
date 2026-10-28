@@ -1,0 +1,1196 @@
+<title>Weinam Ck Start-Up Checklist</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: charcoal brand band, then a working sheet — summary strip, toolbar, one live grid card with an Excel-style status bar. */
+:root {
+  --bg: #f3f3f1;
+  --surface: #ffffff;
+  --surface-2: #f8f8f6;
+  --ink: #1c1f22;
+  --muted: #5d6368;
+  --line: #e0e1dd;
+  --line-strong: #c2c5c0;
+  --brand: #c8102e;
+  --brand-ink: #ffffff;
+  --band: #1f2326;
+  --band-ink: #f2f2ef;
+  --band-muted: #a9aeb1;
+  --focus: #1b6ec2;
+  --focus-soft: rgba(27, 110, 194, .09);
+  --hover: rgba(31, 35, 38, .035);
+
+  --ok: #1e7d45;       --ok-bg: #e2f2e8;
+  --prog: #1d5fa8;     --prog-bg: #e1ebf7;
+  --urg: #b3261e;      --urg-bg: #fbe3e0;
+  --idle: #4f555a;     --idle-bg: #ecedea;
+  --na: #868b8f;       --na-bg: transparent;
+  --warn: #9a5b00;     --warn-bg: #fdf0d9;
+
+  --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Barlow", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131517; --surface: #1b1e21; --surface-2: #202427; --ink: #e8e9e6; --muted: #a0a6aa;
+    --line: #2c3034; --line-strong: #454a4f; --brand: #e3283f; --brand-ink: #ffffff;
+    --band: #0d0f10; --band-ink: #f2f2ef; --band-muted: #9aa0a4;
+    --focus: #5aa2f0; --focus-soft: rgba(90, 162, 240, .12); --hover: rgba(255, 255, 255, .03);
+    --ok: #74d39e; --ok-bg: #1b3325; --prog: #8db8f2; --prog-bg: #1b2a40;
+    --urg: #f28b82; --urg-bg: #3e1f1c; --idle: #b8bdc1; --idle-bg: #2a2e31;
+    --na: #7f868a; --warn: #f0b85a; --warn-bg: #3a2c12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131517; --surface: #1b1e21; --surface-2: #202427; --ink: #e8e9e6; --muted: #a0a6aa;
+  --line: #2c3034; --line-strong: #454a4f; --brand: #e3283f; --brand-ink: #ffffff;
+  --band: #0d0f10; --band-ink: #f2f2ef; --band-muted: #9aa0a4;
+  --focus: #5aa2f0; --focus-soft: rgba(90, 162, 240, .12); --hover: rgba(255, 255, 255, .03);
+  --ok: #74d39e; --ok-bg: #1b3325; --prog: #8db8f2; --prog-bg: #1b2a40;
+  --urg: #f28b82; --urg-bg: #3e1f1c; --idle: #b8bdc1; --idle-bg: #2a2e31;
+  --na: #7f868a; --warn: #f0b85a; --warn-bg: #3a2c12;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.4; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { padding-left: var(--gutter-l); padding-right: var(--gutter-r); max-width: 1680px; margin: 0 auto; }
+
+/* Brand band */
+.band { background: var(--band); color: var(--band-ink); }
+.band .wrap { padding-block: 18px 0; display: grid; grid-template-columns: auto 1fr auto; gap: 8px 18px; align-items: center; }
+.mark { background: var(--brand); color: var(--brand-ink); font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: .06em; padding: 4px 12px 2px; line-height: 1.1; align-self: start; }
+.titles { min-width: 0; display: grid; gap: 2px; }
+.eyebrow { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; color: var(--band-muted); }
+.title-in { background: transparent; border: 1px solid transparent; border-radius: 3px; padding: 0 4px; margin-left: -5px; width: 100%; min-width: 0; text-overflow: ellipsis; }
+.title-in:not([readonly]):hover { border-color: rgba(255,255,255,.18); }
+.title-in:focus { outline: none; border-color: var(--focus); background: rgba(255,255,255,.04); }
+#projectName { font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1.15; letter-spacing: .01em; text-wrap: balance; }
+#sheetTitle { color: var(--band-muted); font-size: 14px; }
+.band-actions { display: flex; align-items: center; gap: 12px; justify-self: end; }
+.live { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--band-muted); white-space: nowrap; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--band-muted); }
+.live[data-state="live"] i { background: #3fbf72; box-shadow: 0 0 0 3px rgba(63,191,114,.2); }
+.live[data-state="saving"] i { background: #e0a43a; }
+.live[data-state="error"] i { background: var(--brand); }
+.btn-band { background: transparent; color: var(--band-ink); border: 1px solid rgba(255,255,255,.28); border-radius: 4px; padding: 7px 12px; font-weight: 600; font-size: 13px; }
+.btn-band:hover { border-color: var(--band-ink); }
+.tabs { grid-column: 1 / -1; display: flex; gap: 4px; margin-top: 10px; }
+.tab { background: none; border: 0; color: var(--band-muted); font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 14px 9px; border-bottom: 3px solid transparent; text-decoration: none; }
+.tab:hover { color: var(--band-ink); }
+.tab[aria-current="page"] { color: var(--band-ink); border-bottom-color: var(--brand); }
+
+main.wrap { padding-block: 20px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+main.wrap > * { min-width: 0; }
+
+/* Summary */
+.summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+.label { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--muted); }
+.progress-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.pct { font-family: var(--f-display); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.pct-note { color: var(--muted); }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--idle-bg); margin: 12px 0 14px; }
+.bar span { display: block; height: 100%; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 5px 12px 5px 10px; font-size: 13px; font-weight: 500; }
+.chip b { font-variant-numeric: tabular-nums; font-weight: 700; }
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.chip:hover { border-color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.dates-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.linkbtn { background: none; border: 0; color: var(--focus); font-weight: 600; font-size: 13px; padding: 2px 0; }
+.milestones { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.milestones li { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding-left: 10px; border-left: 3px solid var(--line-strong); }
+.milestones li.soon { border-left-color: var(--brand); }
+.milestones .m-name { font-weight: 600; }
+.milestones .m-date { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+.milestones .m-sub { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; }
+#keyNotesEdit { width: 100%; min-height: 110px; resize: vertical; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface-2); padding: 8px; line-height: 1.5; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.field { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 10px; height: 36px; min-width: 0; }
+.field input, .field select { border: 0; background: transparent; height: 34px; outline: none; min-width: 0; }
+.field:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); }
+#search { width: 220px; }
+.field svg { flex: none; color: var(--muted); }
+.spacer { flex: 1; }
+.btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 4px; height: 36px; padding: 0 14px; font-weight: 600; font-size: 13px; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.btn.primary:hover { filter: brightness(1.07); }
+.filter-note { color: var(--muted); font-size: 13px; }
+
+/* Grid */
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; min-width: 0; }
+.grid-wrap { overflow: auto; max-height: calc(100vh - 210px); min-height: 320px; outline: none; position: relative; }
+.grid-wrap:focus-visible { box-shadow: inset 0 0 0 2px var(--focus-soft); }
+table.grid { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; table-layout: fixed; }
+.grid th, .grid td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+.grid thead th { position: sticky; top: 0; z-index: 3; background: var(--surface-2); font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line-strong); white-space: nowrap; padding-block: 10px; }
+.grid thead th.col-task { left: 52px; z-index: 4; }
+.grid thead th.col-ref { left: 0; z-index: 4; }
+.grid .ref { position: sticky; left: 0; z-index: 2; background: var(--surface-2); width: 52px; padding: 0; text-align: center; font-weight: 500; }
+.grid td.c-task { position: sticky; left: 52px; z-index: 1; background: var(--surface); font-weight: 600; box-shadow: 1px 0 0 var(--line-strong); }
+.grid td { background: var(--surface); scroll-margin: 44px 0 8px 312px; cursor: cell; }
+.grid td.c-task { scroll-margin-left: 52px; }
+.grid tr.row:hover td { background-image: linear-gradient(var(--hover), var(--hover)); }
+.ref-btn { width: 100%; height: 100%; min-height: 34px; background: none; border: 0; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12.5px; padding: 7px 2px; }
+.ref-btn:hover { color: var(--ink); background: var(--hover); }
+.cell-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.c-detail .cell-text, .c-notes .cell-text { color: var(--ink); }
+.c-detail, .c-notes { font-size: 13.5px; }
+.c-section { color: var(--muted); font-size: 13px; }
+.c-start, .c-due { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.empty-cell { color: var(--line-strong); }
+.who { display: inline-block; font-weight: 600; font-size: 12.5px; letter-spacing: .02em; border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 6px; line-height: 20px; }
+.od { color: var(--urg); font-weight: 600; }
+.od::after { content: "Overdue"; display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.soon-due { color: var(--warn); font-weight: 600; }
+.date-warn { background: var(--warn-bg); color: var(--warn); border-radius: 3px; padding: 0 4px; text-decoration: underline dotted; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px 2px 8px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.s-complete { color: var(--ok); background: var(--ok-bg); }
+.s-progress { color: var(--prog); background: var(--prog-bg); }
+.s-urgent { color: var(--urg); background: var(--urg-bg); }
+.s-idle { color: var(--idle); background: var(--idle-bg); }
+.s-na { color: var(--na); background: transparent; border: 1px dashed var(--line-strong); }
+.s-unset { color: var(--muted); background: transparent; border: 1px dashed var(--line-strong); }
+tr.is-na td:not(.c-status) { color: var(--na); }
+tr.is-done td.c-task { text-decoration: line-through; text-decoration-color: var(--line-strong); }
+
+.grid td.sel { box-shadow: inset 0 0 0 2px var(--focus); background-color: var(--surface); }
+.grid td.c-task.sel { box-shadow: inset 0 0 0 2px var(--focus), 1px 0 0 var(--line-strong); }
+.grid td.editing { padding: 0; box-shadow: inset 0 0 0 2px var(--focus); }
+.grid td.editing input, .grid td.editing select, .grid td.editing textarea { width: 100%; border: 0; outline: none; background: var(--surface); padding: 7px 9px; min-height: 34px; display: block; }
+.grid td.editing textarea { resize: none; line-height: 1.4; overflow: hidden; }
+.read-only .grid td { cursor: default; }
+
+tr.grp th { background: var(--bg); padding: 0; border-bottom: 1px solid var(--line-strong); }
+.grp-in { position: sticky; left: 0; display: flex; align-items: center; gap: 12px; padding: 14px 12px 8px; width: min(100%, calc(100vw - 64px)); max-width: 900px; }
+.grp-name { font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: .03em; text-transform: uppercase; color: var(--ink); }
+.grp-name-in { font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: .03em; text-transform: uppercase; border: 1px solid var(--focus); border-radius: 3px; padding: 0 6px; background: var(--surface); width: 320px; max-width: 60vw; }
+.grp-count { color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; font-weight: 500; text-transform: none; letter-spacing: 0; }
+.grp-btn { background: none; border: 1px solid transparent; border-radius: 4px; color: var(--muted); font-weight: 600; font-size: 12.5px; padding: 3px 8px; }
+.grp-btn:hover { color: var(--ink); border-color: var(--line-strong); background: var(--surface); }
+
+.status-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; border-top: 1px solid var(--line-strong); background: var(--surface-2); padding: 7px 12px; font-size: 12.5px; color: var(--muted); min-height: 34px; }
+.status-bar b { color: var(--ink); font-weight: 600; }
+.status-bar .sb-right { margin-left: auto; }
+kbd { font-family: var(--f-body); font-size: 11.5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; background: var(--surface); color: var(--ink); }
+
+.empty { padding: 48px 20px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center; }
+.empty strong { color: var(--ink); font-size: 16px; }
+
+/* Popover menu */
+.menu { position: fixed; z-index: 50; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 6px; min-width: 210px; display: grid; gap: 2px; }
+.menu button { text-align: left; background: none; border: 0; border-radius: 4px; padding: 7px 10px; font-size: 13.5px; }
+.menu button:hover:not(:disabled), .menu button:focus-visible { background: var(--hover); outline: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.menu button:disabled { color: var(--na); cursor: default; }
+.menu .danger { color: var(--urg); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
+.menu .confirm { padding: 6px 8px; display: grid; gap: 8px; font-size: 13px; max-width: 260px; }
+.menu .confirm div { display: flex; gap: 6px; }
+.menu .confirm .btn { height: 30px; }
+.menu label { font-size: 12px; color: var(--muted); padding: 4px 10px 0; }
+.menu select { margin: 2px 8px 6px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 5px; }
+.btn.danger-btn { background: var(--urg); border-color: var(--urg); color: var(--surface); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--ink); color: var(--surface); border-radius: 6px; padding: 10px 16px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); }
+
+/* Dashboard */
+.dash { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dash .wide { grid-column: 1 / -1; }
+.panel h2 { margin: 0 0 12px; font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
+.tbl-wrap { overflow-x: auto; }
+table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.dt th, .dt td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.dt th:first-child, .dt td:first-child { text-align: left; }
+.dt thead th { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--muted); border-bottom-color: var(--line-strong); }
+.dt td.bar-cell { width: 34%; min-width: 140px; }
+.dt .bar { margin: 0; height: 8px; }
+.dt tbody tr.link { cursor: pointer; }
+.dt tbody tr.link:hover td { background: var(--hover); }
+.dt td.l, .dt th.l { text-align: left; white-space: normal; }
+.zero { color: var(--line-strong); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+@media (max-width: 860px) {
+  .summary, .dash { grid-template-columns: minmax(0, 1fr); }
+  .band .wrap { grid-template-columns: auto minmax(0, 1fr); }
+  .band-actions { grid-column: 1 / -1; justify-self: start; }
+  #projectName { font-size: 24px; }
+  #search { width: 150px; }
+  .grid-wrap { max-height: 70vh; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="mark" aria-label="ADCO">ADCO</div>
+    <div class="titles">
+      <div class="eyebrow">Project Start-Up Checklist · ECI &amp; Early Works</div>
+      <input id="projectName" class="title-in" aria-label="Project name" value="" placeholder="Project name" readonly>
+      <input id="sheetTitle" class="title-in" aria-label="Checklist title" value="" placeholder="Checklist title" readonly>
+    </div>
+    <div class="band-actions">
+      <span class="live" id="live" data-state="connecting"><i></i><span id="liveText">Connecting…</span></span>
+      <button class="btn-band" id="exportBtn" type="button" hidden>Export to Excel</button>
+    </div>
+    <nav class="tabs" aria-label="Views">
+      <a class="tab" href="#checklist" id="tabChecklist">Checklist</a>
+      <a class="tab" href="#dashboard" id="tabDashboard">Dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <section class="summary" aria-label="Overall status">
+    <div class="panel">
+      <div class="progress-head">
+        <span class="label">Overall progress</span>
+      </div>
+      <div class="progress-head" style="margin-top:6px">
+        <span class="pct" id="pct">–</span>
+        <span class="pct-note" id="pctNote">Loading the checklist…</span>
+      </div>
+      <div class="bar" id="overallBar" role="img" aria-label="Status breakdown"></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="panel">
+      <div class="dates-head">
+        <span class="label">Key dates</span>
+        <button class="linkbtn" id="editDates" type="button" hidden>Edit</button>
+      </div>
+      <ul class="milestones" id="milestones"></ul>
+      <textarea id="keyNotesEdit" hidden aria-label="Key dates, one per line"></textarea>
+    </div>
+  </section>
+
+  <div id="viewChecklist">
+    <div class="toolbar" style="margin-bottom:12px">
+      <label class="field">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search tasks and notes" aria-label="Search tasks and notes">
+      </label>
+      <label class="field">
+        <span class="label" style="font-size:11px">Person</span>
+        <select id="personFilter" aria-label="Filter by champion or support"><option value="">Everyone</option></select>
+      </label>
+      <span class="filter-note" id="filterNote"></span>
+      <button class="linkbtn" id="clearFilters" type="button" hidden>Clear filters</button>
+      <span class="spacer"></span>
+      <button class="btn primary" id="addGroup" type="button" hidden>+ Add group</button>
+    </div>
+    <div class="sheet" id="sheet">
+      <div class="grid-wrap" id="gridWrap" tabindex="0" aria-label="Checklist grid. Use arrow keys to move, Enter to edit.">
+        <table class="grid" id="grid" role="grid">
+          <colgroup id="cols"></colgroup>
+          <thead><tr id="headRow"></tr></thead>
+        </table>
+        <div class="empty" id="gridEmpty" hidden></div>
+      </div>
+      <div class="status-bar" id="statusBar">
+        <span id="sbCell">Select a cell</span>
+        <span id="sbWho"></span>
+        <span class="sb-right" id="sbHelp"><kbd>Enter</kbd> edit · <kbd>Tab</kbd> next · <kbd>Del</kbd> clear · <kbd>Ctrl</kbd>+<kbd>V</kbd> paste from Excel · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="viewDashboard" class="dash" hidden>
+    <section class="panel wide">
+      <h2>Status by section</h2>
+      <div class="tbl-wrap"><table class="dt" id="sectionTable"></table></div>
+      <div class="legend" id="legend"></div>
+    </section>
+    <section class="panel">
+      <h2>Open tasks by champion</h2>
+      <div class="tbl-wrap"><table class="dt" id="champTable"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Overdue</h2>
+      <div class="tbl-wrap"><table class="dt" id="overdueTable"></table></div>
+    </section>
+    <section class="panel wide">
+      <h2>Due in the next 14 days</h2>
+      <div class="tbl-wrap"><table class="dt" id="soonTable"></table></div>
+    </section>
+  </div>
+</main>
+
+<datalist id="people"></datalist>
+<div class="menu" id="menu" hidden role="menu"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+  const STATUSES = ["Not Started", "In Progress", "Urgent", "Complete", "N/A this project"];
+  const STATUS_META = {
+    "Not Started": { cls: "s-idle", color: "var(--idle)", short: "Not started" },
+    "In Progress": { cls: "s-progress", color: "var(--prog)", short: "In progress" },
+    "Urgent": { cls: "s-urgent", color: "var(--urg)", short: "Urgent" },
+    "Complete": { cls: "s-complete", color: "var(--ok)", short: "Complete" },
+    "N/A this project": { cls: "s-na", color: "var(--na)", short: "N/A" },
+    "": { cls: "s-unset", color: "var(--line-strong)", short: "Not set" }
+  };
+  const SECTIONS = ["1. Authority Approvals", "2. Contracts Administration", "3. Site Set Up", "4. Design & Engineering", "5. Estimating", "6. Program"];
+  const DEFAULT_PEOPLE = ["TW", "NS", "EW", "SW", "HSE", "SCM", "BE", "TCH", "Estimator", "WM", "All"];
+  const COLS = [
+    { key: "task", label: "Task", w: 260, type: "text" },
+    { key: "status", label: "Status", w: 150, type: "select", opts: STATUSES, blank: "Not set" },
+    { key: "champion", label: "Champion", w: 100, type: "person" },
+    { key: "support", label: "Support / Input", w: 112, type: "person" },
+    { key: "start", label: "Start By", w: 100, type: "date" },
+    { key: "due", label: "Complete By", w: 112, type: "date" },
+    { key: "detail", label: "Action / Detail", w: 320, type: "long" },
+    { key: "notes", label: "Live Notes", w: 260, type: "long" },
+    { key: "section", label: "Section", w: 200, type: "select", opts: SECTIONS, blank: "No section" }
+  ];
+  const FIELDS = ["task", "detail", "section", "champion", "support", "start", "due", "status", "notes"];
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const pad = (n) => String(n).padStart(2, "0");
+  const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const today = () => isoOf(new Date());
+  const addDays = (iso, n) => { const [y, m, d] = iso.split("-").map(Number); return isoOf(new Date(y, m - 1, d + n)); };
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const fmtDate = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y.slice(2)}`; };
+  const fmtLong = (iso) => { const [y, m, d] = iso.split("-").map(Number); return `${d} ${MONTHS[m - 1]} ${y}`; };
+  const daysBetween = (a, b) => { const [y1, m1, d1] = a.split("-").map(Number), [y2, m2, d2] = b.split("-").map(Number); return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 864e5); };
+
+  function mkIso(y, m, d) {
+    if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31)) return null;
+    const dt = new Date(y, m - 1, d);
+    if (dt.getMonth() !== m - 1) return null;
+    return `${y}-${pad(m)}-${pad(d)}`;
+  }
+  // Accepts dd/mm/yy, dd/mm/yyyy, yyyy-mm-dd and Excel serial numbers (Australian day-first order).
+  function parseDate(s) {
+    s = String(s ?? "").trim();
+    if (!s) return "";
+    let m;
+    if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return mkIso(+m[1], +m[2], +m[3]);
+    if ((m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/))) { let y = +m[3]; if (y < 100) y += 2000; return mkIso(y, +m[2], +m[1]); }
+    if (/^\d{5}$/.test(s)) { const d = new Date(Date.UTC(1899, 11, 30) + +s * 864e5); return mkIso(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate()); }
+    return null;
+  }
+  function normStatus(v) {
+    const s = String(v ?? "").trim().toLowerCase();
+    if (!s) return "";
+    if (s === "n/a" || s === "na") return "N/A this project";
+    return STATUSES.find((x) => x.toLowerCase() === s) || STATUSES.find((x) => x.toLowerCase().startsWith(s)) || null;
+  }
+  function normSection(v) {
+    const s = String(v ?? "").trim();
+    if (!s) return "";
+    return SECTIONS.find((x) => x.toLowerCase() === s.toLowerCase()) || SECTIONS.find((x) => x.toLowerCase().includes(s.toLowerCase())) || s;
+  }
+  const isClosed = (t) => t.status === "Complete" || t.status === "N/A this project";
+  const isOverdue = (t) => !!t.due && !isClosed(t) && t.due < today();
+  const dueSoon = (t, n = 7) => !!t.due && !isClosed(t) && t.due >= today() && t.due <= addDays(today(), n);
+
+  // ---------- state ----------
+  let db = null, user = null, downloads = null, myId = null;
+  let canWrite = false;            // becomes true once we know db is reachable and the viewer isn't view-only
+  let loaded = false, metaLoaded = false;
+  let tasks = new Map();           // id -> task (optimistic)
+  let serverTasks = new Map();     // last server snapshot
+  let meta = null, metaExists = false;
+  let sel = null;                  // { id, c }
+  let editing = null;
+  let pendingRender = false;
+  let model = { groups: [], flat: [], refs: new Map() };
+  const filters = { status: null, person: "", q: "" };
+  const undoStack = [];
+  const queues = new Map();
+  let pendingWrites = 0, lastError = false, firstLive = false;
+
+  // ---------- writes ----------
+  function enqueue(key, fn) {
+    const prev = queues.get(key) || Promise.resolve();
+    const p = prev.then(fn);
+    queues.set(key, p.catch(() => {}));
+    return p;
+  }
+  async function runWrite(key, fn) {
+    if (!db) return;
+    pendingWrites++; setLive();
+    try { await enqueue(key, fn); lastError = false; }
+    catch (e) { handleWriteError(e); }
+    finally { pendingWrites--; setLive(); }
+  }
+  function handleWriteError(e) {
+    lastError = true;
+    if (e && e.code === "invalid_argument" && !confirmedWriter) {
+      canWrite = false;
+      document.body.classList.add("read-only");
+      toast("You have view-only access, so your changes aren't saved.");
+    } else if (e && e.code === "quota_exceeded") {
+      toast("The checklist is full. Delete some old tasks and try again.");
+    } else {
+      toast("Couldn't save that change. Check your connection and try again.");
+    }
+    tasks = new Map([...serverTasks].map(([k, v]) => [k, { ...v }]));
+    renderAll();
+  }
+  let confirmedWriter = false;
+  const stamp = () => (myId ? { updatedBy: myId, updatedAt: new Date().toISOString() } : { updatedAt: new Date().toISOString() });
+
+  function saveTask(id, patch, opts = {}) {
+    const t = tasks.get(id); if (!t) return;
+    const changed = {};
+    for (const k of Object.keys(patch)) if ((t[k] ?? "") !== (patch[k] ?? "")) changed[k] = patch[k];
+    if (!Object.keys(changed).length) return null;
+    const before = {}; for (const k of Object.keys(changed)) before[k] = t[k] ?? "";
+    tasks.set(id, { ...t, ...changed, ...stamp() });
+    if (!opts.noUndo) undoStack.push([{ kind: "update", id, before }]);
+    runWrite(id, () => db.doc("tasks/" + id).update({ ...changed, ...stamp() }).then(() => { confirmedWriter = true; }));
+    return { id, before };
+  }
+  function createTask(data, opts = {}) {
+    const id = db.collection("tasks").doc().id;
+    const full = { task: "", detail: "", section: "", champion: "", support: "", start: "", due: "", status: "Not Started", notes: "", ...data, ...stamp() };
+    tasks.set(id, full);
+    if (!opts.noUndo) undoStack.push([{ kind: "create", id }]);
+    runWrite(id, () => db.doc("tasks/" + id).set(full).then(() => { confirmedWriter = true; }));
+    return id;
+  }
+  function deleteTask(id, opts = {}) {
+    const t = tasks.get(id); if (!t) return;
+    tasks.delete(id);
+    if (!opts.noUndo) undoStack.push([{ kind: "delete", id, data: { ...t } }]);
+    runWrite(id, () => db.doc("tasks/" + id).delete());
+  }
+  function saveMeta(patch) {
+    meta = { ...(meta || { project: "", title: "", keyNotes: "", groups: [] }), ...patch };
+    const full = { ...meta };
+    runWrite("__meta", () => (metaExists ? db.doc("project/meta").update(patch) : db.doc("project/meta").set(full)).then(() => { metaExists = true; }));
+  }
+  function undo() {
+    const entry = undoStack.pop();
+    if (!entry) { toast("Nothing to undo."); return; }
+    for (const op of entry.slice().reverse()) {
+      if (op.kind === "update" && tasks.has(op.id)) saveTask(op.id, op.before, { noUndo: true });
+      else if (op.kind === "create" && tasks.has(op.id)) deleteTask(op.id, { noUndo: true });
+      else if (op.kind === "delete") {
+        tasks.set(op.id, op.data);
+        runWrite(op.id, () => db.doc("tasks/" + op.id).set(op.data));
+      }
+    }
+    renderAll();
+    toast("Undone.");
+  }
+
+  // ---------- model ----------
+  function groupsList() {
+    const gs = (meta?.groups || []).slice();
+    const known = new Set(gs.map((g) => g.id));
+    if ([...tasks.values()].some((t) => !known.has(t.group))) gs.push({ id: "__none", name: "Ungrouped" });
+    return gs;
+  }
+  function sortedIn(gid, known) {
+    return [...tasks].filter(([, t]) => (gid === "__none" ? !known.has(t.group) : t.group === gid))
+      .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[0] < b[0] ? -1 : 1));
+  }
+  const anyFilter = () => filters.status !== null || !!filters.person || !!filters.q;
+  function matches(t) {
+    if (filters.status === "__overdue") { if (!isOverdue(t)) return false; }
+    else if (filters.status !== null && (t.status || "") !== filters.status) return false;
+    if (filters.person && t.champion !== filters.person && t.support !== filters.person) return false;
+    if (filters.q) {
+      const hay = FIELDS.map((f) => t[f] || "").join(" ").toLowerCase();
+      if (!hay.includes(filters.q)) return false;
+    }
+    return true;
+  }
+  function buildModel() {
+    const gs = groupsList();
+    const known = new Set((meta?.groups || []).map((g) => g.id));
+    const out = { groups: [], flat: [], refs: new Map() };
+    gs.forEach((g, gi) => {
+      const all = sortedIn(g.id, known);
+      all.forEach(([id], ri) => out.refs.set(id, `${gi + 1}.${ri + 1}`));
+      const rows = all.filter(([, t]) => matches(t)).map(([id, t]) => ({ id, t }));
+      out.groups.push({ g, rows, total: all.length, done: all.filter(([, t]) => t.status === "Complete").length, gi });
+      rows.forEach((r) => out.flat.push(r.id));
+    });
+    return out;
+  }
+
+  // ---------- rendering ----------
+  function cellHTML(col, t) {
+    const v = t[col.key] ?? "";
+    switch (col.key) {
+      case "status": {
+        const m = STATUS_META[v] || STATUS_META[""];
+        return `<span class="pill ${m.cls}">${esc(v ? m.short : "Not set")}</span>`;
+      }
+      case "champion": case "support":
+        return v ? `<span class="who">${esc(v)}</span>` : "";
+      case "start": case "due": {
+        if (!v) return "";
+        const warn = t.start && t.due && t.due < t.start;
+        if (warn) return `<span class="date-warn" title="Complete By is before Start By. Check the dates.">${fmtDate(v)}</span>`;
+        if (col.key === "due" && isOverdue(t)) return `<span class="od">${fmtDate(v)}</span>`;
+        if (col.key === "due" && dueSoon(t)) return `<span class="soon-due" title="Due within 7 days">${fmtDate(v)}</span>`;
+        return fmtDate(v);
+      }
+      default:
+        return v ? `<div class="cell-text">${esc(v)}</div>` : "";
+    }
+  }
+  function renderHead() {
+    $("#cols").innerHTML = `<col style="width:52px">` + COLS.map((c) => `<col style="width:${c.w}px">`).join("");
+    $("#headRow").innerHTML = `<th class="col-ref" scope="col" aria-label="Ref">#</th>` + COLS.map((c) => `<th scope="col" class="col-${c.key}">${esc(c.label)}</th>`).join("");
+  }
+  function renderGrid() {
+    if (editing) { pendingRender = true; return; }
+    pendingRender = false;
+    model = buildModel();
+    const grid = $("#grid");
+    grid.querySelectorAll("tbody").forEach((b) => b.remove());
+    let h = "";
+    for (const grp of model.groups) {
+      if (anyFilter() && !grp.rows.length) continue;
+      const gid = esc(grp.g.id);
+      h += `<tbody><tr class="grp"><th colspan="${COLS.length + 1}" scope="rowgroup"><div class="grp-in">` +
+        `<span class="grp-name" data-gname="${gid}">${esc(grp.g.name)}</span>` +
+        `<span class="grp-count">${grp.done}/${grp.total} complete</span>` +
+        (canWrite && grp.g.id !== "__none" ? `<button class="grp-btn" type="button" data-add="${gid}">+ Add task</button><button class="grp-btn" type="button" data-gmenu="${gid}" aria-label="Group options for ${esc(grp.g.name)}">•••</button>` : "") +
+        `</div></th></tr>`;
+      for (const r of grp.rows) {
+        const cls = r.t.status === "N/A this project" ? "is-na" : r.t.status === "Complete" ? "is-done" : "";
+        h += `<tr class="row ${cls}" data-id="${esc(r.id)}"><th class="ref" scope="row"><button class="ref-btn" type="button" data-rmenu="${esc(r.id)}" aria-label="Task ${model.refs.get(r.id)} options">${model.refs.get(r.id)}</button></th>` +
+          COLS.map((c, ci) => `<td class="c-${c.key}" data-c="${ci}">${cellHTML(c, r.t)}</td>`).join("") + `</tr>`;
+      }
+      h += `</tbody>`;
+    }
+    grid.insertAdjacentHTML("beforeend", h);
+    const empty = $("#gridEmpty");
+    if (!loaded) {
+      empty.hidden = false;
+      empty.innerHTML = db === null && dbResolved
+        ? `<strong>Live data isn't available in this view</strong><span>Open this page in Claude while signed in to see and edit the checklist.</span>`
+        : `<strong>Loading the checklist…</strong><span>Tasks appear here as soon as the live data connects.</span>`;
+    } else if (!tasks.size) {
+      empty.hidden = false;
+      empty.innerHTML = `<strong>No tasks yet</strong><span>${canWrite ? "Add a group, then add the first task to it." : "Tasks will appear here once someone adds them."}</span>`;
+    } else if (!model.flat.length) {
+      empty.hidden = false;
+      empty.innerHTML = `<strong>No tasks match these filters</strong><button class="btn" type="button" data-clear>Clear filters</button>`;
+    } else empty.hidden = true;
+
+    const shown = model.flat.length, total = tasks.size;
+    $("#filterNote").textContent = anyFilter() && loaded ? `Showing ${shown} of ${total} tasks` : "";
+    $("#clearFilters").hidden = !anyFilter();
+    if (sel && !tasks.has(sel.id)) sel = null;
+    paintSel(false);
+  }
+  function cellEl(s) {
+    if (!s) return null;
+    return document.querySelector(`#grid tr[data-id="${CSS.escape(s.id)}"] td[data-c="${s.c}"]`);
+  }
+  function paintSel(scroll = true) {
+    document.querySelectorAll("#grid td.sel").forEach((td) => td.classList.remove("sel"));
+    const td = cellEl(sel);
+    if (td) { td.classList.add("sel"); if (scroll) td.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+    renderStatusBar();
+  }
+  async function renderStatusBar() {
+    const cell = $("#sbCell"), who = $("#sbWho");
+    if (!sel || !tasks.has(sel.id)) { cell.textContent = canWrite ? "Select a cell to edit" : "View only"; who.textContent = ""; return; }
+    const t = tasks.get(sel.id), selId = sel.id;
+    cell.innerHTML = `<b>${esc(model.refs.get(sel.id) || "")}</b> ${esc(COLS[sel.c].label)}${canWrite ? "" : " · view only"}`;
+    let txt = "";
+    if (t.updatedAt) {
+      const d = new Date(t.updatedAt);
+      const when = isNaN(d) ? "" : `${d.getDate()} ${MONTHS[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      let name = "";
+      if (t.updatedBy && user) { const ps = await user.profiles([t.updatedBy]); name = ps[t.updatedBy]?.isMe ? "you" : (ps[t.updatedBy]?.name || "Someone"); }
+      txt = `Last edited ${name ? "by " + name + " · " : ""}${when}`;
+    }
+    if (sel && sel.id === selId) who.textContent = txt;
+  }
+
+  function counts() {
+    const c = { total: tasks.size, "": 0, overdue: 0 };
+    STATUSES.forEach((s) => (c[s] = 0));
+    for (const t of tasks.values()) { c[t.status || ""] = (c[t.status || ""] || 0) + 1; if (isOverdue(t)) c.overdue++; }
+    return c;
+  }
+  function renderSummary() {
+    const c = counts();
+    const applicable = c.total - c["N/A this project"];
+    const pct = applicable ? Math.round((c.Complete / applicable) * 100) : 0;
+    $("#pct").textContent = loaded ? pct + "%" : "–";
+    $("#pctNote").textContent = loaded ? `complete · ${c.Complete} of ${applicable} applicable tasks` : (db === null && dbResolved ? "Live data isn't available in this view." : "Loading the checklist…");
+    const order = ["Complete", "In Progress", "Urgent", "Not Started", "", "N/A this project"];
+    $("#overallBar").innerHTML = c.total ? order.filter((s) => c[s]).map((s) => `<span style="width:${(c[s] / c.total) * 100}%;background:${STATUS_META[s].color}" title="${esc(STATUS_META[s].short)}: ${c[s]}"></span>`).join("") : "";
+    const chip = (key, label, n, color) => `<button class="chip" type="button" data-filter="${esc(key)}" aria-pressed="${filters.status === key}">${color ? `<span class="dot" style="background:${color}"></span>` : ""}${esc(label)} <b>${n}</b></button>`;
+    let h = `<button class="chip" type="button" data-filter="__all" aria-pressed="${filters.status === null}">All tasks <b>${c.total}</b></button>`;
+    for (const s of ["Not Started", "In Progress", "Urgent", "Complete", "N/A this project"]) h += chip(s, STATUS_META[s].short, c[s], STATUS_META[s].color);
+    if (c[""]) h += chip("", "Not set", c[""], STATUS_META[""].color);
+    h += chip("__overdue", "Overdue", c.overdue, "var(--brand)");
+    $("#chips").innerHTML = h;
+  }
+  function parseMilestones(text) {
+    return String(text || "").split(/\n+/).map((l) => l.trim()).filter(Boolean).map((line) => {
+      const m = line.match(/^(.*?)[\s\-–:]+(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})\s*$/);
+      if (!m) return { name: line, date: null };
+      return { name: m[1].trim(), date: parseDate(m[2]) };
+    });
+  }
+  function renderMilestones() {
+    const ms = parseMilestones(meta?.keyNotes);
+    const t = today();
+    $("#milestones").innerHTML = ms.length ? ms.map((m) => {
+      if (!m.date) return `<li><span class="m-name">${esc(m.name)}</span></li>`;
+      const d = daysBetween(t, m.date);
+      const sub = d > 1 ? `in ${d} days` : d === 1 ? "tomorrow" : d === 0 ? "today" : `${-d} days ago`;
+      return `<li class="${d >= 0 && d <= 21 ? "soon" : ""}"><span class="m-name">${esc(m.name)}</span><span class="m-date">${fmtLong(m.date)}</span><span class="m-sub">${sub}</span></li>`;
+    }).join("") : `<li><span class="m-sub">${loaded ? "No key dates yet." : "Loading…"}</span></li>`;
+  }
+  function renderPeople() {
+    const set = new Set(DEFAULT_PEOPLE);
+    for (const t of tasks.values()) { if (t.champion) set.add(t.champion); if (t.support) set.add(t.support); }
+    const list = [...set];
+    $("#people").innerHTML = list.map((p) => `<option value="${esc(p)}"></option>`).join("");
+    const pf = $("#personFilter"), cur = pf.value;
+    const used = list.filter((p) => [...tasks.values()].some((t) => t.champion === p || t.support === p));
+    pf.innerHTML = `<option value="">Everyone</option>` + used.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
+    pf.value = used.includes(cur) ? cur : "";
+    if (pf.value !== cur) filters.person = pf.value;
+  }
+  function renderHeader() {
+    const pn = $("#projectName"), st = $("#sheetTitle");
+    if (document.activeElement !== pn) pn.value = meta?.project || "";
+    if (document.activeElement !== st) st.value = meta?.title || "";
+    pn.readOnly = st.readOnly = !canWrite;
+    $("#editDates").hidden = !canWrite;
+    $("#addGroup").hidden = !canWrite;
+    $("#sbHelp").hidden = !canWrite;
+    document.body.classList.toggle("read-only", !canWrite);
+    if (meta?.project) document.title = `${meta.project} Start-Up Checklist`;
+  }
+  function renderDashboard() {
+    if ($("#viewDashboard").hidden) return;
+    const all = [...tasks.entries()];
+    const secs = [...SECTIONS];
+    all.forEach(([, t]) => { if (t.section && !secs.includes(t.section)) secs.push(t.section); });
+    if (all.some(([, t]) => !t.section)) secs.push("");
+    const order = ["Complete", "In Progress", "Urgent", "Not Started", "", "N/A this project"];
+    const num = (n) => (n ? n : `<span class="zero">0</span>`);
+    let h = `<thead><tr><th>Section</th><th>Total</th><th>Complete</th><th>In progress</th><th>Urgent</th><th>Not started</th><th>Not set</th><th>N/A</th><th>Breakdown</th></tr></thead><tbody>`;
+    for (const s of secs) {
+      const ts = all.filter(([, t]) => (t.section || "") === s).map(([, t]) => t);
+      const c = {}; order.forEach((k) => (c[k] = ts.filter((t) => (t.status || "") === k).length));
+      const bar = ts.length ? order.filter((k) => c[k]).map((k) => `<span style="width:${(c[k] / ts.length) * 100}%;background:${STATUS_META[k].color}"></span>`).join("") : "";
+      h += `<tr><td>${esc(s || "No section")}</td><td><b>${ts.length}</b></td><td>${num(c.Complete)}</td><td>${num(c["In Progress"])}</td><td>${num(c.Urgent)}</td><td>${num(c["Not Started"])}</td><td>${num(c[""])}</td><td>${num(c["N/A this project"])}</td><td class="bar-cell"><div class="bar">${bar}</div></td></tr>`;
+    }
+    $("#sectionTable").innerHTML = h + `</tbody>`;
+    $("#legend").innerHTML = order.map((k) => `<span><i style="background:${STATUS_META[k].color}"></i>${esc(STATUS_META[k].short)}</span>`).join("");
+
+    const people = new Map();
+    for (const [, t] of all) {
+      const p = t.champion || "(unassigned)";
+      if (!people.has(p)) people.set(p, { total: 0, open: 0, overdue: 0, done: 0 });
+      const r = people.get(p); r.total++;
+      if (t.status === "Complete") r.done++; else if (t.status !== "N/A this project") r.open++;
+      if (isOverdue(t)) r.overdue++;
+    }
+    const rows = [...people].sort((a, b) => b[1].open - a[1].open || a[0].localeCompare(b[0]));
+    $("#champTable").innerHTML = `<thead><tr><th>Champion</th><th>Total</th><th>Open</th><th>Overdue</th><th>Complete</th></tr></thead><tbody>` +
+      rows.map(([p, r]) => `<tr class="link" data-person="${esc(p === "(unassigned)" ? "" : p)}"><td><span class="who">${esc(p)}</span></td><td>${r.total}</td><td><b>${num(r.open)}</b></td><td>${r.overdue ? `<b style="color:var(--urg)">${r.overdue}</b>` : num(0)}</td><td>${num(r.done)}</td></tr>`).join("") + `</tbody>`;
+
+    const refs = buildModel().refs;
+    const list = (ts, emptyText) => ts.length
+      ? `<thead><tr><th>#</th><th class="l">Task</th><th>Champion</th><th>Complete by</th><th>Status</th></tr></thead><tbody>` +
+        ts.map(([id, t]) => `<tr class="link" data-goto="${esc(id)}"><td>${refs.get(id) || ""}</td><td class="l">${esc(t.task)}</td><td>${t.champion ? `<span class="who">${esc(t.champion)}</span>` : ""}</td><td>${fmtDate(t.due)}</td><td>${cellHTML(COLS[1], t)}</td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td class="l" style="color:var(--muted)">${emptyText}</td></tr></tbody>`;
+    const byDue = (a, b) => (a[1].due < b[1].due ? -1 : 1);
+    $("#overdueTable").innerHTML = list(all.filter(([, t]) => isOverdue(t)).sort(byDue), "Nothing is overdue.");
+    const t0 = today(), t14 = addDays(t0, 14);
+    $("#soonTable").innerHTML = list(all.filter(([, t]) => t.due && !isClosed(t) && t.due >= t0 && t.due <= t14).sort(byDue), "Nothing is due in the next 14 days.");
+  }
+  function renderAll() {
+    renderHeader(); renderSummary(); renderMilestones(); renderPeople(); renderGrid(); renderDashboard();
+  }
+  function setLive() {
+    const el = $("#live"), tx = $("#liveText");
+    let state = "connecting", text = "Connecting…";
+    if (dbResolved && !db) { state = "error"; text = "Offline view"; }
+    else if (pendingWrites) { state = "saving"; text = "Saving…"; }
+    else if (lastError) { state = "error"; text = "Not saved"; }
+    else if (firstLive) { state = "live"; text = canWrite ? "Live · all changes saved" : "Live · view only"; }
+    el.dataset.state = state; tx.textContent = text;
+  }
+
+  // ---------- editing ----------
+  function startEdit(initial) {
+    if (!canWrite || !sel || !tasks.has(sel.id)) return;
+    const td = cellEl(sel); if (!td) return;
+    const col = COLS[sel.c], t = tasks.get(sel.id), cur = t[col.key] ?? "";
+    let el;
+    if (col.type === "select") {
+      el = document.createElement("select");
+      const opts = [...col.opts]; if (cur && !opts.includes(cur)) opts.push(cur);
+      el.innerHTML = `<option value="">${esc(col.blank)}</option>` + opts.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
+      el.value = cur;
+    } else if (col.type === "date") {
+      el = document.createElement("input"); el.type = "date"; el.value = cur;
+    } else if (col.type === "long") {
+      el = document.createElement("textarea"); el.rows = 1; el.value = initial ?? cur;
+    } else {
+      el = document.createElement("input"); el.type = "text"; el.value = initial ?? cur;
+      if (col.type === "person") el.setAttribute("list", "people");
+    }
+    el.id = "cellEditor"; el.setAttribute("aria-label", col.label);
+    editing = { id: sel.id, c: sel.c, el, orig: cur };
+    td.classList.add("editing"); td.replaceChildren(el);
+    if (el.tagName === "TEXTAREA") { const fit = () => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }; el.addEventListener("input", fit); requestAnimationFrame(fit); }
+    el.focus({ preventScroll: true });
+    if (el.setSelectionRange && el.type !== "date") { const n = el.value.length; el.setSelectionRange(n, n); }
+    if (el.tagName === "SELECT") { try { el.showPicker(); } catch (_) {} el.addEventListener("change", () => commitEdit(null)); }
+    el.addEventListener("keydown", onEditorKey);
+    el.addEventListener("blur", () => commitEdit(null));
+  }
+  function onEditorKey(e) {
+    const el = e.currentTarget;
+    if (e.key === "Escape") { e.preventDefault(); cancelEdit(); return; }
+    if (e.key === "Tab") { e.preventDefault(); commitEdit([0, e.shiftKey ? -1 : 1]); return; }
+    if (e.key === "Enter") {
+      if (el.tagName === "TEXTAREA" && (e.altKey || e.shiftKey)) {
+        if (e.altKey) { e.preventDefault(); const s = el.selectionStart; el.value = el.value.slice(0, s) + "\n" + el.value.slice(el.selectionEnd); el.setSelectionRange(s + 1, s + 1); el.dispatchEvent(new Event("input")); }
+        return;
+      }
+      e.preventDefault(); commitEdit([e.shiftKey ? -1 : 1, 0]);
+    }
+  }
+  function valueFor(col, raw) {
+    if (col.type === "date") { const d = parseDate(raw); return d === null ? undefined : d; }
+    if (col.key === "status") { const s = normStatus(raw); return s === null ? undefined : s; }
+    if (col.key === "section") return normSection(raw);
+    if (col.type === "long") return String(raw).replace(/\s+$/, "");
+    return String(raw).trim();
+  }
+  function commitEdit(move) {
+    if (!editing) return;
+    const { id, c, el, orig } = editing;
+    editing = null;
+    const col = COLS[c];
+    const v = valueFor(col, el.value);
+    if (v === undefined) toast(col.type === "date" ? "Enter the date as dd/mm/yyyy." : "Pick a status from the list.");
+    else if (v !== orig) saveTask(id, { [col.key]: v });
+    renderAll();
+    if (move) moveSel(move[0], move[1]); else paintSel();
+    focusGrid();
+  }
+  function cancelEdit() { editing = null; renderAll(); paintSel(); focusGrid(); }
+  function focusGrid() { $("#gridWrap").focus({ preventScroll: true }); }
+
+  function moveSel(dr, dc) {
+    const flat = model.flat; if (!flat.length) return;
+    if (!sel) { sel = { id: flat[0], c: 0 }; paintSel(); return; }
+    let r = flat.indexOf(sel.id), c = sel.c + dc;
+    if (r < 0) r = 0;
+    if (c >= COLS.length) { c = 0; r++; } else if (c < 0) { c = COLS.length - 1; r--; }
+    r = Math.max(0, Math.min(flat.length - 1, r + dr));
+    sel = { id: flat[r], c }; paintSel();
+  }
+  function clearCell() {
+    if (!canWrite || !sel) return;
+    const col = COLS[sel.c];
+    if (col.key === "task") { toast("A task needs a name. Use the row menu to delete the task."); return; }
+    saveTask(sel.id, { [col.key]: "" }); renderAll();
+  }
+  function quickPick(ch) {
+    const col = COLS[sel.c], cur = tasks.get(sel.id)[col.key] || "";
+    const opts = col.opts.filter((o) => o.toLowerCase().startsWith(ch.toLowerCase()) || o.replace(/^\d+\.\s*/, "").toLowerCase().startsWith(ch.toLowerCase()));
+    if (!opts.length) return;
+    const next = opts[(opts.indexOf(cur) + 1) % opts.length];
+    saveTask(sel.id, { [col.key]: next }); renderAll();
+  }
+
+  // TSV from Excel: tabs between cells, newlines between rows, quotes around cells holding newlines.
+  function parseTSV(text) {
+    const rows = []; let row = [], cell = "", i = 0, q = false;
+    text = text.replace(/\r\n?/g, "\n");
+    while (i < text.length) {
+      const ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+      else if (ch === '"' && cell === "") q = true;
+      else if (ch === "\t") { row.push(cell); cell = ""; }
+      else if (ch === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+      else cell += ch;
+      i++;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function pasteText(text) {
+    if (!canWrite || !sel) return;
+    const rows = parseTSV(text); if (!rows.length) return;
+    const start = model.flat.indexOf(sel.id); if (start < 0) return;
+    const ops = []; let bad = 0, skipped = 0;
+    rows.forEach((cells, i) => {
+      const id = model.flat[start + i]; if (!id) { skipped++; return; }
+      const patch = {};
+      cells.forEach((raw, j) => {
+        const col = COLS[sel.c + j]; if (!col) return;
+        const v = valueFor(col, raw);
+        if (v === undefined) bad++; else if (!(col.key === "task" && !v)) patch[col.key] = v;
+      });
+      const r = saveTask(id, patch, { noUndo: true });
+      if (r) ops.push({ kind: "update", ...r });
+    });
+    if (ops.length) undoStack.push(ops);
+    renderAll();
+    const notes = [];
+    if (skipped) notes.push(`${skipped} row${skipped > 1 ? "s" : ""} didn't fit below the last task`);
+    if (bad) notes.push(`${bad} cell${bad > 1 ? "s" : ""} had a date or status that couldn't be read`);
+    toast(notes.length ? `Pasted, but ${notes.join(" and ")}.` : `Pasted into ${ops.length} task${ops.length === 1 ? "" : "s"}.`);
+  }
+
+  // ---------- row & group actions ----------
+  function orderBetween(gid, index) {
+    const known = new Set((meta?.groups || []).map((g) => g.id));
+    const list = sortedIn(gid, known).map(([, t]) => t.order ?? 0);
+    const prev = list[index - 1], next = list[index];
+    if (prev === undefined && next === undefined) return 1000;
+    if (prev === undefined) return next - 1000;
+    if (next === undefined) return prev + 1000;
+    return (prev + next) / 2;
+  }
+  function addTaskAt(gid, index, template) {
+    if (filters.status !== null || filters.q) { filters.status = null; filters.q = ""; $("#search").value = ""; }
+    const id = createTask({ group: gid, order: orderBetween(gid, index), section: template?.section || "", champion: filters.person || "" });
+    renderAll();
+    sel = { id, c: 0 }; paintSel(); startEdit();
+  }
+  function indexInGroup(id) {
+    const t = tasks.get(id), known = new Set((meta?.groups || []).map((g) => g.id));
+    const gid = known.has(t.group) ? t.group : "__none";
+    return { gid, list: sortedIn(gid, known), idx: sortedIn(gid, known).findIndex(([k]) => k === id) };
+  }
+  function moveTask(id, dir) {
+    const { list, idx } = indexInGroup(id);
+    const other = list[idx + dir]; if (!other) return;
+    const a = tasks.get(id).order ?? 0, b = other[1].order ?? 0;
+    const r1 = saveTask(id, { order: b }, { noUndo: true }), r2 = saveTask(other[0], { order: a === b ? a - dir : a }, { noUndo: true });
+    undoStack.push([r1, r2].filter(Boolean).map((r) => ({ kind: "update", ...r })));
+    renderAll(); paintSel();
+  }
+  function moveToGroup(id, gid) {
+    const known = new Set((meta?.groups || []).map((g) => g.id));
+    const n = sortedIn(gid, known).length;
+    saveTask(id, { group: gid, order: orderBetween(gid, n) });
+    renderAll(); paintSel();
+  }
+
+  const menu = $("#menu");
+  let menuReturn = null;
+  function openMenu(anchor, html, bind) {
+    menu.innerHTML = html; menu.hidden = false;
+    const r = anchor.getBoundingClientRect();
+    const mw = menu.offsetWidth, mh = menu.offsetHeight;
+    let left = Math.min(r.left, window.innerWidth - mw - 12), top = r.bottom + 4;
+    if (top + mh > window.innerHeight - 12) top = Math.max(12, r.top - mh - 4);
+    menu.style.left = Math.max(12, left) + "px"; menu.style.top = top + "px";
+    menuReturn = anchor;
+    bind(menu);
+    menu.querySelector("button:not(:disabled), select")?.focus();
+  }
+  function closeMenu() { if (menu.hidden) return; menu.hidden = true; menu.innerHTML = ""; if (menuReturn && document.contains(menuReturn)) menuReturn.focus({ preventScroll: true }); else focusGrid(); menuReturn = null; }
+
+  function rowMenu(anchor, id) {
+    const t = tasks.get(id); if (!t) return;
+    sel = { id, c: sel?.id === id ? sel.c : 0 }; paintSel(false);
+    if (!canWrite) { return; }
+    const { gid, list, idx } = indexInGroup(id);
+    const groups = (meta?.groups || []);
+    openMenu(anchor,
+      `<button type="button" data-a="above">Insert task above</button>
+       <button type="button" data-a="below">Insert task below</button>
+       <hr>
+       <button type="button" data-a="up" ${idx === 0 ? "disabled" : ""}>Move up</button>
+       <button type="button" data-a="down" ${idx === list.length - 1 ? "disabled" : ""}>Move down</button>
+       <label for="moveGroup">Move to group</label>
+       <select id="moveGroup">${groups.map((g) => `<option value="${esc(g.id)}" ${g.id === gid ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select>
+       <hr>
+       <button type="button" class="danger" data-a="del">Delete task…</button>`,
+      (m) => {
+        m.querySelector("#moveGroup").addEventListener("change", (e) => { closeMenu(); moveToGroup(id, e.target.value); });
+        m.onclick = (e) => {
+          const a = e.target.closest("button")?.dataset.a; if (!a) return;
+          if (a === "above") { closeMenu(); addTaskAt(gid, idx, t); }
+          else if (a === "below") { closeMenu(); addTaskAt(gid, idx + 1, t); }
+          else if (a === "up") { closeMenu(); moveTask(id, -1); }
+          else if (a === "down") { closeMenu(); moveTask(id, 1); }
+          else if (a === "del") {
+            m.innerHTML = `<div class="confirm"><span>Delete “${esc(t.task || "Untitled task")}”? You can undo with Ctrl+Z.</span><div><button type="button" class="btn danger-btn" data-a="yes">Delete</button><button type="button" class="btn" data-a="no">Cancel</button></div></div>`;
+            m.querySelector("[data-a=yes]").focus();
+          }
+          else if (a === "yes") { closeMenu(); deleteTask(id); renderAll(); toast("Task deleted. Press Ctrl+Z to undo."); }
+          else if (a === "no") closeMenu();
+        };
+      });
+  }
+  function groupMenu(anchor, gid) {
+    const groups = meta?.groups || [], gi = groups.findIndex((g) => g.id === gid); if (gi < 0) return;
+    const n = [...tasks.values()].filter((t) => t.group === gid).length;
+    openMenu(anchor,
+      `<button type="button" data-a="rename">Rename group</button>
+       <button type="button" data-a="up" ${gi === 0 ? "disabled" : ""}>Move group up</button>
+       <button type="button" data-a="down" ${gi === groups.length - 1 ? "disabled" : ""}>Move group down</button>
+       <hr>
+       <button type="button" class="danger" data-a="del" ${n ? "disabled" : ""}>${n ? "Delete group (move or delete its tasks first)" : "Delete empty group"}</button>`,
+      (m) => (m.onclick = (e) => {
+        const a = e.target.closest("button")?.dataset.a; if (!a) return;
+        closeMenu();
+        const gs = groups.slice();
+        if (a === "rename") renameGroup(gid);
+        else if (a === "up" || a === "down") { const j = gi + (a === "up" ? -1 : 1); [gs[gi], gs[j]] = [gs[j], gs[gi]]; saveMeta({ groups: gs }); renderAll(); }
+        else if (a === "del") { gs.splice(gi, 1); saveMeta({ groups: gs }); renderAll(); toast("Group deleted."); }
+      }));
+  }
+  function renameGroup(gid) {
+    const span = document.querySelector(`[data-gname="${CSS.escape(gid)}"]`); if (!span) return;
+    const g = (meta?.groups || []).find((x) => x.id === gid); if (!g) return;
+    const inp = document.createElement("input");
+    inp.className = "grp-name-in"; inp.value = g.name; inp.id = "groupNameEditor"; inp.setAttribute("aria-label", "Group name");
+    editing = { group: true, el: inp };
+    span.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const finish = (save) => {
+      if (done) return; done = true; editing = null;
+      const v = inp.value.trim();
+      if (save && v && v !== g.name) saveMeta({ groups: (meta.groups || []).map((x) => (x.id === gid ? { ...x, name: v } : x)) });
+      renderAll(); focusGrid();
+    };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); finish(true); } else if (e.key === "Escape") { e.preventDefault(); finish(false); } });
+    inp.addEventListener("blur", () => finish(true));
+  }
+
+  // ---------- export ----------
+  function loadXLSX() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    return new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      s.onload = () => (window.XLSX ? res(window.XLSX) : rej(new Error("load")));
+      s.onerror = () => rej(new Error("load"));
+      document.head.appendChild(s);
+    });
+  }
+  const toDate = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+  async function exportXlsx() {
+    if (!downloads) return;
+    const btn = $("#exportBtn"); btn.disabled = true; btn.textContent = "Preparing…";
+    try {
+      const X = await loadXLSX();
+      const saved = { ...filters }; filters.status = null; filters.person = ""; filters.q = "";
+      const m = buildModel(); Object.assign(filters, saved);
+      const aoa = [[meta?.title || "Start-Up Checklist"], [meta?.project ? "Project: " + meta.project : ""], ["ID", "Section", "Task", "Action / Detail", "Champion", "Support / Input", "Start By", "Complete By", "Status", "Live Notes"]];
+      for (const grp of m.groups) {
+        aoa.push([grp.g.name]);
+        for (const r of grp.rows) { const t = r.t; aoa.push([m.refs.get(r.id), t.section, t.task, t.detail, t.champion, t.support, toDate(t.start), toDate(t.due), t.status, t.notes]); }
+      }
+      const ws = X.utils.aoa_to_sheet(aoa, { cellDates: true, dateNF: "dd/mm/yyyy" });
+      ws["!cols"] = [6, 26, 40, 50, 11, 13, 12, 12, 16, 40].map((w) => ({ wch: w }));
+      const c = counts(), applicable = c.total - c["N/A this project"];
+      const dash = [["Overall status"], ["Total tasks", c.total], ["Complete", c.Complete], ["In progress", c["In Progress"]], ["Urgent", c.Urgent], ["Not started", c["Not Started"]], ["N/A this project", c["N/A this project"]], ["Overdue", c.overdue], ["% complete (of applicable)", applicable ? c.Complete / applicable : 0], [], ["Key dates"], ...String(meta?.keyNotes || "").split("\n").filter(Boolean).map((l) => [l])];
+      const ws2 = X.utils.aoa_to_sheet(dash); ws2["!cols"] = [{ wch: 44 }, { wch: 10 }];
+      if (ws2.B9) ws2.B9.z = "0%";
+      const wb = X.utils.book_new();
+      X.utils.book_append_sheet(wb, ws2, "Dashboard");
+      X.utils.book_append_sheet(wb, ws, "Start-Up Checklist");
+      const buf = X.write(wb, { bookType: "xlsx", type: "array" });
+      const name = `${(meta?.project || "Project").replace(/[^\w\- ]+/g, "").trim()} Start-Up Checklist ${today()}.xlsx`;
+      await downloads.save({ filename: name, data: new Blob([buf]) });
+    } catch (e) {
+      if (e && e.code === "declined") {}
+      else if (e && e.message === "load") toast("Couldn't load the Excel exporter. Check your connection and try again.");
+      else if (e && e.code === "rate_limited") toast("A save prompt is already open.");
+      else toast("Couldn't export the file.");
+    } finally { btn.disabled = false; btn.textContent = "Export to Excel"; }
+  }
+
+  // ---------- toast ----------
+  let toastTimer;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 3200); }
+
+  // ---------- events ----------
+  const wrap = $("#gridWrap");
+  let lastPointer = "mouse";
+  wrap.addEventListener("pointerdown", (e) => { lastPointer = e.pointerType; });
+  wrap.addEventListener("mousedown", (e) => {
+    const td = e.target.closest("td[data-c]"); if (!td || td.classList.contains("editing")) return;
+    const id = td.parentElement.dataset.id, c = +td.dataset.c;
+    const already = sel && sel.id === id && sel.c === c;
+    if (editing) commitEdit(null);
+    sel = { id, c }; paintSel(false);
+    e.preventDefault(); focusGrid();
+    if (already && lastPointer === "touch") startEdit();
+  });
+  wrap.addEventListener("dblclick", (e) => {
+    const td = e.target.closest("td[data-c]"); if (td && !td.classList.contains("editing")) startEdit();
+    const gn = e.target.closest("[data-gname]"); if (gn && canWrite && gn.dataset.gname !== "__none") renameGroup(gn.dataset.gname);
+  });
+  wrap.addEventListener("click", (e) => {
+    const add = e.target.closest("[data-add]"); if (add) { const gid = add.dataset.add; addTaskAt(gid, sortedIn(gid, new Set((meta?.groups || []).map((g) => g.id))).length); return; }
+    const gm = e.target.closest("[data-gmenu]"); if (gm) { groupMenu(gm, gm.dataset.gmenu); return; }
+    const rm = e.target.closest("[data-rmenu]"); if (rm) { rowMenu(rm, rm.dataset.rmenu); return; }
+    if (e.target.closest("[data-clear]")) clearFilters();
+  });
+  wrap.addEventListener("keydown", (e) => {
+    if (editing || e.target !== wrap) return;
+    const k = e.key, mod = e.ctrlKey || e.metaKey;
+    if (mod && k.toLowerCase() === "z") { e.preventDefault(); if (canWrite) undo(); return; }
+    if (mod || e.altKey) return;
+    if (!sel && /^(Arrow|Tab|Enter|Home|End)/.test(k)) { e.preventDefault(); moveSel(0, 0); return; }
+    if (!sel) return;
+    switch (k) {
+      case "ArrowUp": e.preventDefault(); moveSel(-1, 0); return;
+      case "ArrowDown": e.preventDefault(); moveSel(1, 0); return;
+      case "ArrowLeft": e.preventDefault(); moveSel(0, -1); return;
+      case "ArrowRight": e.preventDefault(); moveSel(0, 1); return;
+      case "Tab": e.preventDefault(); moveSel(0, e.shiftKey ? -1 : 1); return;
+      case "Home": e.preventDefault(); sel = { ...sel, c: 0 }; paintSel(); return;
+      case "End": e.preventDefault(); sel = { ...sel, c: COLS.length - 1 }; paintSel(); return;
+      case "Enter": case "F2": e.preventDefault(); if (e.shiftKey) moveSel(-1, 0); else startEdit(); return;
+      case "Delete": case "Backspace": e.preventDefault(); clearCell(); return;
+      case "Escape": sel = null; paintSel(false); return;
+    }
+    if (k.length === 1 && canWrite) {
+      const col = COLS[sel.c];
+      e.preventDefault();
+      if (col.type === "select") quickPick(k);
+      else if (col.type === "date") startEdit();
+      else startEdit(k);
+    }
+  });
+  wrap.addEventListener("copy", (e) => {
+    if (editing || !sel || !tasks.has(sel.id)) return;
+    const col = COLS[sel.c], v = tasks.get(sel.id)[col.key] || "";
+    e.clipboardData.setData("text/plain", col.type === "date" ? fmtDate(v) : v);
+    e.preventDefault(); toast("Copied.");
+  });
+  wrap.addEventListener("paste", (e) => {
+    if (editing) return;
+    const text = e.clipboardData?.getData("text/plain"); if (!text) return;
+    e.preventDefault(); pasteText(text);
+  });
+
+  document.addEventListener("mousedown", (e) => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { e.preventDefault(); closeMenu(); } });
+  window.addEventListener("resize", closeMenu);
+  wrap.addEventListener("scroll", closeMenu);
+
+  $("#chips").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-filter]"); if (!b) return;
+    const f = b.dataset.filter;
+    filters.status = f === "__all" || filters.status === f ? null : f;
+    if (location.hash === "#dashboard") location.hash = "#checklist";
+    renderSummary(); renderGrid();
+  });
+  let qTimer;
+  $("#search").addEventListener("input", (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { filters.q = e.target.value.trim().toLowerCase(); renderGrid(); }, 120); });
+  $("#personFilter").addEventListener("change", (e) => { filters.person = e.target.value; renderGrid(); });
+  function clearFilters() { filters.status = null; filters.person = ""; filters.q = ""; $("#search").value = ""; $("#personFilter").value = ""; renderSummary(); renderGrid(); }
+  $("#clearFilters").addEventListener("click", clearFilters);
+
+  $("#addGroup").addEventListener("click", () => {
+    const id = "g" + Date.now().toString(36);
+    saveMeta({ groups: [...(meta?.groups || []), { id, name: "New group" }] });
+    clearFilters(); renderAll();
+    requestAnimationFrame(() => { document.querySelector(`[data-gname="${id}"]`)?.scrollIntoView({ block: "center" }); renameGroup(id); });
+  });
+
+  for (const [elId, key] of [["#projectName", "project"], ["#sheetTitle", "title"]]) {
+    const el = $(elId);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter") el.blur(); if (e.key === "Escape") { el.value = meta?.[key] || ""; el.blur(); } });
+    el.addEventListener("change", () => { if (!canWrite) return; const v = el.value.trim(); if (v && v !== (meta?.[key] || "")) { saveMeta({ [key]: v }); renderHeader(); } else el.value = meta?.[key] || ""; });
+  }
+  $("#editDates").addEventListener("click", () => {
+    const ta = $("#keyNotesEdit"), btn = $("#editDates");
+    if (ta.hidden) { ta.value = meta?.keyNotes || ""; ta.hidden = false; $("#milestones").hidden = true; btn.textContent = "Done"; ta.focus(); }
+    else { if (ta.value !== (meta?.keyNotes || "")) saveMeta({ keyNotes: ta.value.trim() }); ta.hidden = true; $("#milestones").hidden = false; btn.textContent = "Edit"; renderMilestones(); }
+  });
+  $("#keyNotesEdit").setAttribute("placeholder", "One per line, e.g.\nBronze ECI Submission - 10/11/26");
+
+  $("#viewDashboard").addEventListener("click", (e) => {
+    const g = e.target.closest("[data-goto]");
+    if (g) { clearFilters(); location.hash = "#checklist"; requestAnimationFrame(() => { sel = { id: g.dataset.goto, c: 5 }; paintSel(); focusGrid(); }); return; }
+    const p = e.target.closest("[data-person]");
+    if (p && p.dataset.person) { clearFilters(); filters.person = p.dataset.person; $("#personFilter").value = p.dataset.person; location.hash = "#checklist"; renderGrid(); }
+  });
+  $("#exportBtn").addEventListener("click", exportXlsx);
+
+  function route() {
+    const dash = location.hash === "#dashboard";
+    $("#viewChecklist").hidden = dash; $("#viewDashboard").hidden = !dash;
+    $("#tabChecklist").setAttribute("aria-current", dash ? "false" : "page");
+    $("#tabDashboard").setAttribute("aria-current", dash ? "page" : "false");
+    if (dash) renderDashboard();
+  }
+  window.addEventListener("hashchange", route);
+
+  // ---------- boot ----------
+  let dbResolved = false;
+  renderHead(); route(); renderAll(); setLive();
+
+  (async () => {
+    const C = window.claude;
+    const [dbNs, userNs, dlNs] = await Promise.all([
+      C?.use ? C.use("db").catch(() => null) : null,
+      C?.use ? C.use("user").catch(() => null) : null,
+      C?.use ? C.use("downloads").catch(() => null) : null
+    ]);
+    db = dbNs; user = userNs; downloads = dlNs; dbResolved = true;
+    $("#exportBtn").hidden = !downloads;
+    if (!db) { renderAll(); setLive(); return; }
+    if (user) {
+      myId = await user.id();
+      const can = await user.can("data.write");
+      canWrite = can !== false;
+      if (can === true) confirmedWriter = true;
+    } else canWrite = true;
+
+    db.doc("project/meta").onSnapshot((snap) => {
+      metaExists = snap.exists; metaLoaded = true;
+      if (snap.exists) meta = JSON.parse(JSON.stringify(snap.data()));
+      else if (!meta) meta = { project: "", title: "", keyNotes: "", groups: [] };
+      if (!snap.metadata.fromCache) firstLive = true;
+      if (editing && editing.group) return;
+      renderAll(); setLive();
+    }, () => { lastError = true; setLive(); });
+
+    db.collection("tasks").onSnapshot((snap) => {
+      serverTasks = new Map(snap.docs.map((d) => [d.id, d.data()]));
+      tasks = new Map(snap.docs.map((d) => [d.id, { ...d.data() }]));
+      loaded = true;
+      if (!snap.metadata.fromCache) firstLive = true;
+      if (editing && !editing.group && !tasks.has(editing.id)) { editing = null; }
+      renderAll(); setLive();
+    }, (e) => {
+      lastError = true; setLive();
+      if (e.code !== "revoked") toast("Lost the live connection. Reload the page to reconnect.");
+    });
+  })();
+})();
+</script>
