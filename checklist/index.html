@@ -33,6 +33,7 @@
   --idle: #5b6b86;     --idle-bg: #edf0f5;
   --na: #7d8796;       --na-bg: transparent;
   --warn: #8a5a00;     --warn-bg: #fdf1d8;
+  --row-ok: #e6f5ec;    --row-alert: #fde8e6;   --row-soon: #fff6d1;
 
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --f-body: "Figtree", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -48,6 +49,7 @@
     --ok: #6fd6a0; --ok-bg: #12352a; --prog: #9fc0ff; --prog-bg: #15336a;
     --urg: #ff8f86; --urg-bg: #401a1c; --idle: #b9c4d6; --idle-bg: #1a3058;
     --na: #7f8ea8; --warn: #f2bd5c; --warn-bg: #3a2c12;
+    --row-ok: #0f3324; --row-alert: #3d1820; --row-soon: #36300f;
     color-scheme: dark;
   }
 }
@@ -59,6 +61,7 @@
   --ok: #6fd6a0; --ok-bg: #12352a; --prog: #9fc0ff; --prog-bg: #15336a;
   --urg: #ff8f86; --urg-bg: #401a1c; --idle: #b9c4d6; --idle-bg: #1a3058;
   --na: #7f8ea8; --warn: #f2bd5c; --warn-bg: #3a2c12;
+  --row-ok: #0f3324; --row-alert: #3d1820; --row-soon: #36300f;
   color-scheme: dark;
 }
 
@@ -178,7 +181,15 @@ table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-widt
 tr.is-na td:not(.c-status) { color: var(--na); }
 tr.is-done td.c-task { text-decoration: line-through; text-decoration-color: var(--line-strong); }
 
-.grid td.sel { box-shadow: inset 0 0 0 2px var(--focus); background-color: var(--surface); }
+.grid td.sel { box-shadow: inset 0 0 0 2px var(--focus); }
+/* Row tints: complete > urgent/overdue > due within 7 days */
+.grid tr.row-ok > td, .grid tr.row-ok > th { background-color: var(--row-ok); }
+.grid tr.row-alert > td, .grid tr.row-alert > th { background-color: var(--row-alert); }
+.grid tr.row-soon > td, .grid tr.row-soon > th { background-color: var(--row-soon); }
+.grid tr.row-alert .od { color: var(--urg); }
+.row-key { display: inline-flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.row-key span { display: inline-flex; align-items: center; gap: 6px; }
+.row-key i { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line-strong); }
 .grid td.c-task.sel { box-shadow: inset 0 0 0 2px var(--focus), 1px 0 0 var(--line-strong); }
 .grid td.editing { padding: 0; box-shadow: inset 0 0 0 2px var(--focus); }
 .grid td.editing input, .grid td.editing select, .grid td.editing textarea { width: 100%; border: 0; outline: none; background: var(--surface); padding: 7px 9px; min-height: 34px; display: block; }
@@ -384,6 +395,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <span class="filter-note" id="filterNote"></span>
       <button class="linkbtn" id="clearFilters" type="button" hidden>Clear filters</button>
       <span class="spacer"></span>
+      <span class="row-key" aria-label="Row colours"><span><i style="background:var(--row-ok)"></i>Complete</span><span><i style="background:var(--row-alert)"></i>Urgent or overdue</span><span><i style="background:var(--row-soon)"></i>Due within 7 days</span></span>
       <button class="btn primary" id="addGroup" type="button" hidden>+ Add group</button>
     </div>
     <div class="sheet" id="sheet">
@@ -697,7 +709,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
         (canWrite && grp.g.id !== "__none" ? `<button class="grp-btn" type="button" data-add="${gid}">+ Add task</button><button class="grp-btn" type="button" data-gmenu="${gid}" aria-label="Group options for ${esc(grp.g.name)}">•••</button>` : "") +
         `</div></th></tr>`;
       for (const r of grp.rows) {
-        const cls = (r.t.status === "N/A this project" ? "is-na" : r.t.status === "Complete" ? "is-done" : "") + (r.t.key ? " is-key" : "");
+        const tint = r.t.status === "Complete" ? "row-ok" : r.t.status === "N/A this project" ? "" : (r.t.status === "Urgent" || isOverdue(r.t)) ? "row-alert" : dueSoon(r.t) ? "row-soon" : "";
+        const cls = (r.t.status === "N/A this project" ? "is-na" : r.t.status === "Complete" ? "is-done" : "") + (r.t.key ? " is-key" : "") + (tint ? " " + tint : "");
         h += `<tr class="row ${cls}" data-id="${esc(r.id)}"><th class="ref" scope="row"><button class="ref-btn" type="button" data-rmenu="${esc(r.id)}" aria-label="Task ${model.refs.get(r.id)} options">${model.refs.get(r.id)}</button></th>` +
           COLS.map((c, ci) => `<td class="c-${c.key}" data-c="${ci}">${cellHTML(c, r.t)}</td>`).join("") + `</tr>`;
       }
