@@ -1,0 +1,4 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/row-formatting.schema.json",
+  "additionalRowClass": "=if([$Status] == 'Complete', 'sp-field-severity--good', if([$Status] == 'N/A this project', '', if([$Status] == 'Urgent' || (toString([$CompleteBy]) != '' && Number([$CompleteBy]) + 86400000 <= Number(@now)), 'sp-field-severity--blocked', if(toString([$CompleteBy]) != '' && Number([$CompleteBy]) <= Number(@now) + 604800000, 'sp-field-severity--warning', ''))))"
+}

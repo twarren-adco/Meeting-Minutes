@@ -1,0 +1,16 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "div",
+  "style": {
+    "display": "inline-flex",
+    "align-items": "center",
+    "padding": "2px 10px",
+    "border-radius": "12px",
+    "font-weight": "600",
+    "font-size": "12px",
+    "color": "=if(@currentField == 'Complete', '#1b7a4b', if(@currentField == 'In Progress', '#0047bb', if(@currentField == 'Urgent', '#a8201a', if(@currentField == 'N/A this project', '#7d8796', '#4a5464'))))",
+    "background-color": "=if(@currentField == 'Complete', '#e3f3ea', if(@currentField == 'In Progress', '#e1eafb', if(@currentField == 'Urgent', '#fbe5e3', if(@currentField == 'N/A this project', 'transparent', '#edf0f5'))))",
+    "border": "=if(@currentField == 'N/A this project' || @currentField == '', '1px dashed #ccdaf1', 'none')"
+  },
+  "txtContent": "=if(@currentField == '', 'Not set', if(@currentField == 'Complete' && toString([$CompletedOn]) != '', 'Complete · ' + toLocaleDateString([$CompletedOn]), @currentField))"
+}

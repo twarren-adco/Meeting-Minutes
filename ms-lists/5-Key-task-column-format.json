@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/sp/v2/column-formatting.schema.json",
+  "elmType": "span",
+  "style": {
+    "color": "=if(@currentField == true, '#e29a00', '#ccdaf1')",
+    "font-size": "16px"
+  },
+  "attributes": {
+    "title": "=if(@currentField == true, 'Key task', '')"
+  },
+  "txtContent": "=if(@currentField == true, '★', '☆')"
+}
