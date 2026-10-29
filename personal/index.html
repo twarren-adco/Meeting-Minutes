@@ -193,6 +193,46 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
 .foot p { margin: 0; flex: 1 1 320px; max-width: 110ch; }
 .foot .where { font-family: var(--f-display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; color: var(--head); }
 
+/* Dashboard (mirrors the Weinam dashboard) */
+.summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); gap: 16px; }
+.summary .panel { padding: 16px 18px; }
+.pct { font-family: var(--f-display); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--head); }
+.pct-note { color: var(--muted); }
+.progress-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.bar { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; background: var(--surface-2); margin: 12px 0 14px; }
+.bar span { display: block; height: 100%; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 999px; padding: 5px 12px 5px 10px; font-size: 13px; font-weight: 500; color: var(--ink); text-decoration: none; }
+.chip b { font-variant-numeric: tabular-nums; font-weight: 700; }
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.chip:hover { border-color: var(--brand); }
+.goal-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.goal-list li { padding-left: 10px; border-left: 3px solid var(--brand); font-weight: 600; color: var(--head); }
+.goal-list li.done { color: var(--faint); text-decoration: line-through; border-left-color: var(--line-strong); }
+.goal-list .muted { color: var(--muted); font-weight: 400; border: 0; padding: 0; }
+.dash { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dash .wide { grid-column: 1 / -1; }
+.dash .panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
+.tbl-wrap { overflow-x: auto; }
+table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.dt th, .dt td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.dt th:first-child, .dt td:first-child, .dt .l { text-align: left; }
+.dt td.l { white-space: normal; }
+.dt thead th { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--head); border-bottom: 2px solid var(--brand); }
+.dt td.bar-cell { width: 34%; min-width: 140px; }
+.dt .bar { margin: 0; height: 8px; }
+.dt tbody tr.link { cursor: pointer; }
+.dt tbody tr.link:hover td { background: var(--hover); }
+.dt tr.today td { font-weight: 700; }
+.dt td .red { color: var(--red); }
+.zero { color: var(--line-strong); }
+.daytag { display: inline-block; font-weight: 600; font-size: 12.5px; color: var(--head); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 6px; line-height: 20px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.empty-note { color: var(--muted); margin: 0; }
+@media (max-width: 860px) { .summary, .dash { grid-template-columns: minmax(0, 1fr); } }
+
 .ctx { position: fixed; z-index: 30; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 30, 80, .2); padding: 5px; min-width: 160px; display: grid; gap: 2px; }
 .ctx button { display: flex; align-items: center; gap: 9px; width: 100%; border: 0; background: transparent; text-align: left; font-size: 13.5px; padding: 7px 9px; border-radius: 4px; }
 .ctx button:hover { background: var(--hover); }
@@ -231,7 +271,8 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
       <span class="live" id="live" data-state="connecting"><i></i><span id="liveText">Connecting…</span></span>
     </div>
     <nav class="tabs" aria-label="Views">
-      <a class="tab" href="#week" id="tabWeek">Weekly to-do</a>
+      <a class="tab" href="#dashboard" id="tabDash">Dashboard</a>
+      <a class="tab" href="#minutes" id="tabWeek">My minutes</a>
       <a class="tab" href="#misc" id="tabMisc">Misc list</a>
       <a class="tab ext" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb" target="_blank" rel="noopener">Weinam Ck Car Park
         <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M4.5 2.5H9.5V7.5M9.5 2.5L3 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -241,6 +282,45 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
 </header>
 
 <main class="wrap">
+  <div class="warn" id="warn"></div>
+  <div id="dashView" style="display:grid;gap:16px">
+    <section class="summary" aria-label="This week">
+      <div class="panel">
+        <span class="label">This week's minutes</span>
+        <div class="progress-head" style="margin-top:6px">
+          <span class="pct" id="dPct">–</span>
+          <span class="pct-note" id="dPctNote">Loading…</span>
+        </div>
+        <div class="bar" id="dBar" role="img" aria-label="Done and open actions this week"></div>
+        <div class="chips" id="dChips"></div>
+      </div>
+      <div class="panel">
+        <span class="label">Weekly goals / focus</span>
+        <ul class="goal-list" id="dGoals"></ul>
+      </div>
+    </section>
+    <div class="dash">
+      <section class="panel wide">
+        <h2>Status by day</h2>
+        <div class="tbl-wrap"><table class="dt" id="dDays"></table></div>
+        <div class="legend"><span><i style="background:var(--ok)"></i>Done</span><span><i style="background:var(--faint)"></i>Open</span></div>
+      </section>
+      <section class="panel">
+        <h2>Open actions this week</h2>
+        <div class="tbl-wrap"><table class="dt" id="dOpen"></table></div>
+      </section>
+      <section class="panel">
+        <h2>Misc list</h2>
+        <div class="tbl-wrap"><table class="dt" id="dMisc"></table></div>
+      </section>
+      <section class="panel wide">
+        <h2>Recent weeks</h2>
+        <div class="tbl-wrap"><table class="dt" id="dWeeks"></table></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="boardView" style="display:grid;gap:14px">
   <section class="panel strip" aria-label="Progress">
     <div class="wk-only"><span class="label">Program week</span><span class="big" id="wknum">&nbsp;</span></div>
     <div class="wk-only"><span class="label">Period</span><span class="period" id="range">&nbsp;</span></div>
@@ -270,7 +350,6 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
     <button class="btn primary" id="confirmOk" type="button">OK</button>
     <button class="btn" id="confirmCancel" type="button">Cancel</button>
   </div>
-  <div class="warn" id="warn"></div>
 
   <div class="import" id="importPanel" hidden>
     <textarea id="importText" spellcheck="false" aria-label="Email or list to import" placeholder="Paste an email or a list of dot points here, then choose how to bring it in."></textarea>
@@ -306,6 +385,7 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
     <p>Click any line and type; it saves as you go. Tick the box to strike a task through. Drag the dotted handle to move a task to another day, into Overflow, or up and down its list. Highlight words and right-click for red or italic. Ctrl+Z undoes, Ctrl+Y redoes. On the misc list, start a line with # to make it a heading.</p>
     <span class="where" id="where"></span>
     <button class="btn danger" id="clear" type="button">Clear week</button>
+  </div>
   </div>
 </main>
 
@@ -445,7 +525,7 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
       if (j === lastSaved[k] || saveTimer || editing() || drag) return;
       lastSaved[k] = j;
       try { week = normalise(j ? JSON.parse(j) : null); } catch (e) { return; }
-      if (view === "week") renderAll();
+      if (view === "week") renderAll(); else if (view === "dash") renderDash();
     }, () => {});
     if (!unwatchMisc) unwatchMisc = db.doc(docPath(MISC_KEY)).onSnapshot((snap) => {
       if (snap.metadata.hasPendingWrites) return;
@@ -453,7 +533,7 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
       if (j === lastSaved[MISC_KEY] || saveTimer || editing() || drag) return;
       lastSaved[MISC_KEY] = j;
       try { misc = normList(j ? JSON.parse(j) : null); } catch (e) { return; }
-      if (view === "misc") { renderMisc(); tally(); }
+      if (view === "misc") { renderMisc(); tally(); } else if (view === "dash") renderDash();
     }, () => {});
   }
 
@@ -566,7 +646,8 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
     const end = addDays(monday, NDAYS - 1), iw = isoWeek(monday);
     $("#wknum").textContent = "WK " + pad(iw.wk) + " / " + iw.yr;
     $("#range").textContent = short(monday) + " – " + short(end) + " " + end.getFullYear();
-    $("#bandSub").textContent = view === "misc" ? "Misc list · your standing items" : `Week ${iw.wk} · ${short(monday)} – ${short(end)} ${end.getFullYear()}`;
+    const tm = mondayOf(new Date()), tw = isoWeek(tm);
+    $("#bandSub").textContent = view === "misc" ? "Misc list · your standing items" : view === "dash" ? `Week ${tw.wk} · ${short(tm)} – ${short(addDays(tm, 4))} ${addDays(tm, 4).getFullYear()}` : `Week ${iw.wk} · ${short(monday)} – ${short(end)} ${end.getFullYear()}`;
   }
   function renderAll() {
     renderHeader();
@@ -697,21 +778,98 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
     endTyping(); pushUndo("clear week"); week = blank(); renderAll(); save(); toast("Week cleared");
   });
 
-  /* ---------- views (Weekly to-do / Misc list tabs) ---------- */
+  /* ---------- views: Dashboard (landing), My minutes, Misc list ---------- */
+  const viewFromHash = () => ({ "#minutes": "week", "#week": "week", "#misc": "misc" }[location.hash] || "dash");
   function setView(v) {
     view = v;
-    const misced = v === "misc";
+    const misced = v === "misc", dash = v === "dash";
+    $("#dashView").hidden = !dash; $("#boardView").hidden = dash;
     $("#weekView").hidden = misced; $("#miscView").hidden = !misced;
     document.querySelectorAll(".wk-only").forEach((el) => (el.hidden = misced));
-    $("#tabWeek").setAttribute("aria-current", misced ? "false" : "page");
+    $("#tabDash").setAttribute("aria-current", dash ? "page" : "false");
+    $("#tabWeek").setAttribute("aria-current", v === "week" ? "page" : "false");
     $("#tabMisc").setAttribute("aria-current", misced ? "page" : "false");
     $("#clear").textContent = misced ? "Clear list" : "Clear week";
-    const want = misced ? "#misc" : "#week";
-    if (location.hash !== want && !(want === "#week" && !location.hash)) { try { history.replaceState(null, "", want); } catch (e) {} }
+    const want = { dash: "#dashboard", week: "#minutes", misc: "#misc" }[v];
+    if (location.hash !== want && !(v === "dash" && !location.hash)) { try { history.replaceState(null, "", want); } catch (e) {} }
     if (misced) renderMisc();
     renderHeader(); tally();
+    if (dash) renderDash();
   }
-  window.addEventListener("hashchange", () => setView(location.hash === "#misc" ? "misc" : "week"));
+  window.addEventListener("hashchange", () => setView(viewFromHash()));
+
+  /* ---------- dashboard: an overview of your minutes, laid out like the Weinam dashboard ---------- */
+  const count = (list) => { let n = 0, k = 0; list.forEach((t) => { if (t.h || !t.t.trim()) return; n++; if (t.done) k++; }); return [n, k]; };
+  const barHtml = (done, open) => (done + open ? (done ? `<span style="width:${(done / (done + open)) * 100}%;background:var(--ok)" title="Done: ${done}"></span>` : "") + (open ? `<span style="width:${(open / (done + open)) * 100}%;background:var(--faint)" title="Open: ${open}"></span>` : "") : "");
+  const num = (n) => (n ? n : `<span class="zero">0</span>`);
+  const taskHtml = (t) => (t.r ? clean(t.r) || esc(t.t) : esc(t.t));
+  let dashToken = 0;
+  async function renderDash() {
+    if ($("#dashView").hidden) return;
+    const my = ++dashToken;
+    const thisMon = mondayOf(new Date()), today = new Date();
+    const cur = sameDay(thisMon, monday) ? week : await readWeek(thisMon);
+    if (my !== dashToken) return;
+    const lists = cur.days.map((l, i) => ({ name: DAYS[i], date: addDays(thisMon, i), list: l, scope: String(i) })).concat([{ name: "Overflow", date: null, list: cur.extra, scope: "x" }]);
+    let total = 0, done = 0;
+    lists.forEach((d) => { [d.n, d.k] = count(d.list); total += d.n; done += d.k; });
+    const open = total - done, [mn, mk] = count(misc), ovOpen = lists[5].n - lists[5].k;
+    $("#dPct").textContent = total ? Math.round((done / total) * 100) + "%" : "–";
+    $("#dPctNote").textContent = total ? `complete · ${done} of ${total} actions ticked off` : "No actions logged this week yet";
+    $("#dBar").innerHTML = barHtml(done, open);
+    $("#dChips").innerHTML =
+      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--faint)"></span>Open <b>${open}</b></a>` +
+      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--ok)"></span>Done <b>${done}</b></a>` +
+      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--brand)"></span>Overflow open <b>${ovOpen}</b></a>` +
+      `<a class="chip" href="#misc"><span class="dot" style="background:var(--sky)"></span>Misc open <b>${mn - mk}</b></a>`;
+    const goals = cur.goals.filter((g) => g.t.trim());
+    $("#dGoals").innerHTML = goals.length ? goals.map((g) => `<li class="${g.done ? "done" : ""}">${taskHtml(g)}</li>`).join("") : `<li class="muted">No goals set for this week. Add them at the top of My minutes.</li>`;
+
+    $("#dDays").innerHTML = `<thead><tr><th>Day</th><th class="l">Date</th><th>Total</th><th>Done</th><th>Open</th><th>Breakdown</th></tr></thead><tbody>` +
+      lists.map((d) => `<tr class="link${d.date && sameDay(d.date, today) ? " today" : ""}" data-go="${d.scope}"><td>${d.name}${d.date && sameDay(d.date, today) ? " · Today" : ""}</td><td class="l">${d.date ? short(d.date) : "No fixed day"}</td><td><b>${d.n}</b></td><td>${num(d.k)}</td><td>${num(d.n - d.k)}</td><td class="bar-cell"><div class="bar">${barHtml(d.k, d.n - d.k)}</div></td></tr>`).join("") + `</tbody>`;
+
+    const openRows = [];
+    lists.forEach((d) => d.list.forEach((t, i) => { if (!t.h && t.t.trim() && !t.done) openRows.push({ d, t, i }); }));
+    $("#dOpen").innerHTML = openRows.length
+      ? `<thead><tr><th>Day</th><th class="l">Action</th></tr></thead><tbody>` + openRows.map((o) => `<tr class="link" data-go="${o.d.scope}" data-idx="${o.i}"><td><span class="daytag">${o.d.name === "Overflow" ? "Overflow" : o.d.name.slice(0, 3)}</span></td><td class="l">${taskHtml(o.t)}</td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td class="l" style="color:var(--muted)">${total ? "Everything this week is ticked off." : "Nothing logged this week yet."}</td></tr></tbody>`;
+
+    // Group the misc list under its headings ("No heading" for lines above the first one).
+    const shown = []; let g = { name: "", n: 0, k: 0 };
+    misc.forEach((t) => {
+      if (!t.t.trim()) return;
+      if (t.h) { if (g.name || g.n) shown.push(g); g = { name: t.t, n: 0, k: 0 }; return; }
+      g.n++; if (t.done) g.k++;
+    });
+    if (g.name || g.n) shown.push(g);
+    $("#dMisc").innerHTML = shown.length
+      ? `<thead><tr><th>Heading</th><th>Total</th><th>Open</th></tr></thead><tbody>` + shown.map((x) => `<tr class="link" data-misc="1"><td class="l">${x.name ? esc(x.name) : "<i>No heading</i>"}</td><td>${x.n}</td><td><b>${num(x.n - x.k)}</b></td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td class="l" style="color:var(--muted)">The misc list is empty.</td></tr></tbody>`;
+
+    const weeks = [];
+    for (let i = 5; i >= 0; i--) weeks.push(addDays(thisMon, -7 * i));
+    const data = await Promise.all(weeks.map((m) => (sameDay(m, monday) ? week : readWeek(m))));
+    if (my !== dashToken) return;
+    $("#dWeeks").innerHTML = `<thead><tr><th>Week</th><th class="l">Period</th><th>Total</th><th>Done</th><th>Open</th><th>% complete</th><th>Breakdown</th></tr></thead><tbody>` +
+      weeks.map((m, i) => {
+        let n = 0, k = 0;
+        data[i].days.concat([data[i].extra]).forEach((l) => { const [a, b] = count(l); n += a; k += b; });
+        const iw = isoWeek(m), thisOne = sameDay(m, thisMon);
+        return `<tr class="link${thisOne ? " today" : ""}" data-week="${m.getTime()}"><td>WK ${pad(iw.wk)}${thisOne ? " · This week" : ""}</td><td class="l">${short(m)} – ${short(addDays(m, 4))}</td><td><b>${num(n)}</b></td><td>${num(k)}</td><td>${num(n - k)}</td><td>${n ? Math.round((k / n) * 100) + "%" : `<span class="zero">–</span>`}</td><td class="bar-cell"><div class="bar">${barHtml(k, n - k)}</div></td></tr>`;
+      }).reverse().join("") + `</tbody>`;
+  }
+  $("#dashView").addEventListener("click", async (e) => {
+    const tr = e.target.closest("tr.link"); if (!tr) return;
+    if (tr.dataset.misc) { setView("misc"); return; }
+    const target = tr.dataset.week ? new Date(+tr.dataset.week) : mondayOf(new Date());
+    if (!sameDay(target, monday)) await go(0, target);
+    setView("week");
+    if (tr.dataset.go) requestAnimationFrame(() => {
+      const host = document.querySelector(`.rows[data-scope="${tr.dataset.go}"]`);
+      const row = host && (tr.dataset.idx != null ? host.querySelector(`.row[data-idx="${tr.dataset.idx}"]`) : host);
+      if (row) { row.scrollIntoView({ block: "center" }); const t = row.querySelector(".task"); if (t && tr.dataset.idx != null) { t.focus(); caretToEnd(t); } }
+    });
+  });
 
   /* ---------- right-click formatting ---------- */
   let fmtEl = null, fmtRange = null;
@@ -1009,7 +1167,7 @@ textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: 
   });
 
   /* ---------- boot ---------- */
-  setView(location.hash === "#misc" ? "misc" : "week");
+  setView(viewFromHash());
   renderAll(); renderMisc(); syncUndo();
   (async () => {
     const C = window.claude;

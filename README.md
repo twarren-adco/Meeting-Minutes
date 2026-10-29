@@ -15,7 +15,7 @@ https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb
 
 ## Personal dashboard (`personal/index.html`)
 
-Tom's private weekly to-do board, rebuilt from `weekly_todo_board.html` in the Weinam page's ADCO styling, with a tab through to the Weinam checklist. Published as a separate private Claude artifact:
+Tom's private dashboard in the Weinam page's ADCO styling. The **Dashboard** tab (landing page) summarises this week's minutes like the Weinam dashboard: progress, goals, status by day, open actions, misc list by heading and recent weeks. **My minutes** is the weekly to-do board rebuilt from `weekly_todo_board.html`, **Misc list** is its standing list, and **Weinam Ck Car Park** opens the Weinam checklist. Published as a separate private Claude artifact:
 https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
 
 - Each viewer's weeks and misc list are stored in their own private area of the page's database (`data/users/<id>/week-YYYY-MM-DD` and `.../misc`), so nothing is visible to anyone else even if the page is shared.
