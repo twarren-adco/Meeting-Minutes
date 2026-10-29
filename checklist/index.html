@@ -131,6 +131,7 @@ main.wrap > * { min-width: 0; }
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .field { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; padding: 0 10px; height: 36px; min-width: 0; }
 .field input, .field select { border: 0; background: transparent; height: 34px; outline: none; min-width: 0; }
+.field select[data-filter-group], .field select[data-filter-section] { max-width: 190px; text-overflow: ellipsis; }
 .field:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); }
 #search { width: 220px; }
 #cSearch { width: 260px; }
@@ -425,6 +426,14 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
         <span class="label" style="font-size:11px">Person</span>
         <select id="personFilter" aria-label="Filter by champion or support"><option value="">Everyone</option></select>
       </label>
+      <label class="field">
+        <span class="label" style="font-size:11px">Category</span>
+        <select data-filter-group aria-label="Filter by category"><option value="">All</option></select>
+      </label>
+      <label class="field">
+        <span class="label" style="font-size:11px">Section</span>
+        <select data-filter-section aria-label="Filter by section"><option value="">All</option></select>
+      </label>
       <button class="btn" type="button" data-hide-done aria-pressed="false">Hide completed</button>
       <span class="filter-note" id="filterNote"></span>
       <button class="linkbtn" id="clearFilters" type="button" hidden>Clear filters</button>
@@ -457,6 +466,14 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <label class="field">
         <span class="label" style="font-size:11px">Person</span>
         <select id="tlPerson" aria-label="Filter timeline by champion or support"><option value="">Everyone</option></select>
+      </label>
+      <label class="field">
+        <span class="label" style="font-size:11px">Category</span>
+        <select data-filter-group aria-label="Filter by category"><option value="">All</option></select>
+      </label>
+      <label class="field">
+        <span class="label" style="font-size:11px">Section</span>
+        <select data-filter-section aria-label="Filter by section"><option value="">All</option></select>
       </label>
       <button class="btn" type="button" data-hide-done aria-pressed="false">Hide completed</button>
       <span class="filter-note" id="tlNote"></span>
@@ -609,7 +626,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   let editing = null;
   let pendingRender = false;
   let model = { groups: [], flat: [], refs: new Map() };
-  const filters = { status: null, person: "", q: "", hideDone: false };
+  const filters = { status: null, person: "", q: "", hideDone: false, group: "", section: "" };
   try { filters.hideDone = localStorage.getItem("hideDone") === "1"; } catch (_) {}
   const undoStack = [];
   const queues = new Map();
@@ -709,8 +726,10 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[0] < b[0] ? -1 : 1));
   }
   const hidingDone = () => filters.hideDone && filters.status !== "Complete";
-  const anyFilter = () => filters.status !== null || !!filters.person || !!filters.q || hidingDone();
+  const anyFilter = () => filters.status !== null || !!filters.person || !!filters.q || !!filters.group || !!filters.section || hidingDone();
   function matches(t) {
+    if (filters.group && t.group !== filters.group) return false;
+    if (filters.section && (t.section || "") !== filters.section) return false;
     if (hidingDone() && t.status === "Complete") return false;
     if (filters.status === "__overdue") { if (!isOverdue(t)) return false; }
     else if (filters.status === "__key") { if (!t.key) return false; }
@@ -812,7 +831,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
 
     const shown = model.flat.length, total = tasks.size;
     $("#filterNote").textContent = anyFilter() && loaded ? `Showing ${shown} of ${total} tasks` : "";
-    $("#clearFilters").hidden = !(filters.status !== null || filters.person || filters.q);
+    $("#clearFilters").hidden = !(filters.status !== null || filters.person || filters.q || filters.group || filters.section);
     syncHideDone();
     if (sel && !tasks.has(sel.id)) sel = null;
     paintSel(false);
@@ -904,6 +923,24 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (location.hash !== "#checklist") location.hash = "#checklist";
     requestAnimationFrame(() => { sel = { id, c: 0 }; paintSel(); focusGrid(); });
   }
+  // Category (checklist group) and Section dropdowns; the Checklist and Timeline copies stay in sync.
+  function renderGroupSectionFilters() {
+    const groups = meta?.groups || [];
+    if (filters.group && !groups.some((g) => g.id === filters.group)) filters.group = "";
+    const secs = [...SECTIONS];
+    for (const t of tasks.values()) if (t.section && !secs.includes(t.section)) secs.push(t.section);
+    if (filters.section && !secs.includes(filters.section)) filters.section = "";
+    const gHtml = `<option value="">All</option>` + groups.map((g) => `<option value="${esc(g.id)}">${esc(g.name)}</option>`).join("");
+    const sHtml = `<option value="">All</option>` + secs.map((x) => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
+    for (const el of document.querySelectorAll("[data-filter-group]")) { if (el.innerHTML !== gHtml) el.innerHTML = gHtml; el.value = filters.group; }
+    for (const el of document.querySelectorAll("[data-filter-section]")) { if (el.innerHTML !== sHtml) el.innerHTML = sHtml; el.value = filters.section; }
+  }
+  document.addEventListener("change", (e) => {
+    const g = e.target.closest("[data-filter-group]"), sct = e.target.closest("[data-filter-section]");
+    if (!g && !sct) return;
+    if (g) filters.group = g.value; else filters.section = sct.value;
+    renderGroupSectionFilters(); renderGrid(); renderTimeline();
+  });
   function renderPeople() {
     const set = new Set(DEFAULT_PEOPLE);
     for (const t of tasks.values()) { if (t.champion) set.add(t.champion); if (t.support) set.add(t.support); }
@@ -914,6 +951,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     pf.innerHTML = `<option value="">Everyone</option>` + used.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
     pf.value = used.includes(cur) ? cur : "";
     const tp = $("#tlPerson"); tp.innerHTML = pf.innerHTML; tp.value = pf.value;
+    renderGroupSectionFilters();
     if (pf.value !== cur) filters.person = pf.value;
   }
   function renderHeader() {
@@ -1118,7 +1156,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   }
   function addTaskAt(gid, index, template) {
     if (filters.status !== null || filters.q) { filters.status = null; filters.q = ""; $("#search").value = ""; }
-    const id = createTask({ group: gid, order: orderBetween(gid, index), section: template?.section || "", champion: filters.person || "" });
+    const id = createTask({ group: gid, order: orderBetween(gid, index), section: template?.section || filters.section || "", champion: filters.person || "" });
     renderAll();
     sel = { id, c: 0 }; paintSel(); startEdit();
   }
@@ -1476,7 +1514,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     syncHideDone(); renderGrid(); renderTimeline();
   }
   document.addEventListener("click", (e) => { if (e.target.closest("[data-hide-done]")) setHideDone(!filters.hideDone); });
-  function clearFilters() { filters.status = null; filters.person = ""; filters.q = ""; $("#search").value = ""; $("#personFilter").value = ""; renderSummary(); renderGrid(); }
+  function clearFilters() { filters.status = null; filters.person = ""; filters.q = ""; filters.group = ""; filters.section = ""; $("#search").value = ""; $("#personFilter").value = ""; $("#tlPerson").value = ""; renderGroupSectionFilters(); renderSummary(); renderGrid(); renderTimeline(); }
   $("#clearFilters").addEventListener("click", clearFilters);
 
   $("#addGroup").addEventListener("click", () => {
