@@ -134,6 +134,9 @@ main.wrap > * { min-width: 0; }
 .field:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); }
 #search { width: 220px; }
 #cSearch { width: 260px; }
+.cat-form { display: inline-flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#catName { width: 220px; }
+.cat-empty td { padding: 10px 12px; color: var(--muted); font-size: 13px; cursor: default; }
 .field svg { flex: none; color: var(--muted); }
 .spacer { flex: 1; }
 .btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 4px; height: 36px; padding: 0 14px; font-weight: 600; font-size: 13px; }
@@ -479,6 +482,12 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       </label>
       <span class="filter-note" id="cNote"></span>
       <span class="spacer"></span>
+      <form class="cat-form" id="catForm" hidden>
+        <label class="field"><input id="catName" type="text" placeholder="New category, e.g. Client" aria-label="New category name" maxlength="60" autocomplete="off"></label>
+        <button class="btn primary" type="submit">Add</button>
+        <button class="btn" type="button" id="catCancel">Cancel</button>
+      </form>
+      <button class="btn" id="catAdd" type="button" hidden>+ Add category</button>
       <button class="btn primary" id="cAdd" type="button" hidden>+ Add contact</button>
     </div>
     <div class="grid-wrap">
@@ -1614,41 +1623,80 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     { key: "mobile", label: "Mobile", w: 14, copy: true },
     { key: "email", label: "Email", w: 28, copy: true }
   ];
-  const DEFAULT_TEAMS = ["Project Team", "Consultant Team", "Client", "Subcontractors", "Authorities"];
   const COPY = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.5"/></svg>`;
   let cQuery = "", cPending = false;
   const sortedContacts = () => [...contacts].sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[0] < b[0] ? -1 : 1));
-  function teamsInUse() { const ts = []; for (const [, c] of sortedContacts()) { const t = c.team || "Other"; if (!ts.includes(t)) ts.push(t); } return ts; }
+  // Categories: the saved order (meta.contactTeams) first, then any category only found on contacts.
+  function teamsInUse() {
+    const ts = [...(meta?.contactTeams || [])];
+    for (const [, c] of sortedContacts()) { const t = c.team || "Other"; if (!ts.includes(t)) ts.push(t); }
+    return ts;
+  }
+  const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  function ccCell(col, c) {
+    const v = c[col.key] || "";
+    const type = col.key === "email" ? `type="email" spellcheck="false" autocomplete="off"` : col.key === "mobile" ? `type="tel" autocomplete="off"` : `type="text" autocomplete="off"`;
+    return `<div class="cc-cell"><input class="cc-in" data-k="${col.key}" ${type} value="${esc(v)}" placeholder="${canWrite ? "Add " + col.label.toLowerCase() : ""}" aria-label="${esc(col.label)}" ${canWrite ? "" : "readonly"}>${col.copy && v ? `<button class="cc-copy" type="button" data-copy="${esc(v)}" aria-label="Copy ${col.label.toLowerCase()}" title="Copy">${COPY}</button>` : ""}</div>`;
+  }
+  let cShape = "", cQueued = false;
+  // Redraws wait a tick: a save can land mid-Tab, while the browser is between two cells,
+  // and redrawing then would drop the cursor.
   function renderContacts() {
+    if (cQueued) return;
+    cQueued = true;
+    setTimeout(() => { cQueued = false; renderContactsNow(); }, 0);
+  }
+  function renderContactsNow() {
     if ($("#viewContacts").hidden) return;
     for (const [sel_, key] of [["#cpSite", "siteName"], ["#cpAddress", "address"], ["#cpClient", "client"]]) {
       const el = $(sel_); if (document.activeElement !== el) el.value = meta?.[key] || ""; el.readOnly = !canWrite;
     }
     $("#cAdd").hidden = !canWrite;
+    $("#catAdd").hidden = !canWrite || !$("#catForm").hidden;
     const box = $("#contactsTable");
-    if (box.contains(document.activeElement)) { cPending = true; return; }
+    const ae = document.activeElement;
+    if (ae && ae.id === "catRenameEditor" && box.contains(ae)) { cPending = true; return; }
     cPending = false;
+    // While someone is in a cell, update other cells in place if the list's shape is unchanged,
+    // so a save never pulls the table out from under their cursor.
+    const shape = JSON.stringify([canWrite, cQuery, teamsInUse(), sortedContacts().map(([id, c]) => [id, c.team || "Other"])]);
+    if (ae && box.contains(ae) && shape === cShape) {
+      for (const tr of box.querySelectorAll("tr[data-cid]")) {
+        const c = contacts.get(tr.dataset.cid); if (!c) continue;
+        CCOLS.forEach((col, i) => {
+          const td = tr.children[i + 1], inp = td.querySelector(".cc-in");
+          if (inp === ae || td.contains(ae)) return;
+          if (inp.value !== (c[col.key] || "") || !!td.querySelector(".cc-copy") !== !!(col.copy && c[col.key])) td.innerHTML = ccCell(col, c);
+        });
+      }
+      return;
+    }
+    cShape = shape;
+    // Keep the cell someone is typing in (and what they've typed) across a redraw.
+    let keep = null;
+    if (ae && box.contains(ae) && ae.classList.contains("cc-in")) keep = { cid: ae.closest("tr").dataset.cid, k: ae.dataset.k, val: ae.value, s: ae.selectionStart, e: ae.selectionEnd };
     const list = sortedContacts(), q = cQuery;
     let h = `<colgroup><col style="width:44px">${CCOLS.map((c) => `<col style="width:${c.w}%">`).join("")}</colgroup><thead><tr><th class="col-ref" scope="col" aria-label="Number">#</th>${CCOLS.map((c) => `<th scope="col">${c.label}</th>`).join("")}</tr></thead>`;
     let shown = 0, n = 0;
     for (const team of teamsInUse()) {
       const rows = list.filter(([, c]) => (c.team || "Other") === team && (!q || [c.role, c.company, c.name, c.mobile, c.email].join(" ").toLowerCase().includes(q)));
-      if (!rows.length) continue;
-      h += `<tbody><tr class="grp"><th colspan="${CCOLS.length + 1}" scope="rowgroup"><div class="grp-in"><span class="grp-name">${esc(team)}</span><span class="grp-count">${rows.length} contact${rows.length === 1 ? "" : "s"}</span>${canWrite ? `<button class="grp-btn" type="button" data-cadd="${esc(team)}">+ Add contact</button>` : ""}</div></th></tr>`;
+      if (!rows.length && q) continue;
+      h += `<tbody><tr class="grp"><th colspan="${CCOLS.length + 1}" scope="rowgroup"><div class="grp-in"><span class="grp-name" data-cat="${esc(team)}">${esc(team)}</span><span class="grp-count">${rows.length} contact${rows.length === 1 ? "" : "s"}</span>${canWrite ? `<button class="grp-btn" type="button" data-cadd="${esc(team)}">+ Add contact</button><button class="grp-btn" type="button" data-catmenu="${esc(team)}" aria-label="Category options for ${esc(team)}">•••</button>` : ""}</div></th></tr>`;
+      if (!rows.length) h += `<tr class="cat-empty"><td colspan="${CCOLS.length + 1}">No contacts in this category yet.</td></tr>`;
       for (const [id, c] of rows) {
         shown++;
         h += `<tr data-cid="${esc(id)}"><th class="ref" scope="row"><button class="ref-btn" type="button" data-cmenu="${esc(id)}" aria-label="Options for ${esc(c.name || c.role || "contact")}">${++n}</button></th>` +
-          CCOLS.map((col) => {
-            const v = c[col.key] || "";
-            const type = col.key === "email" ? `type="email" spellcheck="false" autocomplete="off"` : col.key === "mobile" ? `type="tel" autocomplete="off"` : `type="text" autocomplete="off"`;
-            return `<td class="cc-${col.key}"><div class="cc-cell"><input class="cc-in" data-k="${col.key}" ${type} value="${esc(v)}" placeholder="${canWrite ? "Add " + col.label.toLowerCase() : ""}" aria-label="${esc(col.label)}" ${canWrite ? "" : "readonly"}>${col.copy && v ? `<button class="cc-copy" type="button" data-copy="${esc(v)}" aria-label="Copy ${col.label.toLowerCase()}" title="Copy">${COPY}</button>` : ""}</div></td>`;
-          }).join("") + `</tr>`;
+          CCOLS.map((col) => `<td class="cc-${col.key}">${ccCell(col, c)}</td>`).join("") + `</tr>`;
       }
       h += `</tbody>`;
     }
     box.innerHTML = h;
+    if (keep) {
+      const el = box.querySelector(`tr[data-cid="${CSS.escape(keep.cid)}"] .cc-in[data-k="${keep.k}"]`);
+      if (el) { el.value = keep.val; el.focus({ preventScroll: true }); try { el.setSelectionRange(keep.s, keep.e); } catch (_) {} }
+    }
     const empty = $("#contactsEmpty");
-    empty.hidden = shown > 0;
+    empty.hidden = shown > 0 || (!q && teamsInUse().length > 0);
     empty.innerHTML = !contactsLoaded ? `<strong>Loading contacts…</strong>` : contacts.size ? `<strong>No contacts match your search</strong>` : `<strong>No contacts yet</strong><span>${canWrite ? "Use + Add contact to start the list." : "Contacts appear here once someone adds them."}</span>`;
     $("#cNote").textContent = q && contactsLoaded ? `Showing ${shown} of ${contacts.size} contacts` : "";
   }
@@ -1668,7 +1716,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     contacts.set(id, data);
     runWrite("c:" + id, () => db.doc("contacts/" + id).set(data).then(() => { confirmedWriter = true; }));
     if (document.activeElement && $("#contactsTable").contains(document.activeElement)) document.activeElement.blur();
-    renderContacts();
+    cShape = ""; renderContactsNow();
     document.querySelector(`#contactsTable tr[data-cid="${CSS.escape(id)}"] .cc-in[data-k="role"]`)?.focus();
   }
   const cBox = $("#contactsTable");
@@ -1686,7 +1734,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       if (next) next.focus(); else inp.blur();
     }
   });
-  cBox.addEventListener("focusout", () => setTimeout(() => { if (cPending && !cBox.contains(document.activeElement)) renderContacts(); }, 0));
+  cBox.addEventListener("focusout", () => setTimeout(() => { if (!cBox.contains(document.activeElement)) { cShape = ""; renderContacts(); } }, 0));
   cBox.addEventListener("click", async (e) => {
     const cp = e.target.closest("[data-copy]");
     if (cp) {
@@ -1695,13 +1743,75 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       return;
     }
     const add = e.target.closest("[data-cadd]"); if (add) { addContact(add.dataset.cadd); return; }
-    const m = e.target.closest("[data-cmenu]"); if (m) contactMenu(m, m.dataset.cmenu);
+    const m = e.target.closest("[data-cmenu]"); if (m) { contactMenu(m, m.dataset.cmenu); return; }
+    const cm = e.target.closest("[data-catmenu]"); if (cm) categoryMenu(cm, cm.dataset.catmenu);
   });
+  cBox.addEventListener("dblclick", (e) => { const n = e.target.closest("[data-cat]"); if (n && canWrite) renameCategory(n.dataset.cat); });
+
+  function openCatForm() { $("#catForm").hidden = false; $("#catAdd").hidden = true; $("#catName").value = ""; $("#catName").focus(); }
+  function closeCatForm() { $("#catForm").hidden = true; $("#catAdd").hidden = !canWrite; }
+  $("#catAdd").addEventListener("click", openCatForm);
+  $("#catCancel").addEventListener("click", closeCatForm);
+  $("#catName").addEventListener("keydown", (e) => { if (e.key === "Escape") closeCatForm(); });
+  $("#catForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#catName").value.trim().replace(/\s+/g, " ");
+    if (!name) { toast("Type a name for the category."); return; }
+    const cats = teamsInUse();
+    const dup = cats.find((c) => sameName(c, name));
+    if (dup) { toast(`“${dup}” already exists.`); return; }
+    saveMeta({ contactTeams: [...cats, name] });
+    closeCatForm(); cQuery = ""; $("#cSearch").value = "";
+    renderContactsNow();
+    document.querySelector(`#contactsTable [data-cat="${CSS.escape(name)}"]`)?.scrollIntoView({ block: "center" });
+    toast(`Added “${name}”. Use + Add contact to fill it.`);
+  });
+
+  function categoryMenu(anchor, cat) {
+    const cats = teamsInUse(), i = cats.indexOf(cat);
+    const n = [...contacts.values()].filter((c) => (c.team || "Other") === cat).length;
+    openMenu(anchor,
+      `<button type="button" data-a="rename">Rename category</button>
+       <button type="button" data-a="up" ${i <= 0 ? "disabled" : ""}>Move up</button>
+       <button type="button" data-a="down" ${i === cats.length - 1 ? "disabled" : ""}>Move down</button>
+       <hr>
+       <button type="button" class="danger" data-a="del" ${n ? "disabled" : ""}>${n ? "Delete category (move or delete its contacts first)" : "Delete empty category"}</button>`,
+      (m) => (m.onclick = (e) => {
+        const a = e.target.closest("button")?.dataset.a; if (!a) return;
+        closeMenu();
+        const next = cats.slice();
+        if (a === "rename") renameCategory(cat);
+        else if (a === "up" || a === "down") { const j = i + (a === "up" ? -1 : 1); [next[i], next[j]] = [next[j], next[i]]; saveMeta({ contactTeams: next }); renderContacts(); }
+        else if (a === "del") { next.splice(i, 1); saveMeta({ contactTeams: next }); renderContacts(); toast("Category deleted."); }
+      }));
+  }
+  function renameCategory(cat) {
+    const span = document.querySelector(`#contactsTable [data-cat="${CSS.escape(cat)}"]`); if (!span) return;
+    const inp = document.createElement("input");
+    inp.className = "grp-name-in"; inp.value = cat; inp.id = "catRenameEditor"; inp.setAttribute("aria-label", "Category name");
+    span.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const finish = (save) => {
+      if (done) return; done = true;
+      const v = inp.value.trim().replace(/\s+/g, " ");
+      const cats = teamsInUse();
+      if (save && v && v !== cat) {
+        if (cats.some((c) => c !== cat && sameName(c, v))) toast(`“${v}” already exists.`);
+        else {
+          saveMeta({ contactTeams: cats.map((c) => (c === cat ? v : c)) });
+          for (const [id, c] of contacts) if ((c.team || "Other") === cat) saveContact(id, { team: v });
+        }
+      }
+      inp.blur(); cPending = false; renderContacts();
+    };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); finish(true); } else if (e.key === "Escape") { e.preventDefault(); finish(false); } });
+    inp.addEventListener("blur", () => finish(true));
+  }
   function contactMenu(anchor, id) {
     const c = contacts.get(id); if (!c || !canWrite) return;
-    const teams = [...new Set([...teamsInUse(), ...DEFAULT_TEAMS])];
+    const teams = teamsInUse();
     openMenu(anchor,
-      `<label for="cMoveTeam">Team</label>
+      `<label for="cMoveTeam">Category</label>
        <select id="cMoveTeam">${teams.map((t) => `<option value="${esc(t)}" ${t === (c.team || "Other") ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
        <hr>
        <button type="button" class="danger" data-a="del">Delete contact…</button>`,
@@ -1740,7 +1850,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     hideTip();
     if (v === "dashboard") renderDashboard();
     if (v === "timeline") renderTimeline();
-    if (v === "contacts") renderContacts();
+    if (v === "contacts") renderContactsNow();
   }
   window.addEventListener("hashchange", route);
 
