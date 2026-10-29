@@ -169,7 +169,7 @@ table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-widt
 .c-section { color: var(--muted); font-size: 13px; }
 .c-start, .c-due { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .empty-cell { color: var(--line-strong); }
-.done-date { color: var(--ok); font-weight: 600; font-variant-numeric: tabular-nums; }
+.done-date { display: block; margin: 3px 0 0 4px; color: var(--ok); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
 .who { display: inline-block; font-weight: 600; font-size: 12.5px; letter-spacing: .02em; color: var(--head); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 6px; line-height: 20px; }
 .od { color: var(--urg); font-weight: 600; }
@@ -546,10 +546,9 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     { key: "support", label: "Support / Input", w: 7.5, type: "person" },
     { key: "start", label: "Start By", w: 6.5, type: "date" },
     { key: "due", label: "Complete By", w: 7.5, type: "date" },
-    { key: "completedOn", label: "Completed On", w: 7.5, type: "date" },
-    { key: "detail", label: "Action / Detail", w: 17, type: "long" },
-    { key: "notes", label: "Live Notes", w: 11.5, type: "long" },
-    { key: "section", label: "Section", w: 10, type: "select", opts: SECTIONS, blank: "No section" }
+    { key: "detail", label: "Action / Detail", w: 20, type: "long" },
+    { key: "notes", label: "Live Notes", w: 14, type: "long" },
+    { key: "section", label: "Section", w: 11, type: "select", opts: SECTIONS, blank: "No section" }
   ];
   const FIELDS = ["task", "detail", "section", "champion", "support", "start", "due", "completedOn", "status", "notes"];
 
@@ -740,12 +739,11 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     switch (col.key) {
       case "status": {
         const m = STATUS_META[v] || STATUS_META[""];
-        return `<span class="pill ${m.cls}">${esc(v ? m.short : "Not set")}</span>`;
+        const done = v === "Complete" && t.completedOn ? `<span class="done-date" title="Marked complete on ${fmtLong(t.completedOn)}">${fmtLong(t.completedOn)}</span>` : "";
+        return `<span class="pill ${m.cls}">${esc(v ? m.short : "Not set")}</span>${done}`;
       }
       case "champion": case "support":
         return v ? `<span class="who">${esc(v)}</span>` : "";
-      case "completedOn":
-        return v ? `<span class="done-date" title="Marked complete on ${fmtLong(v)}">${fmtDate(v)}</span>` : "";
       case "start": case "due": {
         if (!v) return "";
         const warn = t.start && t.due && t.due < t.start;
