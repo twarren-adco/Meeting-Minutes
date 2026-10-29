@@ -259,6 +259,54 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 .wn-star { color: #e29a00; margin-right: 4px; }
 @media (max-width: 860px) { .summary, .dash { grid-template-columns: minmax(0, 1fr); } }
 
+/* Meeting minutes */
+.mm { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.mm-list { padding: 0; overflow: hidden; }
+.mm-list .tools { display: grid; gap: 8px; padding: 14px; border-bottom: 1px solid var(--line); }
+.mm-list select { height: 34px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 8px; }
+.mm-items { list-style: none; margin: 0; padding: 0; max-height: 70vh; overflow-y: auto; }
+.mm-items li button { display: grid; gap: 3px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); border-left: 4px solid transparent; background: none; padding: 10px 14px; }
+.mm-items li button:hover { background: var(--hover); }
+.mm-items li button[aria-current="true"] { background: var(--surface-2); border-left-color: var(--brand); }
+.mm-items .t { font-weight: 600; color: var(--head); }
+.mm-items .s { font-size: 12.5px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.mm-type { font-family: var(--f-display); font-weight: 700; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--head); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 5px; }
+.mm-empty { padding: 18px 14px; color: var(--muted); }
+.mm-editor { display: grid; gap: 14px; min-width: 0; }
+.mm-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.mm-title { width: 100%; border: 1px solid transparent; border-radius: 4px; background: transparent; font-family: var(--f-display); font-weight: 700; font-size: 26px; color: var(--head); padding: 2px 6px; margin-left: -7px; }
+.mm-title:hover { border-color: var(--line-strong); }
+.mm-title:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); background: var(--surface); }
+.mm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; margin-top: 10px; }
+.mm-grid label { display: grid; gap: 3px; min-width: 0; }
+.mm-grid .wide2 { grid-column: span 2; }
+.mm-in, .mm-ta, .mm-sel { width: 100%; min-width: 0; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 6px 8px; color: var(--ink); }
+.mm-ta { resize: vertical; min-height: 64px; line-height: 1.45; }
+.mm-in:focus, .mm-ta:focus, .mm-sel:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); }
+.mm-sec-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+.mm-sec-head h2 { margin: 0; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+table.mm-t { width: 100%; border-collapse: collapse; }
+.mm-t th { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; color: var(--head); text-align: left; padding: 6px 6px; border-bottom: 2px solid var(--brand); }
+.mm-t td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.mm-t td .mm-in, .mm-t td .mm-sel { padding: 5px 7px; }
+.mm-x { border: 0; background: none; color: var(--faint); font-size: 16px; font-weight: 700; width: 28px; height: 30px; border-radius: 4px; }
+.mm-x:hover { color: var(--red); background: var(--hover); }
+.mm-item { border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: 4px; padding: 12px; display: grid; gap: 10px; background: var(--surface); }
+.mm-item + .mm-item { margin-top: 10px; }
+.mm-item-head { display: flex; gap: 8px; align-items: center; }
+.mm-no { font-family: var(--f-display); font-weight: 700; font-size: 20px; color: var(--head); min-width: 28px; }
+.mm-item-head .mm-in { font-weight: 600; }
+.mm-acts { display: grid; gap: 6px; }
+.mm-act { display: grid; grid-template-columns: 44px minmax(0, 1fr) 120px 140px auto 28px; gap: 6px; align-items: center; }
+.mm-act .ref { font-size: 12.5px; color: var(--head); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mm-act.done .mm-in[data-a="text"] { text-decoration: line-through; color: var(--faint); }
+.mm-done { display: inline-flex; gap: 5px; align-items: center; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.mm-small { font-size: 12.5px; color: var(--muted); }
+.linkbtn { background: none; border: 0; color: var(--head); font-weight: 600; font-size: 13px; padding: 2px 0; }
+.linkbtn:hover { text-decoration: underline; }
+@media (max-width: 1000px) { .mm { grid-template-columns: minmax(0, 1fr); } .mm-items { max-height: 260px; } .mm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .mm-act { grid-template-columns: 38px minmax(0, 1fr) 28px; } .mm-act .mm-in[data-a="by"], .mm-act .mm-in[data-a="due"], .mm-act .mm-done { grid-column: 2; } .mm-grid .wide2 { grid-column: span 2; } }
+
 .ctx { position: fixed; z-index: 30; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 30, 80, .2); padding: 5px; min-width: 160px; display: grid; gap: 2px; }
 .ctx button { display: flex; align-items: center; gap: 9px; width: 100%; border: 0; background: transparent; text-align: left; font-size: 13.5px; padding: 7px 9px; border-radius: 4px; }
 .ctx button:hover { background: var(--hover); }
@@ -300,6 +348,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
       <a class="tab" href="#dashboard" id="tabDash">Dashboard</a>
       <a class="tab" href="#minutes" id="tabWeek">My minutes</a>
       <a class="tab" href="#misc" id="tabMisc">Misc list</a>
+      <a class="tab" href="#meetings" id="tabMeet">Meeting minutes</a>
       <a class="tab ext" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb" target="_blank" rel="noopener">Weinam Ck Car Park
         <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M4.5 2.5H9.5V7.5M9.5 2.5L3 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </a>
@@ -309,6 +358,11 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 
 <main class="wrap">
   <div class="warn" id="warn"></div>
+  <div class="confirm-bar" id="confirmBar" hidden role="alertdialog" aria-live="polite">
+    <span id="confirmText"></span>
+    <button class="btn primary" id="confirmOk" type="button">OK</button>
+    <button class="btn" id="confirmCancel" type="button">Cancel</button>
+  </div>
   <div id="dashView" style="display:grid;gap:16px">
     <section class="summary" aria-label="This week">
       <div class="panel">
@@ -359,6 +413,17 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     </div>
   </div>
 
+  <div id="meetView" class="mm" hidden>
+    <aside class="panel mm-list" aria-label="Meetings">
+      <div class="tools">
+        <button class="btn primary" id="mmNew" type="button">+ New meeting</button>
+        <select id="mmFilter" aria-label="Show meetings of type"><option value="">All meeting types</option></select>
+      </div>
+      <ul class="mm-items" id="mmList"></ul>
+    </aside>
+    <div class="mm-editor" id="mmEditor"></div>
+  </div>
+
   <div id="boardView" style="display:grid;gap:14px">
   <section class="panel strip" aria-label="Progress">
     <div class="wk-only"><span class="label">Program week</span><span class="big" id="wknum">&nbsp;</span></div>
@@ -384,11 +449,6 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     <button class="btn" id="restore" type="button" title="Load a backup file, including one from the old board">Restore</button>
   </div>
 
-  <div class="confirm-bar" id="confirmBar" hidden role="alertdialog" aria-live="polite">
-    <span id="confirmText"></span>
-    <button class="btn primary" id="confirmOk" type="button">OK</button>
-    <button class="btn" id="confirmCancel" type="button">Cancel</button>
-  </div>
 
   <div class="import" id="importPanel" hidden>
     <textarea id="importText" spellcheck="false" aria-label="Email or list to import" placeholder="Paste an email or a list of dot points here, then choose how to bring it in."></textarea>
@@ -619,6 +679,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 
   document.addEventListener("keydown", (e) => {
     if (!(e.ctrlKey || e.metaKey)) return;
+    if (view === "meet" || view === "dash") return;      // the board's undo only applies on My minutes / Misc list
     const k = (e.key || "").toLowerCase();
     if (k === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
     else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); redo(); }
@@ -686,7 +747,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     $("#wknum").textContent = "WK " + pad(iw.wk) + " / " + iw.yr;
     $("#range").textContent = short(monday) + " – " + short(end) + " " + end.getFullYear();
     const tm = mondayOf(new Date()), tw = isoWeek(tm);
-    $("#bandSub").textContent = view === "misc" ? "Misc list · your standing items" : view === "dash" ? `Week ${tw.wk} · ${short(tm)} – ${short(addDays(tm, 4))} ${addDays(tm, 4).getFullYear()}` : `Week ${iw.wk} · ${short(monday)} – ${short(end)} ${end.getFullYear()}`;
+    $("#bandSub").textContent = view === "meet" ? "Meeting minutes · trade, client and consultant meetings" : view === "misc" ? "Misc list · your standing items" : view === "dash" ? `Week ${tw.wk} · ${short(tm)} – ${short(addDays(tm, 4))} ${addDays(tm, 4).getFullYear()}` : `Week ${iw.wk} · ${short(monday)} – ${short(end)} ${end.getFullYear()}`;
   }
   function renderAll() {
     renderHeader();
@@ -818,22 +879,24 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
   });
 
   /* ---------- views: Dashboard (landing), My minutes, Misc list ---------- */
-  const viewFromHash = () => ({ "#minutes": "week", "#week": "week", "#misc": "misc" }[location.hash] || "dash");
+  const viewFromHash = () => ({ "#minutes": "week", "#week": "week", "#misc": "misc", "#meetings": "meet" }[location.hash] || "dash");
   function setView(v) {
     view = v;
-    const misced = v === "misc", dash = v === "dash";
-    $("#dashView").hidden = !dash; $("#boardView").hidden = dash;
+    const misced = v === "misc", dash = v === "dash", meet = v === "meet";
+    $("#dashView").hidden = !dash; $("#boardView").hidden = dash || meet; $("#meetView").hidden = !meet;
+    $("#tabMeet").setAttribute("aria-current", meet ? "page" : "false");
     $("#weekView").hidden = misced; $("#miscView").hidden = !misced;
     document.querySelectorAll(".wk-only").forEach((el) => (el.hidden = misced));
     $("#tabDash").setAttribute("aria-current", dash ? "page" : "false");
     $("#tabWeek").setAttribute("aria-current", v === "week" ? "page" : "false");
     $("#tabMisc").setAttribute("aria-current", misced ? "page" : "false");
     $("#clear").textContent = misced ? "Clear list" : "Clear week";
-    const want = { dash: "#dashboard", week: "#minutes", misc: "#misc" }[v];
+    const want = { dash: "#dashboard", week: "#minutes", misc: "#misc", meet: "#meetings" }[v];
     if (location.hash !== want && !(v === "dash" && !location.hash)) { try { history.replaceState(null, "", want); } catch (e) {} }
     if (misced) renderMisc();
     renderHeader(); tally();
     if (dash) { renderDash(); renderWeinam(); }
+    if (meet) openMeetings();
   }
   window.addEventListener("hashchange", () => setView(viewFromHash()));
 
@@ -1287,6 +1350,249 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     e.target.value = "";
   });
 
+  /* ---------- meeting minutes: other meetings (trade, client, consultant …), exported to Word ---------- */
+  // Each meeting is its own private document "mtg-<id>" beside your weeks; the value is the meeting's JSON.
+  const MTG_TYPES = ["Trade", "Client", "Consultant", "Design", "Site", "Internal", "Other"];
+  const ATT = ["Present", "Apology", "Absent"];
+  let meetings = new Map(), meetLoaded = false, curMeet = null, meetTimers = new Map(), meetFilter = "", myName = "";
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const isoNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const longIso = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return `${d} ${MONTHS[m - 1]} ${y}`; };
+  const shortIso = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y.slice(2)}`; };
+  function blankMeeting(over = {}) {
+    return { id: newId(), title: "", type: "Trade", project: (weinam && weinam.project) || "Weinam Ck Car Park", date: isoNow(), time: "", location: "", chair: myName, minutedBy: myName,
+      attendees: [{ name: myName, company: "ADCO Constructions", initials: "TW", att: "Present" }], items: [{ topic: "", notes: "", actions: [] }],
+      next: { date: "", time: "", location: "" }, notes: "", createdAt: new Date().toISOString(), ...over };
+  }
+  function normMeeting(o) {
+    const m = blankMeeting({ id: o && o.id ? String(o.id) : newId() });
+    if (!o || typeof o !== "object") return m;
+    for (const k of ["title", "type", "project", "date", "time", "location", "chair", "minutedBy", "notes", "createdAt"]) if (typeof o[k] === "string") m[k] = o[k];
+    m.attendees = Array.isArray(o.attendees) ? o.attendees.map((a) => ({ name: String(a.name || ""), company: String(a.company || ""), initials: String(a.initials || ""), att: ATT.includes(a.att) ? a.att : "Present" })) : [];
+    m.items = Array.isArray(o.items) ? o.items.map((it) => ({ topic: String(it.topic || ""), notes: String(it.notes || ""), actions: Array.isArray(it.actions) ? it.actions.map((a) => ({ text: String(a.text || ""), by: String(a.by || ""), due: String(a.due || ""), done: !!a.done })) : [] })) : [];
+    if (o.next && typeof o.next === "object") m.next = { date: String(o.next.date || ""), time: String(o.next.time || ""), location: String(o.next.location || "") };
+    return m;
+  }
+  async function loadMeetings() {
+    const keys = (await store.keys()).filter((k) => k.startsWith("mtg-"));
+    const all = await Promise.all(keys.map(async (k) => { const raw = await store.get(k); try { return raw ? normMeeting(JSON.parse(raw)) : null; } catch (e) { return null; } }));
+    meetings = new Map(all.filter(Boolean).map((m) => [m.id, m]));
+    meetLoaded = true;
+  }
+  function saveMeeting(m, now = false) {
+    clearTimeout(meetTimers.get(m.id));
+    setSave("Saving…", false, "saving");
+    const run = async () => {
+      meetTimers.delete(m.id);
+      m.updatedAt = new Date().toISOString();
+      const ok = await store.set("mtg-" + m.id, JSON.stringify(m));
+      if (!ok) { setSave("Not saved", false, "error"); toast("Couldn't save the meeting. Check your connection and try again."); return; }
+      const n = new Date(); setSave("Saved " + pad(n.getHours()) + ":" + pad(n.getMinutes()), true, "ok");
+    };
+    if (now) return run();
+    meetTimers.set(m.id, setTimeout(run, 500));
+  }
+  async function openMeetings() {
+    if (!meetLoaded) { $("#mmList").innerHTML = `<li class="mm-empty">Loading meetings…</li>`; await loadMeetings(); }
+    renderMeetList();
+    if (!curMeet || !meetings.has(curMeet)) curMeet = sortedMeetings()[0]?.id || null;
+    renderMeetList(); renderMeeting();
+  }
+  const sortedMeetings = () => [...meetings.values()].filter((m) => !meetFilter || m.type === meetFilter).sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const openActions = (m) => m.items.reduce((n, it) => n + it.actions.filter((a) => a.text.trim() && !a.done).length, 0);
+  function renderMeetList() {
+    const sel = $("#mmFilter"), types = [...new Set([...MTG_TYPES, ...[...meetings.values()].map((m) => m.type).filter(Boolean)])];
+    const opts = `<option value="">All meeting types</option>` + types.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
+    if (sel.innerHTML !== opts) sel.innerHTML = opts;
+    sel.value = meetFilter;
+    const list = sortedMeetings();
+    $("#mmList").innerHTML = list.length ? list.map((m) => {
+      const n = openActions(m);
+      return `<li><button type="button" data-meet="${esc(m.id)}" aria-current="${m.id === curMeet}"><span class="t">${esc(m.title || "Untitled meeting")}</span><span class="s"><span class="mm-type">${esc(m.type || "Other")}</span>${m.date ? shortIso(m.date) : "No date"}${n ? ` · ${n} open action${n === 1 ? "" : "s"}` : ""}</span></button></li>`;
+    }).join("") : `<li class="mm-empty">${meetings.size ? "No meetings of this type." : "No meetings yet. Use + New meeting to start one."}</li>`;
+  }
+  function field(label, f, val, type = "text", cls = "") {
+    return `<label class="${cls}"><span class="label">${label}</span><input class="mm-in" data-f="${f}" type="${type}" value="${esc(val || "")}" autocomplete="off"></label>`;
+  }
+  function renderMeeting() {
+    const box = $("#mmEditor"), m = meetings.get(curMeet);
+    if (!m) {
+      box.innerHTML = `<section class="panel"><div class="mm-sec-head"><h2>Meeting minutes</h2></div><p class="mm-small" style="margin:0">Record trade, client and consultant meetings here, then export them as Word minutes. Start with <b>+ New meeting</b>.</p></section>`;
+      return;
+    }
+    const typeOpts = [...new Set([...MTG_TYPES, m.type])].map((t) => `<option ${t === m.type ? "selected" : ""}>${esc(t)}</option>`).join("");
+    let itemsHtml = m.items.map((it, i) => {
+      const acts = it.actions.map((a, j) => `<div class="mm-act${a.done ? " done" : ""}" data-i="${i}" data-j="${j}"><span class="ref">${i + 1}.${j + 1}</span>` +
+        `<input class="mm-in" data-a="text" value="${esc(a.text)}" placeholder="Action" aria-label="Action ${i + 1}.${j + 1}">` +
+        `<input class="mm-in" data-a="by" value="${esc(a.by)}" placeholder="By" aria-label="Action by" list="mmPeople">` +
+        `<input class="mm-in" data-a="due" type="date" value="${esc(a.due)}" aria-label="Due">` +
+        `<label class="mm-done"><input type="checkbox" data-a="done" ${a.done ? "checked" : ""}> Done</label>` +
+        `<button class="mm-x" type="button" data-del-act title="Delete action" aria-label="Delete action">×</button></div>`).join("");
+      return `<div class="mm-item" data-i="${i}"><div class="mm-item-head"><span class="mm-no">${i + 1}</span>` +
+        `<input class="mm-in" data-it="topic" value="${esc(it.topic)}" placeholder="Agenda item / topic" aria-label="Item ${i + 1} topic">` +
+        `<button class="mm-x" type="button" data-move="-1" title="Move up" aria-label="Move item up" ${i === 0 ? "disabled" : ""}>↑</button>` +
+        `<button class="mm-x" type="button" data-move="1" title="Move down" aria-label="Move item down" ${i === m.items.length - 1 ? "disabled" : ""}>↓</button>` +
+        `<button class="mm-x" type="button" data-del-item title="Delete item" aria-label="Delete item">×</button></div>` +
+        `<textarea class="mm-ta" data-it="notes" placeholder="Discussion / notes" aria-label="Item ${i + 1} discussion">${esc(it.notes)}</textarea>` +
+        `<div class="mm-acts">${acts}</div><div><button class="linkbtn" type="button" data-add-act>+ Add action</button></div></div>`;
+    }).join("");
+    const att = m.attendees.map((a, i) => `<tr data-k="${i}"><td><input class="mm-in" data-p="name" value="${esc(a.name)}" placeholder="Name" aria-label="Attendee name"></td>` +
+      `<td><input class="mm-in" data-p="company" value="${esc(a.company)}" placeholder="Company" aria-label="Company"></td>` +
+      `<td style="width:90px"><input class="mm-in" data-p="initials" value="${esc(a.initials)}" placeholder="Init." aria-label="Initials"></td>` +
+      `<td style="width:130px"><select class="mm-sel" data-p="att" aria-label="Attendance">${ATT.map((x) => `<option ${x === a.att ? "selected" : ""}>${x}</option>`).join("")}</select></td>` +
+      `<td style="width:34px"><button class="mm-x" type="button" data-del-att title="Remove" aria-label="Remove attendee">×</button></td></tr>`).join("");
+    const people = [...new Set(m.attendees.flatMap((a) => [a.initials, a.name]).filter(Boolean))];
+    box.innerHTML =
+      `<div class="mm-bar"><button class="btn primary" type="button" id="mmWord">Export to Word</button><button class="btn" type="button" id="mmNext" title="Start the next meeting with the same attendees and any open actions">Next meeting from this</button><span class="spacer"></span><button class="btn danger" type="button" id="mmDel">Delete meeting</button></div>` +
+      `<section class="panel"><input class="mm-title" data-f="title" value="${esc(m.title)}" placeholder="Meeting title, e.g. Bull Civil – trade meeting #3" aria-label="Meeting title">` +
+      `<div class="mm-grid"><label><span class="label">Type</span><select class="mm-sel" data-f="type">${typeOpts}</select></label>` +
+      field("Date", "date", m.date, "date") + field("Time", "time", m.time, "time") + field("Location", "location", m.location) +
+      field("Project", "project", m.project, "text", "wide2") + field("Chair", "chair", m.chair) + field("Minutes by", "minutedBy", m.minutedBy) + `</div></section>` +
+      `<section class="panel"><div class="mm-sec-head"><h2>Attendees</h2><button class="linkbtn" type="button" id="mmAddAtt">+ Add attendee</button></div>` +
+      `<div class="tbl-wrap"><table class="mm-t"><thead><tr><th>Name</th><th>Company</th><th>Initials</th><th>Attendance</th><th></th></tr></thead><tbody>${att || `<tr><td colspan="5" class="mm-small">No attendees yet.</td></tr>`}</tbody></table></div></section>` +
+      `<section class="panel"><div class="mm-sec-head"><h2>Minutes</h2><button class="linkbtn" type="button" id="mmAddItem">+ Add item</button></div>${itemsHtml || `<p class="mm-small" style="margin:0">No agenda items yet.</p>`}</section>` +
+      `<section class="panel"><div class="mm-sec-head"><h2>Next meeting &amp; general notes</h2></div><div class="mm-grid">` +
+      `<label><span class="label">Next meeting date</span><input class="mm-in" data-n="date" type="date" value="${esc(m.next.date)}"></label>` +
+      `<label><span class="label">Time</span><input class="mm-in" data-n="time" type="time" value="${esc(m.next.time)}"></label>` +
+      `<label class="wide2"><span class="label">Location</span><input class="mm-in" data-n="location" value="${esc(m.next.location)}"></label></div>` +
+      `<label style="display:grid;gap:3px;margin-top:10px"><span class="label">General notes</span><textarea class="mm-ta" data-f="notes" aria-label="General notes">${esc(m.notes)}</textarea></label></section>` +
+      `<datalist id="mmPeople">${people.map((p) => `<option value="${esc(p)}"></option>`).join("")}</datalist>`;
+  }
+  // Typing updates the meeting in place (no redraw, so the cursor stays put) and saves after a pause.
+  $("#mmEditor").addEventListener("input", (e) => {
+    const m = meetings.get(curMeet); if (!m) return;
+    const t = e.target, d = t.dataset;
+    if (d.f) m[d.f] = t.value;
+    else if (d.n) m.next[d.n] = t.value;
+    else if (d.p) { const k = +t.closest("tr").dataset.k; m.attendees[k][d.p] = t.value; }
+    else if (d.it) { const i = +t.closest(".mm-item").dataset.i; m.items[i][d.it] = t.value; }
+    else if (d.a) {
+      const row = t.closest(".mm-act"), a = m.items[+row.dataset.i].actions[+row.dataset.j];
+      if (d.a === "done") { a.done = t.checked; row.classList.toggle("done", a.done); } else a[d.a] = t.value;
+    } else return;
+    saveMeeting(m);
+    if (d.f === "title" || d.f === "date" || d.f === "type" || d.a === "done") renderMeetList();
+  });
+  $("#mmEditor").addEventListener("change", (e) => { if (e.target.matches('select, input[type="date"], input[type="time"], input[type="checkbox"]')) e.target.dispatchEvent(new Event("input", { bubbles: true })); });
+  $("#mmEditor").addEventListener("click", async (e) => {
+    const m = meetings.get(curMeet); if (!m) return;
+    const b = e.target.closest("button"); if (!b) return;
+    const redraw = (focusSel) => { saveMeeting(m); renderMeeting(); renderMeetList(); if (focusSel) $("#mmEditor").querySelector(focusSel)?.focus(); };
+    if (b.id === "mmAddAtt") { m.attendees.push({ name: "", company: "", initials: "", att: "Present" }); redraw(`tr[data-k="${m.attendees.length - 1}"] [data-p="name"]`); }
+    else if (b.hasAttribute("data-del-att")) { m.attendees.splice(+b.closest("tr").dataset.k, 1); redraw(); }
+    else if (b.id === "mmAddItem") { m.items.push({ topic: "", notes: "", actions: [] }); redraw(`.mm-item[data-i="${m.items.length - 1}"] [data-it="topic"]`); }
+    else if (b.hasAttribute("data-add-act")) { const i = +b.closest(".mm-item").dataset.i; m.items[i].actions.push({ text: "", by: "", due: "", done: false }); redraw(`.mm-act[data-i="${i}"][data-j="${m.items[i].actions.length - 1}"] [data-a="text"]`); }
+    else if (b.hasAttribute("data-del-act")) { const row = b.closest(".mm-act"); m.items[+row.dataset.i].actions.splice(+row.dataset.j, 1); redraw(); }
+    else if (b.hasAttribute("data-move")) { const i = +b.closest(".mm-item").dataset.i, j = i + +b.dataset.move; if (j < 0 || j >= m.items.length) return; [m.items[i], m.items[j]] = [m.items[j], m.items[i]]; redraw(); }
+    else if (b.hasAttribute("data-del-item")) {
+      const i = +b.closest(".mm-item").dataset.i, it = m.items[i];
+      if ((it.topic || it.notes || it.actions.length) && !(await askConfirm(`Delete item ${i + 1}${it.topic ? " “" + it.topic + "”" : ""} and its actions?`, "Delete item"))) return;
+      m.items.splice(i, 1); redraw();
+    }
+    else if (b.id === "mmDel") {
+      if (!(await askConfirm(`Delete “${m.title || "Untitled meeting"}”? This can't be undone.`, "Delete meeting"))) return;
+      clearTimeout(meetTimers.get(m.id)); meetTimers.delete(m.id);
+      meetings.delete(m.id); await store.del("mtg-" + m.id);
+      curMeet = sortedMeetings()[0]?.id || null; renderMeetList(); renderMeeting(); toast("Meeting deleted.");
+    }
+    else if (b.id === "mmNext") {
+      // Same attendees, same agenda topics, open actions carried forward; next meeting date becomes this meeting's date.
+      const carried = m.items.map((it) => ({ topic: it.topic, notes: "", actions: it.actions.filter((a) => a.text.trim() && !a.done).map((a) => ({ ...a })) })).filter((it) => it.topic || it.actions.length);
+      const nm = blankMeeting({ title: m.title.replace(/#\s*(\d+)\s*$/, (x, n) => "#" + (+n + 1)), type: m.type, project: m.project, location: m.next.location || m.location, time: m.next.time || m.time,
+        date: m.next.date || isoNow(), chair: m.chair, minutedBy: m.minutedBy, attendees: m.attendees.map((a) => ({ ...a, att: "Present" })), items: carried.length ? carried : [{ topic: "", notes: "", actions: [] }] });
+      meetings.set(nm.id, nm); curMeet = nm.id; meetFilter = ""; await saveMeeting(nm, true);
+      renderMeetList(); renderMeeting(); toast("Next meeting started with open actions carried forward.");
+    }
+    else if (b.id === "mmWord") exportWord(m, b);
+  });
+  $("#mmNew").addEventListener("click", async () => {
+    const m = blankMeeting({ type: meetFilter || "Trade" });
+    meetings.set(m.id, m); curMeet = m.id; await saveMeeting(m, true);
+    renderMeetList(); renderMeeting(); $("#mmEditor .mm-title")?.focus();
+  });
+  $("#mmFilter").addEventListener("change", (e) => { meetFilter = e.target.value; renderMeetList(); });
+  $("#mmList").addEventListener("click", (e) => { const b = e.target.closest("[data-meet]"); if (!b) return; curMeet = b.dataset.meet; renderMeetList(); renderMeeting(); });
+
+  /* ---------- Word export (docx built in the browser) ---------- */
+  function loadDocx() {
+    if (window.docx) return Promise.resolve(window.docx);
+    return new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js";
+      sc.onload = () => (window.docx ? res(window.docx) : rej(new Error("load")));
+      sc.onerror = () => rej(new Error("load"));
+      document.head.appendChild(sc);
+    });
+  }
+  async function exportWord(m, btn) {
+    if (!downloads) { toast("Saving files isn't available in this view."); return; }
+    btn.disabled = true; btn.textContent = "Preparing…";
+    try {
+      const D = await loadDocx();
+      const BLUE = "0047BB", TINT = "EBF0FA", NAVY = "0B2A5C";
+      const border = { style: D.BorderStyle.SINGLE, size: 4, color: "CCDAF1" };
+      const borders = { top: border, bottom: border, left: border, right: border };
+      const para = (text, o = {}) => new D.Paragraph({ spacing: { before: 40, after: 40 }, alignment: o.align, children: String(text ?? "").split("\n").flatMap((line, i) => [...(i ? [new D.TextRun({ break: 1 })] : []), new D.TextRun({ text: line, bold: o.bold, color: o.color, size: o.size, italics: o.italic })]) });
+      const cell = (children, o = {}) => new D.TableCell({ borders, width: o.w ? { size: o.w, type: D.WidthType.DXA } : undefined, columnSpan: o.span, shading: o.fill ? { type: D.ShadingType.CLEAR, color: "auto", fill: o.fill } : undefined, margins: { top: 60, bottom: 60, left: 100, right: 100 }, verticalAlign: D.VerticalAlign.TOP, children: Array.isArray(children) ? children : [children] });
+      const head = (labels, widths) => new D.TableRow({ tableHeader: true, children: labels.map((l, i) => cell(para(l, { bold: true, color: "FFFFFF" }), { w: widths[i], fill: BLUE })) });
+      const table = (rows, widths) => new D.Table({ width: { size: widths.reduce((a, b) => a + b, 0), type: D.WidthType.DXA }, columnWidths: widths, rows });
+      const bar = (text) => new D.Paragraph({ spacing: { before: 240, after: 80 }, shading: { type: D.ShadingType.CLEAR, color: "auto", fill: BLUE }, children: [new D.TextRun({ text: " " + text.toUpperCase(), bold: true, color: "FFFFFF", size: 22 })] });
+      const W = 10466; // A4 width less 2 cm margins, in twentieths of a point
+      const dateLine = [longIso(m.date), m.time].filter(Boolean).join(", ");
+      const detail = [["Project", m.project], ["Meeting", m.title || "Untitled meeting"], ["Type", m.type], ["Date / time", dateLine], ["Location", m.location], ["Chair", m.chair], ["Minutes by", m.minutedBy]];
+      const detailRows = [];
+      for (let i = 0; i < detail.length; i += 2) {
+        const a = detail[i], b = detail[i + 1];
+        detailRows.push(new D.TableRow({ children: [cell(para(a[0], { bold: true, color: NAVY }), { w: 1700, fill: TINT }), cell(para(a[1] || ""), { w: 3533, span: b ? 1 : 3 }),
+          ...(b ? [cell(para(b[0], { bold: true, color: NAVY }), { w: 1700, fill: TINT }), cell(para(b[1] || ""), { w: 3533 })] : [])] }));
+      }
+      const attW = [3600, 3400, 1366, 2100];
+      const attRows = [head(["Name", "Company", "Initials", "Attendance"], attW), ...(m.attendees.length ? m.attendees : [{ name: "", company: "", initials: "", att: "" }]).map((a) => new D.TableRow({ children: [cell(para(a.name), { w: attW[0] }), cell(para(a.company), { w: attW[1] }), cell(para(a.initials), { w: attW[2] }), cell(para(a.att), { w: attW[3] })] }))];
+      const minW = [900, 6366, 1600, 1600];
+      const minRows = [head(["No.", "Item / discussion", "Action by", "Due"], minW)];
+      m.items.forEach((it, i) => {
+        const body = [para(it.topic || `Item ${i + 1}`, { bold: true, color: NAVY })];
+        if (it.notes.trim()) body.push(para(it.notes));
+        minRows.push(new D.TableRow({ children: [cell(para(String(i + 1), { bold: true, color: NAVY }), { w: minW[0], fill: TINT }), cell(body, { w: minW[1], fill: TINT }), cell(para(""), { w: minW[2], fill: TINT }), cell(para(""), { w: minW[3], fill: TINT })] }));
+        it.actions.filter((a) => a.text.trim()).forEach((a, j) => {
+          minRows.push(new D.TableRow({ children: [cell(para(`${i + 1}.${j + 1}`), { w: minW[0] }), cell(para(a.text + (a.done ? " (closed)" : "")), { w: minW[1] }), cell(para(a.by, { bold: true }), { w: minW[2] }), cell(para(a.done ? "Closed" : shortIso(a.due)), { w: minW[3] })] }));
+        });
+      });
+      const nextLine = [m.next.date ? longIso(m.next.date) : "", m.next.time, m.next.location].filter(Boolean).join(" · ");
+      const children = [
+        new D.Paragraph({ children: [new D.TextRun({ text: "ADCO", bold: true, color: BLUE, size: 36 }), new D.TextRun({ text: "   CONSTRUCTIONS", bold: true, color: NAVY, size: 18 })] }),
+        new D.Paragraph({ spacing: { before: 120, after: 60 }, children: [new D.TextRun({ text: `${(m.type || "").toUpperCase()} MEETING MINUTES`, bold: true, color: NAVY, size: 32 })] }),
+        new D.Paragraph({ spacing: { after: 160 }, children: [new D.TextRun({ text: m.title || "Untitled meeting", color: BLUE, size: 24, bold: true })] }),
+        table(detailRows, [1700, 3533, 1700, 3533]),
+        bar("Attendees"), table(attRows, attW),
+        bar("Minutes"), table(minRows, minW),
+        ...(nextLine ? [bar("Next meeting"), para(nextLine)] : []),
+        ...(m.notes.trim() ? [bar("General notes"), para(m.notes)] : []),
+        new D.Paragraph({ spacing: { before: 240 }, children: [new D.TextRun({ text: "Please advise the minute-taker of any errors or omissions within 48 hours of distribution.", italics: true, color: "4A5464", size: 16 })] })
+      ];
+      const doc = new D.Document({
+        creator: "ADCO", title: m.title || "Meeting minutes",
+        styles: { default: { document: { run: { font: "Arial", size: 19 } } } },
+        sections: [{
+          properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1000, bottom: 1000, left: 720, right: 720 } } },
+          footers: { default: new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.RIGHT, children: [
+            new D.TextRun({ text: `${m.project ? m.project + " · " : ""}${m.title || "Meeting minutes"}${m.date ? " · " + shortIso(m.date) : ""}    Page `, size: 16, color: "4A5464" }),
+            new D.TextRun({ children: [D.PageNumber.CURRENT], size: 16, color: "4A5464" }), new D.TextRun({ text: " of ", size: 16, color: "4A5464" }),
+            new D.TextRun({ children: [D.PageNumber.TOTAL_PAGES], size: 16, color: "4A5464" })] })] }) },
+          children
+        }]
+      });
+      const blob = await D.Packer.toBlob(doc);
+      const safe = (x) => String(x || "").replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
+      const name = `${m.date || isoNow()} ${safe(m.title) || safe(m.type) + " meeting"} - Minutes.docx`;
+      await downloads.save({ filename: name, data: blob });
+    } catch (e) {
+      if (e && e.code === "declined") {}
+      else if (e && e.message === "load") toast("Couldn't load the Word exporter. Check your connection and try again.");
+      else toast("Couldn't create the Word file.");
+    } finally { btn.disabled = false; btn.textContent = "Export to Word"; }
+  }
+
   /* ---------- boot ---------- */
   setView(viewFromHash());
   renderAll(); renderMisc(); syncUndo();
@@ -1302,6 +1608,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     if (userNs) {
       const me = await userNs.me();
       uid = me.id;
+      myName = me.name || "";
       if (me.name) { const first = me.name.split(/\s+/)[0]; $("#who").textContent = first + "'s dashboard"; document.title = first + "'s Dashboard"; }
     }
     if (dbNs && uid) { db = dbNs; store = backends.db; }
@@ -1309,6 +1616,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     if (store.kind === "memory") $("#warn").textContent = "Nothing typed here will be kept: this view can't reach your saved data and the browser is blocking local storage. Open the page in Claude while signed in.";
     else if (store.kind === "local") $("#warn").textContent = "Your to-dos are only being saved in this browser. Open the page in Claude while signed in to keep them with your account.";
     await load(); await loadMisc();
+    meetLoaded = false;
     renderAll(); renderMisc(); setView(view);
     setSave("", false, "ok");
     watch(); watchWeinam(); renderWeinam();
