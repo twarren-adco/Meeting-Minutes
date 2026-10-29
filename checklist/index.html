@@ -381,9 +381,9 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <button class="btn-band" id="exportBtn" type="button" hidden>Export to Excel</button>
     </div>
     <nav class="tabs" aria-label="Views">
+      <a class="tab" href="#dashboard" id="tabDashboard">Dashboard</a>
       <a class="tab" href="#checklist" id="tabChecklist">Checklist</a>
       <a class="tab" href="#timeline" id="tabTimeline">Timeline</a>
-      <a class="tab" href="#dashboard" id="tabDashboard">Dashboard</a>
       <a class="tab" href="#contacts" id="tabContacts">Contacts</a>
     </nav>
   </div>
@@ -413,7 +413,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     </div>
   </section>
 
-  <div id="viewChecklist">
+  <div id="viewChecklist" hidden>
     <div class="toolbar" style="margin-bottom:12px">
       <label class="field">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -496,7 +496,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     </div>
   </div>
 
-  <div id="viewDashboard" class="dash" hidden>
+  <div id="viewDashboard" class="dash">
     <section class="panel wide">
       <h2>Status by section</h2>
       <div class="tbl-wrap"><table class="dt" id="sectionTable"></table></div>
@@ -1337,7 +1337,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     const b = e.target.closest("[data-filter]"); if (!b) return;
     const f = b.dataset.filter;
     filters.status = f === "__all" || filters.status === f ? null : f;
-    if (location.hash === "#dashboard") location.hash = "#checklist";
+    if (currentView() === "dashboard") location.hash = "#checklist";
     renderSummary(); renderGrid(); renderTimeline();
   });
   let qTimer;
@@ -1839,8 +1839,10 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     el.addEventListener("change", () => { if (!canWrite) return; const v = el.value.trim(); if (v !== (meta?.[key] || "")) saveMeta({ [key]: v }); });
   }
 
+  // The Dashboard is the landing page; the other views are reached by their #hash.
+  const currentView = () => ({ "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[location.hash] || "dashboard");
   function route() {
-    const v = { "#dashboard": "dashboard", "#timeline": "timeline", "#contacts": "contacts" }[location.hash] || "checklist";
+    const v = currentView();
     $("#viewChecklist").hidden = v !== "checklist"; $("#viewDashboard").hidden = v !== "dashboard"; $("#viewTimeline").hidden = v !== "timeline"; $("#viewContacts").hidden = v !== "contacts";
     $("#summary").hidden = v === "contacts";
     $("#tabContacts").setAttribute("aria-current", v === "contacts" ? "page" : "false");
