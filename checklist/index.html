@@ -169,6 +169,8 @@ table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-widt
 .c-section { color: var(--muted); font-size: 13px; }
 .c-start, .c-due { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .empty-cell { color: var(--line-strong); }
+.done-date { color: var(--ok); font-weight: 600; font-variant-numeric: tabular-nums; }
+.btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
 .who { display: inline-block; font-weight: 600; font-size: 12.5px; letter-spacing: .02em; color: var(--head); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 6px; line-height: 20px; }
 .od { color: var(--urg); font-weight: 600; }
 .od-text { color: var(--urg); font-weight: 600; }
@@ -423,6 +425,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
         <span class="label" style="font-size:11px">Person</span>
         <select id="personFilter" aria-label="Filter by champion or support"><option value="">Everyone</option></select>
       </label>
+      <button class="btn" type="button" data-hide-done aria-pressed="false">Hide completed</button>
       <span class="filter-note" id="filterNote"></span>
       <button class="linkbtn" id="clearFilters" type="button" hidden>Clear filters</button>
       <span class="spacer"></span>
@@ -455,6 +458,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
         <span class="label" style="font-size:11px">Person</span>
         <select id="tlPerson" aria-label="Filter timeline by champion or support"><option value="">Everyone</option></select>
       </label>
+      <button class="btn" type="button" data-hide-done aria-pressed="false">Hide completed</button>
       <span class="filter-note" id="tlNote"></span>
       <span class="spacer"></span>
       <div class="tl-legend" id="tlLegend"></div>
@@ -542,11 +546,12 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     { key: "support", label: "Support / Input", w: 7.5, type: "person" },
     { key: "start", label: "Start By", w: 6.5, type: "date" },
     { key: "due", label: "Complete By", w: 7.5, type: "date" },
-    { key: "detail", label: "Action / Detail", w: 20, type: "long" },
-    { key: "notes", label: "Live Notes", w: 14, type: "long" },
-    { key: "section", label: "Section", w: 11, type: "select", opts: SECTIONS, blank: "No section" }
+    { key: "completedOn", label: "Completed On", w: 7.5, type: "date" },
+    { key: "detail", label: "Action / Detail", w: 17, type: "long" },
+    { key: "notes", label: "Live Notes", w: 11.5, type: "long" },
+    { key: "section", label: "Section", w: 10, type: "select", opts: SECTIONS, blank: "No section" }
   ];
-  const FIELDS = ["task", "detail", "section", "champion", "support", "start", "due", "status", "notes"];
+  const FIELDS = ["task", "detail", "section", "champion", "support", "start", "due", "completedOn", "status", "notes"];
 
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -602,7 +607,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   let editing = null;
   let pendingRender = false;
   let model = { groups: [], flat: [], refs: new Map() };
-  const filters = { status: null, person: "", q: "" };
+  const filters = { status: null, person: "", q: "", hideDone: false };
+  try { filters.hideDone = localStorage.getItem("hideDone") === "1"; } catch (_) {}
   const undoStack = [];
   const queues = new Map();
   let pendingWrites = 0, lastError = false, firstLive = false;
@@ -641,6 +647,11 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
 
   function saveTask(id, patch, opts = {}) {
     const t = tasks.get(id); if (!t) return;
+    // Completing a task stamps today's date; moving it off Complete clears the date.
+    if ("status" in patch && !("completedOn" in patch)) {
+      if (patch.status === "Complete" && t.status !== "Complete") patch = { ...patch, completedOn: today() };
+      else if (patch.status !== "Complete" && t.status === "Complete") patch = { ...patch, completedOn: "" };
+    }
     const changed = {};
     for (const k of Object.keys(patch)) if ((t[k] ?? "") !== (patch[k] ?? "")) changed[k] = patch[k];
     if (!Object.keys(changed).length) return null;
@@ -652,7 +663,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   }
   function createTask(data, opts = {}) {
     const id = db.collection("tasks").doc().id;
-    const full = { task: "", detail: "", section: "", champion: "", support: "", start: "", due: "", status: "Not Started", notes: "", ...data, ...stamp() };
+    const full = { task: "", detail: "", section: "", champion: "", support: "", start: "", due: "", status: "Not Started", notes: "", completedOn: "", ...data, ...stamp() };
     tasks.set(id, full);
     if (!opts.noUndo) undoStack.push([{ kind: "create", id }]);
     runWrite(id, () => db.doc("tasks/" + id).set(full).then(() => { confirmedWriter = true; }));
@@ -695,8 +706,10 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     return [...tasks].filter(([, t]) => (gid === "__none" ? !known.has(t.group) : t.group === gid))
       .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0) || (a[0] < b[0] ? -1 : 1));
   }
-  const anyFilter = () => filters.status !== null || !!filters.person || !!filters.q;
+  const hidingDone = () => filters.hideDone && filters.status !== "Complete";
+  const anyFilter = () => filters.status !== null || !!filters.person || !!filters.q || hidingDone();
   function matches(t) {
+    if (hidingDone() && t.status === "Complete") return false;
     if (filters.status === "__overdue") { if (!isOverdue(t)) return false; }
     else if (filters.status === "__key") { if (!t.key) return false; }
     else if (filters.status !== null && (t.status || "") !== filters.status) return false;
@@ -731,6 +744,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       }
       case "champion": case "support":
         return v ? `<span class="who">${esc(v)}</span>` : "";
+      case "completedOn":
+        return v ? `<span class="done-date" title="Marked complete on ${fmtLong(v)}">${fmtDate(v)}</span>` : "";
       case "start": case "due": {
         if (!v) return "";
         const warn = t.start && t.due && t.due < t.start;
@@ -796,7 +811,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
 
     const shown = model.flat.length, total = tasks.size;
     $("#filterNote").textContent = anyFilter() && loaded ? `Showing ${shown} of ${total} tasks` : "";
-    $("#clearFilters").hidden = !anyFilter();
+    $("#clearFilters").hidden = !(filters.status !== null || filters.person || filters.q);
+    syncHideDone();
     if (sel && !tasks.has(sel.id)) sel = null;
     paintSel(false);
   }
@@ -882,6 +898,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   }
   function gotoTask(id) {
     if (!tasks.has(id)) return;
+    if (tasks.get(id).status === "Complete" && filters.hideDone) setHideDone(false);
     clearFilters();
     if (location.hash !== "#checklist") location.hash = "#checklist";
     requestAnimationFrame(() => { sel = { id, c: 0 }; paintSel(); focusGrid(); });
@@ -1230,13 +1247,13 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       const X = await loadXLSX();
       const saved = { ...filters }; filters.status = null; filters.person = ""; filters.q = "";
       const m = buildModel(); Object.assign(filters, saved);
-      const aoa = [[meta?.title || "Start-Up Checklist"], [meta?.project ? "Project: " + meta.project : ""], ["ID", "Section", "Task", "Action / Detail", "Champion", "Support / Input", "Start By", "Complete By", "Status", "Live Notes", "Key Task"]];
+      const aoa = [[meta?.title || "Start-Up Checklist"], [meta?.project ? "Project: " + meta.project : ""], ["ID", "Section", "Task", "Action / Detail", "Champion", "Support / Input", "Start By", "Complete By", "Status", "Completed On", "Live Notes", "Key Task"]];
       for (const grp of m.groups) {
         aoa.push([grp.g.name]);
-        for (const r of grp.rows) { const t = r.t; aoa.push([m.refs.get(r.id), t.section, t.task, t.detail, t.champion, t.support, toDate(t.start), toDate(t.due), t.status, t.notes, t.key ? "Yes" : ""]); }
+        for (const r of grp.rows) { const t = r.t; aoa.push([m.refs.get(r.id), t.section, t.task, t.detail, t.champion, t.support, toDate(t.start), toDate(t.due), t.status, toDate(t.completedOn), t.notes, t.key ? "Yes" : ""]); }
       }
       const ws = X.utils.aoa_to_sheet(aoa, { cellDates: true, dateNF: "dd/mm/yyyy" });
-      ws["!cols"] = [6, 26, 40, 50, 11, 13, 12, 12, 16, 40, 9].map((w) => ({ wch: w }));
+      ws["!cols"] = [6, 26, 40, 50, 11, 13, 12, 12, 16, 13, 40, 9].map((w) => ({ wch: w }));
       const c = counts(), applicable = c.total - c["N/A this project"];
       const dash = [["Overall status"], ["Total tasks", c.total], ["Complete", c.Complete], ["In progress", c["In Progress"]], ["Urgent", c.Urgent], ["Not started", c["Not Started"]], ["N/A this project", c["N/A this project"]], ["Overdue", c.overdue], ["% complete (of applicable)", applicable ? c.Complete / applicable : 0], [], ["Key dates"], ...String(meta?.keyNotes || "").split("\n").filter(Boolean).map((l) => [l]), [], ["Key tasks", "Complete by", "Champion", "Status"], ...[...tasks.values()].filter((t) => t.key).sort((a, b) => ((a.due || "9") < (b.due || "9") ? -1 : 1)).map((t) => [t.task, toDate(t.due), t.champion, t.status])];
       const ws2 = X.utils.aoa_to_sheet(dash, { cellDates: true, dateNF: "dd/mm/yyyy" }); ws2["!cols"] = [{ wch: 48 }, { wch: 12 }, { wch: 11 }, { wch: 14 }];
@@ -1343,6 +1360,19 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   let qTimer;
   $("#search").addEventListener("input", (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { filters.q = e.target.value.trim().toLowerCase(); renderGrid(); }, 120); });
   $("#personFilter").addEventListener("change", (e) => { filters.person = e.target.value; $("#tlPerson").value = e.target.value; renderGrid(); });
+  function syncHideDone() {
+    const n = [...tasks.values()].filter((t) => t.status === "Complete").length;
+    for (const b of document.querySelectorAll("[data-hide-done]")) {
+      b.setAttribute("aria-pressed", filters.hideDone);
+      b.textContent = filters.hideDone ? `Show completed (${n})` : `Hide completed (${n})`;
+    }
+  }
+  function setHideDone(on) {
+    filters.hideDone = on;
+    try { localStorage.setItem("hideDone", on ? "1" : "0"); } catch (_) {}
+    syncHideDone(); renderGrid(); renderTimeline();
+  }
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-hide-done]")) setHideDone(!filters.hideDone); });
   function clearFilters() { filters.status = null; filters.person = ""; filters.q = ""; $("#search").value = ""; $("#personFilter").value = ""; renderSummary(); renderGrid(); }
   $("#clearFilters").addEventListener("click", clearFilters);
 
