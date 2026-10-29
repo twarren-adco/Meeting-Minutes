@@ -19,5 +19,6 @@ Tom's private dashboard in the Weinam page's ADCO styling. The **Dashboard** tab
 https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
 
 - Each viewer's weeks and misc list are stored in their own private area of the page's database (`data/users/<id>/week-YYYY-MM-DD` and `.../misc`), so nothing is visible to anyone else even if the page is shared.
+- The Dashboard's top row also shows **Weinam key dates** (Weinam's typed key-date notes plus every starred key task), carried by the same hourly copy.
 - The Dashboard also shows **Weinam Ck Car Park – my actions (TW)**: a read-only copy of the Weinam tasks where Champion is TW, written to `data/users/<id>/weinam-tw` by a scheduled Claude task ("Weinam TW actions → personal dashboard", weekdays hourly 6:07am–6:07pm Brisbane time). The two pages can't read each other's databases, so this copy is how the personal page sees Weinam.
 - **Back up / Restore** use the same file format as the old board, so a backup from the old board can be restored here.
