@@ -12,3 +12,11 @@ https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb
 - **Contacts** tab: project details plus the master contact list, grouped by team and edited in place. Contact data lives in the artifact database (`contacts` collection), not in this repo.
 - **Export to Excel** fills a cleaned copy of the team's "Project Start-Up Checklist - ECI" workbook (embedded in the page as `#xlsxTemplate`), so the download keeps its formatting, status colours, dropdowns and Dashboard formulas, plus ID, Key Task and Completed On columns and a Contact List sheet.
 - Colours follow adcoconstruct.com.au: ADCO blue `#0047BB` on white, with its pale blue tints. ADCO's own fonts (Filson Pro, Grotzec Cond) are licensed, so the page uses Figtree and Barlow Condensed as stand-ins.
+
+## Personal dashboard (`personal/index.html`)
+
+Tom's private weekly to-do board, rebuilt from `weekly_todo_board.html` in the Weinam page's ADCO styling, with a tab through to the Weinam checklist. Published as a separate private Claude artifact:
+https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
+
+- Each viewer's weeks and misc list are stored in their own private area of the page's database (`data/users/<id>/week-YYYY-MM-DD` and `.../misc`), so nothing is visible to anyone else even if the page is shared.
+- **Back up / Restore** use the same file format as the old board, so a backup from the old board can be restored here.

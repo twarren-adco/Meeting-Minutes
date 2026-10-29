@@ -1,0 +1,1038 @@
+<title>Tom's Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: same ADCO blue band and pale blue-white sheet as the Weinam page; a progress strip,
+   a toolbar, then the weekly board (goals, five days + overflow, notes) or the misc list. */
+:root {
+  --bg: #f2f5fc;
+  --surface: #ffffff;
+  --surface-2: #ebf0fa;
+  --ink: #0b2a5c;
+  --head: #0047bb;
+  --muted: #4a5464;
+  --faint: #8592a6;
+  --line: #dbe4f5;
+  --line-strong: #ccdaf1;
+  --brand: #0047bb;
+  --brand-ink: #ffffff;
+  --band: #0047bb;
+  --band-ink: #ffffff;
+  --band-muted: #cfdcf5;
+  --thead: #0047bb;
+  --thead-ink: #ffffff;
+  --sky: #00b2ff;
+  --focus: #0047bb;
+  --focus-soft: rgba(0, 71, 187, .12);
+  --hover: rgba(0, 71, 187, .05);
+  --ok: #1b7a4b;
+  --red: #c0392b;
+  --warn-bg: #fff6e0; --warn-ink: #6b5720;
+  --row: 30px;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Figtree", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061631; --surface: #0b2148; --surface-2: #102b5a; --ink: #e9effb; --head: #9fc0ff; --muted: #a9b6cc; --faint: #7f8ea8;
+    --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --brand-ink: #ffffff;
+    --band: #0047bb; --band-ink: #ffffff; --band-muted: #cfdcf5; --thead: #0a3a8f; --thead-ink: #ffffff; --sky: #4cc8ff;
+    --focus: #4cc8ff; --focus-soft: rgba(76, 200, 255, .15); --hover: rgba(255, 255, 255, .04);
+    --ok: #6fd6a0; --red: #ff8f86; --warn-bg: #3a2c12; --warn-ink: #f2d38c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061631; --surface: #0b2148; --surface-2: #102b5a; --ink: #e9effb; --head: #9fc0ff; --muted: #a9b6cc; --faint: #7f8ea8;
+  --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --brand-ink: #ffffff;
+  --band: #0047bb; --band-ink: #ffffff; --band-muted: #cfdcf5; --thead: #0a3a8f; --thead-ink: #ffffff; --sky: #4cc8ff;
+  --focus: #4cc8ff; --focus-soft: rgba(76, 200, 255, .15); --hover: rgba(255, 255, 255, .04);
+  --ok: #6fd6a0; --red: #ff8f86; --warn-bg: #3a2c12; --warn-ink: #f2d38c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.4; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { padding-left: var(--gutter-l); padding-right: var(--gutter-r); max-width: 1680px; margin: 0 auto; }
+
+/* Brand band (shared with the Weinam page) */
+.band { background: var(--band); color: var(--band-ink); }
+.band .wrap { padding-block: 18px 0; display: grid; grid-template-columns: auto 1fr auto; gap: 8px 18px; align-items: center; }
+.mark { background: var(--band); color: var(--band-ink); border: 2px solid var(--band-ink); font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: .08em; padding: 4px 12px 2px; line-height: 1.1; align-self: start; }
+.titles { min-width: 0; display: grid; gap: 2px; }
+.eyebrow { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; color: var(--band-muted); }
+.titles h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1.15; letter-spacing: .01em; text-wrap: balance; }
+.titles .sub { color: var(--band-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.band-actions { display: flex; align-items: center; gap: 12px; justify-self: end; }
+.live { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--band-muted); white-space: nowrap; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--band-muted); }
+.live[data-state="ok"] i { background: #5fe39a; box-shadow: 0 0 0 3px rgba(95,227,154,.25); }
+.live[data-state="saving"] i { background: #ffd166; }
+.live[data-state="error"] i { background: #ff8f86; }
+.tabs { grid-column: 1 / -1; display: flex; gap: 4px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: none; background: none; border: 0; color: var(--band-muted); font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 14px 9px; border-bottom: 3px solid transparent; text-decoration: none; }
+.tab:hover { color: var(--band-ink); }
+.tab[aria-current="page"] { color: var(--band-ink); border-bottom-color: var(--band-ink); }
+.tab.ext { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; }
+.tab.ext svg { width: 12px; height: 12px; }
+
+main.wrap { padding-block: 20px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+main.wrap > * { min-width: 0; }
+
+/* Progress strip */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; }
+.strip { display: grid; grid-template-columns: auto auto minmax(160px, 1fr) auto; gap: 8px 24px; align-items: center; }
+.label { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--head); display: block; }
+.big { font-family: var(--f-display); font-weight: 700; font-size: 28px; line-height: 1.05; color: var(--head); font-variant-numeric: tabular-nums; }
+.period { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.meter { display: grid; gap: 6px; }
+.meter .tally { color: var(--muted); font-size: 13px; }
+.track { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.track i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: 4px; transition: width .28s ease; }
+.saved { color: var(--muted); font-size: 12.5px; text-align: right; white-space: nowrap; }
+.saved.on { color: var(--ok); }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 4px; height: 34px; padding: 0 12px; font-weight: 600; font-size: 13px; color: var(--head); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn:hover:not(:disabled) { border-color: var(--brand); }
+.btn:disabled { color: var(--faint); cursor: default; }
+.btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.btn.primary:hover { filter: brightness(1.12); }
+.btn.icon { width: 34px; padding: 0; justify-content: center; font-size: 17px; }
+.btn.danger { color: var(--red); }
+.sep { width: 1px; height: 22px; background: var(--line-strong); margin: 0 4px; }
+.spacer { flex: 1; }
+
+.confirm-bar, .warn { border-radius: 6px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.confirm-bar { background: var(--surface); border: 1px solid var(--brand); }
+.confirm-bar span { flex: 1 1 260px; font-weight: 500; }
+.warn { background: var(--warn-bg); color: var(--warn-ink); font-size: 13px; }
+.warn:empty { display: none; }
+
+/* From email panel */
+.import { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px; display: grid; gap: 10px; }
+.import textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px; line-height: 1.45; background: var(--surface); outline: none; }
+.import textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-soft); }
+.import .row2 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.import .hint { color: var(--muted); font-size: 12.5px; flex: 1 1 220px; }
+
+/* The board */
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.sheet.dropping { box-shadow: 0 0 0 3px var(--focus-soft); border-color: var(--brand); }
+.sec > .head { padding: 9px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line-strong); border-left: 4px solid var(--brand); font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--head); }
+.sec + .sec, .sec + .grid, .grid + .sec { border-top: 1px solid var(--line-strong); }
+.sec .rows { padding: 2px 8px; }
+
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.day { border-right: 1px solid var(--line); min-width: 0; display: flex; flex-direction: column; }
+.day:last-child { border-right: 0; }
+.day > .head { background: var(--thead); color: var(--thead-ink); padding: 9px 12px 0; }
+.day .name { font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; }
+.day .sub { display: flex; align-items: center; gap: 6px; margin: 2px 0 8px; }
+.day .date { font-size: 12.5px; font-variant-numeric: tabular-nums; opacity: .85; }
+.day .chip { margin-left: auto; font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: .1em; background: var(--sky); color: #00243d; padding: 2px 6px; border-radius: 3px; visibility: hidden; }
+.day.today .chip { visibility: visible; }
+.day.today > .head { box-shadow: inset 0 3px 0 var(--sky); }
+.day.extra > .head { background: var(--surface-2); color: var(--head); }
+.day.extra .date { font-style: italic; }
+.daybar { height: 3px; background: rgba(255,255,255,.22); margin: 0 -12px; }
+.daybar i { display: block; height: 100%; width: 0; background: var(--band-ink); transition: width .28s ease; }
+.day.extra .daybar { background: var(--line-strong); }
+.day.extra .daybar i { background: var(--brand); }
+.day .rows { padding: 2px 6px 8px; flex: 1; }
+.day.drop-in > .head, .sec.drop-in > .head { filter: brightness(1.08); }
+
+/* Ruled rows: text wraps, never clips */
+.row { position: relative; display: block; overflow: hidden; min-height: var(--row); border-bottom: 1px solid var(--line); padding: 5px 6px 4px; }
+.rows .row:last-child { border-bottom: 0; }
+.tick { position: absolute; left: 6px; top: 6px; width: 16px; height: 16px; padding: 0; border-radius: 3px; border: 1.5px solid var(--line-strong); background: var(--surface); transition: border-color .12s, background .12s; }
+.row:not(.empty) .tick { border-color: var(--faint); }
+.tick:hover { border-color: var(--brand); }
+.tick::after { content: ""; position: absolute; left: 4px; top: 1px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg) scale(.4); opacity: 0; transition: transform .13s ease, opacity .13s ease; }
+.row.done .tick { background: var(--brand); border-color: var(--brand); }
+.row.done .tick::after { opacity: 1; transform: rotate(42deg) scale(1); }
+.task { display: block; border: 0; outline: 0; background: transparent; padding: 0 0 0 27px; margin: 0; min-height: 20px; font-size: 13.5px; line-height: 1.4; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.task:focus { box-shadow: inset 0 -2px 0 var(--focus-soft); }
+.task em { font-style: italic; }
+.task .red { color: var(--red); }
+.row.done .task, .row.done .task * { color: var(--faint); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.acts { float: right; display: flex; align-items: center; gap: 1px; height: 20px; margin-left: 6px; opacity: 0; pointer-events: none; transition: opacity .12s; }
+.row:hover .acts, .row:focus-within .acts, .row.dragging .acts { opacity: 1; pointer-events: auto; }
+.row.empty .acts { opacity: 0 !important; pointer-events: none; }
+@media (hover: none) { .row:not(.empty) .acts { opacity: 1; pointer-events: auto; } }
+.acts button { border: 0; background: transparent; color: var(--faint); border-radius: 3px; font-weight: 700; font-size: 13px; padding: 3px 5px; line-height: 1; }
+.acts button:hover { background: var(--hover); color: var(--head); }
+.row.heading { background: var(--surface-2); border-top: 1px solid var(--line-strong); padding-top: 8px; padding-bottom: 6px; }
+.rows .row.heading:first-child { border-top: 0; }
+.row.heading .tick { visibility: hidden; }
+.row.heading .task { font-family: var(--f-display); font-weight: 700; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--head); }
+.hbtn { font-family: var(--f-display) !important; font-size: 12px !important; width: 18px; }
+.row.heading .hbtn { color: var(--brand-ink) !important; background: var(--brand) !important; }
+.grab { width: 16px; height: 18px; background-color: transparent; background-image: radial-gradient(var(--faint) 1.1px, transparent 1.4px) !important; background-size: 5px 5px; background-position: 3px 4px; cursor: grab; touch-action: none; }
+.grab:hover { background-image: radial-gradient(var(--brand) 1.1px, transparent 1.4px) !important; }
+.row.dragging { opacity: .4; }
+.row.over-top { box-shadow: inset 0 2px 0 var(--brand); }
+.row.over-bottom { box-shadow: inset 0 -2px 0 var(--brand); }
+.rows.over-empty { box-shadow: inset 0 -2px 0 var(--brand); }
+body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+.ghost { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); border: 1px solid var(--brand); border-radius: 4px; box-shadow: 0 8px 22px rgba(0, 30, 80, .25); padding: 5px 9px; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+textarea.notes { width: 100%; border: 0; outline: 0; resize: vertical; display: block; font-size: 13.5px; line-height: var(--row); color: var(--ink); padding: 0 16px; height: calc(var(--row) * 4); background: transparent; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--row) - 1px), var(--line) calc(var(--row) - 1px), var(--line) var(--row)); }
+
+.foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; color: var(--muted); font-size: 12.5px; }
+.foot p { margin: 0; flex: 1 1 320px; max-width: 110ch; }
+.foot .where { font-family: var(--f-display); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; color: var(--head); }
+
+.ctx { position: fixed; z-index: 30; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 30, 80, .2); padding: 5px; min-width: 160px; display: grid; gap: 2px; }
+.ctx button { display: flex; align-items: center; gap: 9px; width: 100%; border: 0; background: transparent; text-align: left; font-size: 13.5px; padding: 7px 9px; border-radius: 4px; }
+.ctx button:hover { background: var(--hover); }
+.ctx .sw { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 12px; }
+.ctx .sw.r { background: var(--red); }
+.ctx .sw.i { font: italic 700 13px/12px Georgia, serif; color: var(--muted); text-align: center; }
+.ctx .sw.c { border: 1px dashed var(--line-strong); }
+.ctx hr { border: 0; border-top: 1px solid var(--line); margin: 3px 0; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--ink); color: var(--surface); border-radius: 6px; padding: 10px 16px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); }
+
+@media (max-width: 1180px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .day { border-bottom: 1px solid var(--line); } .day:nth-child(3n) { border-right: 0; } }
+@media (max-width: 860px) {
+  .band .wrap { grid-template-columns: auto minmax(0, 1fr); }
+  .band-actions { grid-column: 1 / -1; justify-self: start; }
+  .titles h1 { font-size: 24px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .day:nth-child(3n) { border-right: 1px solid var(--line); } .day:nth-child(2n) { border-right: 0; }
+  .strip { grid-template-columns: 1fr 1fr; }
+  .strip .meter { grid-column: 1 / -1; order: 3; }
+  .saved { text-align: left; }
+  .tab.ext { margin-left: 0; }
+}
+@media (max-width: 560px) { .grid { grid-template-columns: minmax(0, 1fr); } .day { border-right: 0 !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="mark" aria-label="ADCO">ADCO</div>
+    <div class="titles">
+      <div class="eyebrow">Personal dashboard · Private to you</div>
+      <h1 id="who">My dashboard</h1>
+      <div class="sub" id="bandSub">&nbsp;</div>
+    </div>
+    <div class="band-actions">
+      <span class="live" id="live" data-state="connecting"><i></i><span id="liveText">Connecting…</span></span>
+    </div>
+    <nav class="tabs" aria-label="Views">
+      <a class="tab" href="#week" id="tabWeek">Weekly to-do</a>
+      <a class="tab" href="#misc" id="tabMisc">Misc list</a>
+      <a class="tab ext" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb" target="_blank" rel="noopener">Weinam Ck Car Park
+        <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M4.5 2.5H9.5V7.5M9.5 2.5L3 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel strip" aria-label="Progress">
+    <div class="wk-only"><span class="label">Program week</span><span class="big" id="wknum">&nbsp;</span></div>
+    <div class="wk-only"><span class="label">Period</span><span class="period" id="range">&nbsp;</span></div>
+    <div class="meter"><span class="tally" id="tally">&nbsp;</span><span class="track"><i id="fill"></i></span></div>
+    <span class="saved" id="save"></span>
+  </section>
+
+  <div class="toolbar">
+    <span class="wk-only" style="display:inline-flex;gap:6px">
+      <button class="btn icon" id="prev" type="button" title="Previous week" aria-label="Previous week">&#8249;</button>
+      <button class="btn" id="today" type="button">This week</button>
+      <button class="btn icon" id="next" type="button" title="Next week" aria-label="Next week">&#8250;</button>
+    </span>
+    <span class="sep wk-only"></span>
+    <button class="btn icon" id="undo" type="button" title="Nothing to undo" aria-label="Undo" disabled>&#8630;</button>
+    <button class="btn icon" id="redo" type="button" title="Nothing to redo" aria-label="Redo" disabled>&#8631;</button>
+    <span class="sep"></span>
+    <button class="btn wk-only" id="roll" type="button" title="Move unfinished items into next week">Roll over</button>
+    <button class="btn primary" id="fromEmail" type="button" title="Paste an email or a list and pull out the actions">From email</button>
+    <span class="spacer"></span>
+    <button class="btn" id="backup" type="button" title="Save every week and the misc list as a backup file">Back up</button>
+    <button class="btn" id="restore" type="button" title="Load a backup file, including one from the old board">Restore</button>
+  </div>
+
+  <div class="confirm-bar" id="confirmBar" hidden role="alertdialog" aria-live="polite">
+    <span id="confirmText"></span>
+    <button class="btn primary" id="confirmOk" type="button">OK</button>
+    <button class="btn" id="confirmCancel" type="button">Cancel</button>
+  </div>
+  <div class="warn" id="warn"></div>
+
+  <div class="import" id="importPanel" hidden>
+    <textarea id="importText" spellcheck="false" aria-label="Email or list to import" placeholder="Paste an email or a list of dot points here, then choose how to bring it in."></textarea>
+    <div class="row2">
+      <button class="btn primary" id="importActions" type="button">Pull out the actions</button>
+      <button class="btn" id="importAll" type="button">Take every line</button>
+      <span class="hint" id="importHint">Outlook: open the email, press Ctrl+A then Ctrl+C, and paste it above.</span>
+      <button class="btn" id="importCancel" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet">
+    <div id="weekView">
+      <section class="sec goals">
+        <div class="head">Weekly goals / focus</div>
+        <div class="rows" id="goals" data-scope="g"></div>
+      </section>
+      <div class="grid" id="grid"></div>
+      <section class="sec">
+        <div class="head">Notes</div>
+        <textarea class="notes" id="notes" spellcheck="true" aria-label="Notes for this week"></textarea>
+      </section>
+    </div>
+    <div id="miscView" hidden>
+      <section class="sec">
+        <div class="head">Miscellaneous — standing list</div>
+        <div class="rows" id="miscRows" data-scope="m"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p>Click any line and type; it saves as you go. Tick the box to strike a task through. Drag the dotted handle to move a task to another day, into Overflow, or up and down its list. Highlight words and right-click for red or italic. Ctrl+Z undoes, Ctrl+Y redoes. On the misc list, start a line with # to make it a heading.</p>
+    <span class="where" id="where"></span>
+    <button class="btn danger" id="clear" type="button">Clear week</button>
+  </div>
+</main>
+
+<div class="ctx" id="ctx" hidden role="menu">
+  <button type="button" data-cmd="red"><span class="sw r"></span>Red</button>
+  <button type="button" data-cmd="italic"><span class="sw i">I</span>Italic</button>
+  <hr>
+  <button type="button" data-cmd="clear"><span class="sw c"></span>Plain</button>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+
+<script>
+(() => {
+  const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const NDAYS = 5, MIN_ROWS = 9, GOAL_ROWS = 3, MISC_ROWS = 14;
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const $ = (s) => document.querySelector(s);
+
+  let monday = mondayOf(new Date());
+  let week = blank(), misc = [], view = "week", saveTimer = null;
+
+  /* ---------- storage: your private space in this page's database, else this browser, else memory ---------- */
+  // Keys: "week-YYYY-MM-DD" (the Monday) and "misc". Each value is the JSON text of that week or list.
+  let db = null, uid = null, downloads = null;
+  const writeQueues = new Map();
+  const queued = (k, fn) => { const p = (writeQueues.get(k) || Promise.resolve()).then(fn); writeQueues.set(k, p.catch(() => {})); return p; };
+  const docPath = (k) => `data/users/${uid}/${k}`;
+  const mem = {};
+  const backends = {
+    db: {
+      kind: "db", label: "Saved privately to your account",
+      get: async (k) => { try { const s = await db.doc(docPath(k)).get(); return s.exists ? (s.data().json ?? null) : null; } catch (e) { return null; } },
+      set: async (k, v) => { try { await queued(k, () => db.doc(docPath(k)).set({ json: v, updatedAt: new Date().toISOString() })); return true; } catch (e) { return false; } },
+      del: async (k) => { try { await queued(k, () => db.doc(docPath(k)).delete()); } catch (e) {} },
+      keys: async () => { try { const s = await db.collection(`data/users/${uid}`).get(); return s.docs.map((d) => d.id); } catch (e) { return []; } }
+    },
+    memory: {
+      kind: "memory", label: "Not saving",
+      get: async (k) => mem[k] ?? null, set: async (k, v) => { mem[k] = v; return true; },
+      del: async (k) => { delete mem[k]; }, keys: async () => Object.keys(mem)
+    }
+  };
+  try {
+    const ls = window.localStorage; ls.setItem("pd:probe", "1"); ls.removeItem("pd:probe");
+    backends.local = {
+      kind: "local", label: "Saving in this browser only",
+      get: async (k) => { try { return ls.getItem("pd:" + k); } catch (e) { return null; } },
+      set: async (k, v) => { try { ls.setItem("pd:" + k, v); return true; } catch (e) { return false; } },
+      del: async (k) => { try { ls.removeItem("pd:" + k); } catch (e) {} },
+      keys: async () => { const out = []; try { for (let i = 0; i < ls.length; i++) { const k = ls.key(i); if (k && k.startsWith("pd:")) out.push(k.slice(3)); } } catch (e) {} return out; }
+    };
+  } catch (e) {}
+  let store = backends.local || backends.memory;
+
+  /* ---------- dates ---------- */
+  function mondayOf(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function addDays(d, n) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  const pad = (n) => (n < 10 ? "0" + n : "" + n);
+  const key = (d) => `week-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const MISC_KEY = "misc";
+  const short = (d) => `${pad(d.getDate())} ${MONTHS[d.getMonth()]}`;
+  const sameDay = (a, b) => a.toDateString() === b.toDateString();
+  function isoWeek(mon) {
+    const thu = addDays(mon, 3), jan4 = new Date(thu.getFullYear(), 0, 4);
+    const firstThu = addDays(jan4, 3 - ((jan4.getDay() + 6) % 7));
+    return { wk: 1 + Math.round((thu - firstThu) / 604800000), yr: thu.getFullYear() };
+  }
+
+  /* ---------- model ---------- */
+  function blank() { const d = []; for (let i = 0; i < NDAYS; i++) d.push([]); return { goals: [], days: d, extra: [], notes: "" }; }
+  const ok = (t) => t && typeof t.t === "string";
+  function cp(t) {
+    const o = { t: t.t, done: !!t.done };
+    if (t.h) o.h = true;
+    if (typeof t.r === "string") { const r = clean(t.r); if (r && plain(r) === t.t) o.r = r; }
+    return o;
+  }
+  function normalise(o) {
+    const w = blank();
+    if (!o || typeof o !== "object") return w;
+    if (Array.isArray(o.goals)) w.goals = o.goals.filter(ok).map(cp);
+    if (Array.isArray(o.extra)) w.extra = o.extra.filter(ok).map(cp);
+    if (Array.isArray(o.days)) {
+      for (let i = 0; i < NDAYS; i++) if (Array.isArray(o.days[i])) w.days[i] = o.days[i].filter(ok).map(cp);
+      for (let i = NDAYS; i < o.days.length; i++) if (Array.isArray(o.days[i])) w.extra = w.extra.concat(o.days[i].filter(ok).map(cp));
+    }
+    if (typeof o.notes === "string") w.notes = o.notes;
+    return w;
+  }
+  function listFor(s) { if (s === "g") return week.goals; if (s === "x") return week.extra; if (s === "m") return misc; return week.days[+s]; }
+  const minRows = (s) => (s === "g" ? GOAL_ROWS : s === "m" ? MISC_ROWS : MIN_ROWS);
+  const normList = (a) => (Array.isArray(a) ? a.filter(ok).map(cp) : []);
+
+  /* ---------- persistence ---------- */
+  const lastSaved = {};
+  async function load() {
+    const raw = await store.get(key(monday));
+    try { week = normalise(raw ? JSON.parse(raw) : null); } catch (e) { week = blank(); }
+    lastSaved[key(monday)] = raw;
+  }
+  async function loadMisc() {
+    const raw = await store.get(MISC_KEY);
+    try { misc = normList(raw ? JSON.parse(raw) : null); } catch (e) { misc = []; }
+    lastSaved[MISC_KEY] = raw;
+  }
+  function queueSave() { setSave("Saving…", false, "saving"); clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+  async function save() {
+    saveTimer = null;
+    const k = key(monday), wj = JSON.stringify(week), mj = JSON.stringify(misc);
+    let okd = true;
+    if (wj !== lastSaved[k] && !(wj === JSON.stringify(blank()) && !lastSaved[k])) { okd = await store.set(k, wj); if (okd) lastSaved[k] = wj; }
+    if (mj !== lastSaved[MISC_KEY] && !(mj === "[]" && !lastSaved[MISC_KEY])) { const m = await store.set(MISC_KEY, mj); if (m) lastSaved[MISC_KEY] = mj; okd = okd && m; }
+    if (!okd) { setSave("Not saved", false, "error"); toast("Couldn't save. Check your connection and try again."); return; }
+    const n = new Date();
+    setSave("Saved " + pad(n.getHours()) + ":" + pad(n.getMinutes()), true, "ok");
+  }
+  async function readWeek(d) { const raw = await store.get(key(d)); try { return normalise(raw ? JSON.parse(raw) : null); } catch (e) { return blank(); } }
+  async function writeWeek(d, w) { const j = JSON.stringify(w); await store.set(key(d), j); lastSaved[key(d)] = j; }
+  function setSave(s, on, state) {
+    const el = $("#save"); el.textContent = s; el.classList.toggle("on", !!on);
+    const live = $("#live");
+    if (state) live.dataset.state = state;
+    $("#liveText").textContent = state === "saving" ? "Saving…" : state === "error" ? "Not saved" : store.label;
+  }
+
+  /* Keep this device in step with your other devices (desktop, phone). */
+  let unwatchWeek = null, unwatchMisc = null;
+  const editing = () => { const a = document.activeElement; return !!a && (a.classList.contains("task") || a.id === "notes"); };
+  function watch() {
+    if (store.kind !== "db") return;
+    if (unwatchWeek) unwatchWeek();
+    const k = key(monday);
+    unwatchWeek = db.doc(docPath(k)).onSnapshot((snap) => {
+      if (snap.metadata.hasPendingWrites || k !== key(monday)) return;
+      const j = snap.exists ? snap.data().json ?? null : null;
+      if (j === lastSaved[k] || saveTimer || editing() || drag) return;
+      lastSaved[k] = j;
+      try { week = normalise(j ? JSON.parse(j) : null); } catch (e) { return; }
+      if (view === "week") renderAll();
+    }, () => {});
+    if (!unwatchMisc) unwatchMisc = db.doc(docPath(MISC_KEY)).onSnapshot((snap) => {
+      if (snap.metadata.hasPendingWrites) return;
+      const j = snap.exists ? snap.data().json ?? null : null;
+      if (j === lastSaved[MISC_KEY] || saveTimer || editing() || drag) return;
+      lastSaved[MISC_KEY] = j;
+      try { misc = normList(j ? JSON.parse(j) : null); } catch (e) { return; }
+      if (view === "misc") { renderMisc(); tally(); }
+    }, () => {});
+  }
+
+  /* ---------- undo / redo ---------- */
+  const undoStack = [], redoStack = [], UNDO_MAX = 80;
+  let typing = false, typingIdle = null;
+  async function otherKeys(keys) { const o = {}; for (const k of keys) o[k] = await store.get(k); return o; }
+  const snapshot = (label, others) => ({ label, monday: new Date(monday.getTime()), data: JSON.stringify(week), misc: JSON.stringify(misc), view, others: others || null });
+  function pushUndo(label, others) { undoStack.push(snapshot(label, others)); if (undoStack.length > UNDO_MAX) undoStack.shift(); redoStack.length = 0; syncUndo(); }
+  // One Ctrl+Z undoes a whole burst of typing, not one character.
+  function markTyping(label) { if (!typing) { pushUndo(label); typing = true; } clearTimeout(typingIdle); typingIdle = setTimeout(() => { typing = false; }, 900); }
+  function endTyping() { clearTimeout(typingIdle); typing = false; }
+  async function apply(s) {
+    clearTimeout(saveTimer); saveTimer = null;
+    if (s.others) for (const k in s.others) { if (s.others[k] == null) await store.del(k); else await store.set(k, s.others[k]); lastSaved[k] = s.others[k]; }
+    const moved = s.monday.getTime() !== monday.getTime();
+    monday = s.monday;
+    week = normalise(JSON.parse(s.data));
+    misc = normList(JSON.parse(s.misc));
+    if (s.view !== view) setView(s.view);
+    renderAll(); renderMisc();
+    if (moved) watch();
+    await save();
+  }
+  async function step(from, to, verb) {
+    if (!from.length) return;
+    endTyping();
+    const s = from.pop();
+    to.push(snapshot(s.label, s.others ? await otherKeys(Object.keys(s.others)) : null));
+    await apply(s);
+    syncUndo();
+    toast(verb + " " + s.label);
+  }
+  const undo = () => step(undoStack, redoStack, "Undid");
+  const redo = () => step(redoStack, undoStack, "Redid");
+  function syncUndo() {
+    const u = $("#undo"), r = $("#redo");
+    u.disabled = !undoStack.length; r.disabled = !redoStack.length;
+    u.title = undoStack.length ? "Undo " + undoStack[undoStack.length - 1].label + " (Ctrl+Z)" : "Nothing to undo";
+    r.title = redoStack.length ? "Redo " + redoStack[redoStack.length - 1].label + " (Ctrl+Y)" : "Nothing to redo";
+  }
+  let toastTimer = null;
+  function toast(msg) { const el = $("#toast"); el.textContent = msg; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2200); }
+
+  document.addEventListener("keydown", (e) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    const k = (e.key || "").toLowerCase();
+    if (k === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); redo(); }
+  });
+
+  /* ---------- confirmations (the viewer blocks browser pop-ups) ---------- */
+  let confirmResolve = null;
+  function askConfirm(text, okLabel = "OK") {
+    if (confirmResolve) confirmResolve(false);
+    $("#confirmText").textContent = text; $("#confirmOk").textContent = okLabel;
+    $("#confirmBar").hidden = false; $("#confirmOk").focus();
+    return new Promise((res) => { confirmResolve = res; });
+  }
+  function closeConfirm(v) { $("#confirmBar").hidden = true; const r = confirmResolve; confirmResolve = null; if (r) r(v); }
+  $("#confirmOk").addEventListener("click", () => closeConfirm(true));
+  $("#confirmCancel").addEventListener("click", () => closeConfirm(false));
+
+  /* ---------- inline formatting: italic and red only ---------- */
+  function copyInto(src, dst) {
+    for (let n = src.firstChild; n; n = n.nextSibling) {
+      if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); continue; }
+      if (n.nodeType !== 1) continue;
+      const tag = n.tagName.toLowerCase(), style = n.getAttribute("style") || "";
+      const coloured = /color\s*:/i.test(style) || (tag === "font" && n.getAttribute("color")) || (n.classList && n.classList.contains("red"));
+      const ital = tag === "i" || tag === "em" || /font-style\s*:\s*italic/i.test(style);
+      let wrap = null, inner = null;
+      if (ital) { wrap = document.createElement("em"); inner = wrap; }
+      if (coloured) { const sp = document.createElement("span"); sp.className = "red"; if (wrap) { wrap.appendChild(sp); inner = sp; } else { wrap = sp; inner = sp; } }
+      if (wrap) { dst.appendChild(wrap); copyInto(n, inner); } else copyInto(n, dst);
+    }
+  }
+  // Clean markup, or null when the line has no formatting at all.
+  function clean(html) {
+    const box = document.createElement("div"); box.innerHTML = String(html ?? "");
+    const out = document.createElement("div"); copyInto(box, out);
+    const h = out.innerHTML;
+    return /<(em|span)\b/i.test(h) ? h : null;
+  }
+  function plain(html) { const box = document.createElement("div"); box.innerHTML = String(html ?? ""); return box.textContent || ""; }
+
+  /* ---------- render ---------- */
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function rowHTML(scope, idx, task) {
+    const empty = !task || !task.t, head = !!(task && task.h && task.t);
+    return `<div class="row${empty ? " empty" : ""}${head ? " heading" : ""}${task && task.done && !head ? " done" : ""}" data-scope="${scope}" data-idx="${idx}">` +
+      `<button class="tick" type="button" aria-label="Tick off"></button>` +
+      `<div class="acts">` +
+        (scope === "m" ? `<button class="hbtn" type="button" title="Make this line a heading (or start it with # )">H</button>` : "") +
+        `<button class="grab" type="button" title="Drag to move" aria-label="Drag to move"></button>` +
+        `<button class="del" type="button" title="Delete" aria-label="Delete">&#215;</button>` +
+      `</div>` +
+      `<div class="task" contenteditable="true" spellcheck="true" role="textbox" aria-label="Task">${empty ? "" : (task.r || esc(task.t))}</div></div>`;
+  }
+  function rowsHTML(scope, min = minRows(scope)) {
+    const list = listFor(scope); let out = "";
+    for (let i = 0; i < list.length; i++) out += rowHTML(scope, i, list[i]);
+    for (let i = list.length; i < Math.max(min, list.length + 1); i++) out += rowHTML(scope, i, null);
+    return out;
+  }
+  function hostFor(scope) { if (scope === "g") return $("#goals"); if (scope === "m") return $("#miscRows"); return document.querySelector(`.rows[data-scope="${scope}"]`); }
+  function renderScope(scope) { const host = hostFor(scope); if (host) host.innerHTML = rowsHTML(scope); tally(); }
+  function renderMisc() { $("#miscRows").innerHTML = rowsHTML("m", MISC_ROWS); }
+  function renderHeader() {
+    const end = addDays(monday, NDAYS - 1), iw = isoWeek(monday);
+    $("#wknum").textContent = "WK " + pad(iw.wk) + " / " + iw.yr;
+    $("#range").textContent = short(monday) + " – " + short(end) + " " + end.getFullYear();
+    $("#bandSub").textContent = view === "misc" ? "Misc list · your standing items" : `Week ${iw.wk} · ${short(monday)} – ${short(end)} ${end.getFullYear()}`;
+  }
+  function renderAll() {
+    renderHeader();
+    const today = new Date();
+    $("#goals").innerHTML = rowsHTML("g", GOAL_ROWS);
+    let g = "";
+    for (let d = 0; d < NDAYS; d++) {
+      const date = addDays(monday, d);
+      g += `<div class="day${sameDay(date, today) ? " today" : ""}"><div class="head"><span class="name">${DAYS[d]}</span>` +
+        `<div class="sub"><span class="date">${short(date)}</span><span class="chip">TODAY</span></div>` +
+        `<div class="daybar"><i data-bar="${d}"></i></div></div>` +
+        `<div class="rows" data-scope="${d}">${rowsHTML(String(d), MIN_ROWS)}</div></div>`;
+    }
+    g += `<div class="day extra"><div class="head"><span class="name">Overflow</span>` +
+      `<div class="sub"><span class="date">no fixed day</span></div><div class="daybar"><i data-bar="x"></i></div></div>` +
+      `<div class="rows" data-scope="x">${rowsHTML("x", MIN_ROWS)}</div></div>`;
+    $("#grid").innerHTML = g;
+    if (document.activeElement !== $("#notes")) $("#notes").value = week.notes;
+    tally();
+  }
+  function countIn(list, bar) {
+    let n = 0, k = 0;
+    list.forEach((t) => { if (t.h || !t.t.trim()) return; n++; if (t.done) k++; });
+    const el = bar == null ? null : document.querySelector(`[data-bar="${bar}"]`);
+    if (el) el.style.width = (n ? Math.round((k / n) * 100) : 0) + "%";
+    return [n, k];
+  }
+  function tally() {
+    let total = 0, done = 0;
+    if (view === "misc") { [total, done] = countIn(misc, null); }
+    else {
+      for (let d = 0; d < NDAYS; d++) { const r = countIn(week.days[d], d); total += r[0]; done += r[1]; }
+      const r = countIn(week.extra, "x"); total += r[0]; done += r[1];
+    }
+    $("#fill").style.width = (total ? Math.round((done / total) * 100) : 0) + "%";
+    $("#tally").textContent = total ? `${done} of ${total} ticked off` : "Nothing logged yet";
+  }
+
+  /* ---------- editing ---------- */
+  const sheet = $("#sheet"), page = document.querySelector("main");
+  // Write an edited line back into the model, keeping any red/italic markup.
+  function commit(el) {
+    const row = el.closest(".row"), scope = row.dataset.scope, idx = +row.dataset.idx, list = listFor(scope);
+    if (idx >= list.length) return null;
+    const text = el.textContent || "";
+    list[idx].t = text;
+    const r = clean(el.innerHTML);
+    if (r) list[idx].r = r; else delete list[idx].r;
+    row.classList.toggle("empty", !text);
+    tally(); queueSave();
+    return list[idx];
+  }
+  sheet.addEventListener("input", (e) => {
+    if (!e.target.classList.contains("task")) return;
+    markTyping("typing");
+    const el = e.target, row = el.closest(".row"), scope = row.dataset.scope, idx = +row.dataset.idx, list = listFor(scope);
+    const text = el.textContent || "";
+    if (idx >= list.length) {
+      while (list.length < idx) list.push({ t: "", done: false });
+      list.push({ t: text, done: false });
+      row.classList.remove("empty");
+      const host = row.parentNode;
+      if (host.children.length < Math.max(minRows(scope), list.length + 1)) host.insertAdjacentHTML("beforeend", rowHTML(scope, list.length, null));
+    } else if (!text && list[idx].h) { delete list[idx].h; row.classList.remove("heading"); }
+    commit(el);
+    // "# " at the start of a misc line turns it into a heading.
+    if (scope === "m" && !list[idx].h && /^#\s/.test(el.textContent || "")) {
+      el.textContent = (el.textContent || "").replace(/^#\s*/, "");
+      list[idx].h = true; list[idx].done = false;
+      row.classList.add("heading"); row.classList.remove("done");
+      commit(el); caretToEnd(el);
+    }
+  });
+  function caretToEnd(el) { try { const r = document.createRange(), sel = window.getSelection(); r.selectNodeContents(el); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); } catch (e) {} }
+
+  sheet.addEventListener("click", (e) => {
+    const row = e.target.closest(".row");
+    if (!row) return;
+    const scope = row.dataset.scope, idx = +row.dataset.idx, list = listFor(scope);
+    if (e.target.classList.contains("hbtn")) {
+      if (idx >= list.length || !list[idx].t.trim()) { row.querySelector(".task").focus(); return; }
+      endTyping(); pushUndo(list[idx].h ? "heading off" : "heading");
+      if (list[idx].h) delete list[idx].h; else { list[idx].h = true; list[idx].done = false; }
+      renderScope(scope); queueSave(); return;
+    }
+    if (e.target.classList.contains("tick")) {
+      if (idx >= list.length || !list[idx].t.trim() || list[idx].h) { row.querySelector(".task").focus(); return; }
+      endTyping(); pushUndo(list[idx].done ? "untick" : "tick");
+      list[idx].done = !list[idx].done;
+      row.classList.toggle("done", list[idx].done);
+      tally(); queueSave(); return;
+    }
+    if (e.target.classList.contains("del")) {
+      if (idx >= list.length) return;
+      endTyping(); pushUndo("delete");
+      list.splice(idx, 1);
+      renderScope(scope); queueSave(); return;
+    }
+    if (e.target.classList.contains("acts")) { const t = row.querySelector(".task"); if (t) { t.focus(); caretToEnd(t); } }
+  });
+  sheet.addEventListener("keydown", (e) => {
+    if (!e.target.classList.contains("task") || e.key !== "Enter") return;
+    e.preventDefault();
+    const nxt = e.target.closest(".row").nextElementSibling;
+    if (nxt) nxt.querySelector(".task").focus();
+  });
+  $("#notes").addEventListener("input", (e) => { markTyping("note"); week.notes = e.target.value; queueSave(); });
+
+  $("#prev").addEventListener("click", () => go(-7));
+  $("#next").addEventListener("click", () => go(7));
+  $("#today").addEventListener("click", () => go(0, mondayOf(new Date())));
+  $("#roll").addEventListener("click", () => rollOver());
+  $("#backup").addEventListener("click", () => backup());
+  $("#restore").addEventListener("click", () => $("#file").click());
+  $("#fromEmail").addEventListener("click", () => openImport(""));
+  $("#importActions").addEventListener("click", () => runImport(false));
+  $("#importAll").addEventListener("click", () => runImport(true));
+  $("#importCancel").addEventListener("click", () => closeImport());
+  $("#undo").addEventListener("click", () => undo());
+  $("#redo").addEventListener("click", () => redo());
+  $("#clear").addEventListener("click", async () => {
+    if (view === "misc") {
+      if (!(await askConfirm("Clear every item on the misc list? You can undo this.", "Clear list"))) return;
+      endTyping(); pushUndo("clear list"); misc = []; renderMisc(); tally(); save(); toast("List cleared");
+      return;
+    }
+    if (!(await askConfirm("Clear every task and note in this week? You can undo this.", "Clear week"))) return;
+    endTyping(); pushUndo("clear week"); week = blank(); renderAll(); save(); toast("Week cleared");
+  });
+
+  /* ---------- views (Weekly to-do / Misc list tabs) ---------- */
+  function setView(v) {
+    view = v;
+    const misced = v === "misc";
+    $("#weekView").hidden = misced; $("#miscView").hidden = !misced;
+    document.querySelectorAll(".wk-only").forEach((el) => (el.hidden = misced));
+    $("#tabWeek").setAttribute("aria-current", misced ? "false" : "page");
+    $("#tabMisc").setAttribute("aria-current", misced ? "page" : "false");
+    $("#clear").textContent = misced ? "Clear list" : "Clear week";
+    const want = misced ? "#misc" : "#week";
+    if (location.hash !== want && !(want === "#week" && !location.hash)) { try { history.replaceState(null, "", want); } catch (e) {} }
+    if (misced) renderMisc();
+    renderHeader(); tally();
+  }
+  window.addEventListener("hashchange", () => setView(location.hash === "#misc" ? "misc" : "week"));
+
+  /* ---------- right-click formatting ---------- */
+  let fmtEl = null, fmtRange = null;
+  const hideCtx = () => { $("#ctx").hidden = true; };
+  sheet.addEventListener("contextmenu", (e) => {
+    const el = e.target.closest(".task"); if (!el) return;
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    if (!el.contains(sel.anchorNode) || !el.contains(sel.focusNode)) return;
+    e.preventDefault();
+    fmtEl = el; fmtRange = sel.getRangeAt(0).cloneRange();
+    const menu = $("#ctx"); menu.hidden = false;
+    const w = menu.offsetWidth || 160, h = menu.offsetHeight || 110;
+    menu.style.left = Math.min(e.clientX, Math.max(4, window.innerWidth - w - 6)) + "px";
+    menu.style.top = Math.min(e.clientY, Math.max(4, window.innerHeight - h - 6)) + "px";
+  });
+  // mousedown + preventDefault keeps the highlight alive while the menu is clicked.
+  $("#ctx").addEventListener("mousedown", (e) => { const btn = e.target.closest("button"); if (!btn) return; e.preventDefault(); applyFormat(btn.dataset.cmd); hideCtx(); });
+  document.addEventListener("mousedown", (e) => { if (!e.target.closest("#ctx")) hideCtx(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideCtx(); if (!$("#confirmBar").hidden) closeConfirm(false); } });
+  window.addEventListener("scroll", hideCtx, true);
+  function applyFormat(cmd) {
+    const el = fmtEl, range = fmtRange; if (!el || !range) return;
+    endTyping(); pushUndo(cmd === "clear" ? "formatting" : cmd);
+    el.focus();
+    try {
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      if (cmd === "italic") document.execCommand("italic");
+      else if (cmd === "red") { document.execCommand("styleWithCSS", false, true); document.execCommand("foreColor", false, "#C0392B"); }
+      else document.execCommand("removeFormat");
+    } catch (err) {}
+    const r = clean(el.innerHTML);                     // normalise whatever the browser produced
+    el.innerHTML = r || esc(el.textContent || "");
+    commit(el); caretToEnd(el);
+    toast(cmd === "clear" ? "Formatting cleared" : cmd === "red" ? "Set red" : "Set italic");
+  }
+  // Ctrl+I as a shortcut, since the line is editable anyway.
+  sheet.addEventListener("keyup", (e) => {
+    if (e.target.classList.contains("task") && (e.ctrlKey || e.metaKey) && (e.key === "i" || e.key === "I")) {
+      const r = clean(e.target.innerHTML);
+      if (r) { e.target.innerHTML = r; commit(e.target); caretToEnd(e.target); }
+    }
+  });
+
+  /* ---------- drag and drop between days ---------- */
+  let drag = null;
+  function clearMarks() { document.querySelectorAll(".over-top,.over-bottom,.over-empty,.drop-in").forEach((m) => m.classList.remove("over-top", "over-bottom", "over-empty", "drop-in")); }
+  sheet.addEventListener("pointerdown", (e) => {
+    const handle = e.target.closest(".grab"); if (!handle || e.button > 0) return;
+    const row = handle.closest(".row"), scope = row.dataset.scope, idx = +row.dataset.idx;
+    if (idx >= listFor(scope).length) return;
+    e.preventDefault();
+    const box = row.getBoundingClientRect(), ghost = document.createElement("div");
+    ghost.className = "ghost"; ghost.textContent = listFor(scope)[idx].t;
+    ghost.style.width = box.width + "px"; ghost.style.left = box.left + "px"; ghost.style.top = box.top + "px";
+    document.body.appendChild(ghost);
+    drag = { scope, idx, row, ghost, dx: e.clientX - box.left, dy: e.clientY - box.top, to: null };
+    row.classList.add("dragging"); document.body.classList.add("dragging");
+    handle.setPointerCapture(e.pointerId);
+  });
+  sheet.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    e.preventDefault();
+    drag.ghost.style.left = e.clientX - drag.dx + "px"; drag.ghost.style.top = e.clientY - drag.dy + "px";
+    drag.ghost.style.visibility = "hidden";
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    drag.ghost.style.visibility = "";
+    clearMarks(); drag.to = null;
+    if (!under) return;
+    const host = under.closest(".rows"); if (!host) return;
+    const toScope = host.dataset.scope; if (!toScope) return;
+    const list = listFor(toScope), col = host.closest(".day") || host.closest(".sec");
+    if (col) col.classList.add("drop-in");
+    const target = under.closest(".row");
+    if (target && target.parentNode === host) {
+      const tIdx = +target.dataset.idx;
+      if (tIdx >= list.length) { drag.to = { scope: toScope, idx: list.length }; host.classList.add("over-empty"); return; }
+      const b = target.getBoundingClientRect(), after = e.clientY > b.top + b.height / 2;
+      target.classList.add(after ? "over-bottom" : "over-top");
+      drag.to = { scope: toScope, idx: after ? tIdx + 1 : tIdx };
+    } else { drag.to = { scope: toScope, idx: list.length }; host.classList.add("over-empty"); }
+  });
+  function endDrag(commitIt) {
+    if (!drag) return;
+    const d = drag; drag = null;
+    d.ghost.remove(); d.row.classList.remove("dragging"); document.body.classList.remove("dragging"); clearMarks();
+    if (commitIt && d.to) moveTask(d.scope, d.idx, d.to.scope, d.to.idx);
+  }
+  sheet.addEventListener("pointerup", () => endDrag(true));
+  sheet.addEventListener("pointercancel", () => endDrag(false));
+  window.addEventListener("pointerup", () => { if (drag) endDrag(true); });
+  window.addEventListener("blur", () => endDrag(false));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drag) endDrag(false); });
+
+  /* ---------- pulling actions out of pasted text and emails ---------- */
+  const BULLET = /^\s*(?:[•‣▪●◦⁃∙·*+–—-]|\d{1,2}[.)]|[a-z][.)])\s+/i;
+  const GREET = /^(?:hi|hello|hey|dear|good (?:morning|afternoon|evening)|thanks|thank you|thanks in advance|many thanks|regards|kind regards|best regards|warm regards|cheers|sincerely|all the best)\b[\s,.!–-]*$/i;
+  const HEADER = /^(?:from|sent|to|cc|bcc|subject|date|importance|attachments)\s*:/i;
+  const CHAIN = /^(?:from\s*:|-+\s*original message|on .{0,60}wrote\s*:|>)/i;
+  const SIGN = /^(?:--\s*$|_{3,}|-{3,}$|sent from my )/i;
+  const NEG = /\b(?:nothing to (?:action|do)|no action|not required|no need to|nothing further|for (?:your )?(?:info|information|awareness|reference)|fyi|just so you know|no rush)\b/i;
+  const LEADIN = /^(?:a few|some|the following|as follows|here(?:'s| is| are)?|these|below|see below|actions? (?:from|out of|arising)|items? (?:from|out of)|summary|points?)\b/i;
+  const CUE = /\b(?:please|pls|can you|could you|will you|need(?:s|ed)? to|to be|action(?:ed|s)?|confirm|provide|send|issue|review|arrange|advise|chase|follow up|submit|update|book|order|check|prepare|circulate|close out|revert|respond|reply|sign|approve|attend|organise|organize|by (?:mon|tue|wed|thu|fri|sat|sun|cob|eod|\d)|asap|urgent|outstanding|required)\b/i;
+  const tidy = (l) => l.replace(BULLET, "").replace(/^\s+|\s+$/g, "").replace(/\s{2,}/g, " ").slice(0, 300);
+  const isHeadingLine = (l) => /:$/.test(l) && l.length <= 60 && !HEADER.test(l) && !LEADIN.test(l);
+  // Every non-empty line becomes an item; a trailing colon marks a heading.
+  function splitLines(raw) {
+    const out = [];
+    for (const line of String(raw).replace(/\r/g, "").split("\n")) {
+      const l = tidy(line);
+      if (!l || SIGN.test(l)) continue;
+      out.push({ t: isHeadingLine(l) ? l.replace(/:$/, "") : l, h: isHeadingLine(l) });
+      if (out.length >= 60) break;
+    }
+    return out;
+  }
+  // Keep only the lines that read like something to do.
+  function extractActions(raw) {
+    const lines = String(raw).replace(/\r/g, "").split("\n");
+    let subject = "", bulleted = 0;
+    const items = [], kept = {};
+    for (const raw2 of lines) {
+      const l = raw2.trim();
+      if (/^subject\s*:/i.test(l) && !subject) subject = l.replace(/^subject\s*:\s*/i, "").slice(0, 70);
+      if (!l) continue;
+      if (items.length && CHAIN.test(l)) break;                 // stop at the quoted reply
+      if (SIGN.test(l)) break;
+      if (HEADER.test(l) || GREET.test(l)) continue;
+      const isB = BULLET.test(raw2), t = tidy(raw2);
+      if (!t || t.length < 3) continue;
+      if (isHeadingLine(t)) { items.push({ t: t.replace(/:$/, ""), h: true }); continue; }
+      if (/:$/.test(t) && LEADIN.test(t)) continue;
+      if (NEG.test(t)) continue;                                 // "nothing to action", "FYI"
+      if (!isB && !CUE.test(t)) continue;                        // prose gets left behind
+      if (kept[t.toLowerCase()]) continue;
+      kept[t.toLowerCase()] = 1;
+      if (isB) bulleted++;
+      items.push({ t, h: false });
+      if (items.length >= 40) break;
+    }
+    while (items.length && items[items.length - 1].h) items.pop(); // drop a heading with nothing under it
+    return { subject, items, bulleted };
+  }
+  const prepare = (items, scope) => items.map((it) => { const o = { t: it.t, done: false }; if (it.h && scope === "m") o.h = true; return o; }).filter((o) => o.t);
+  function insertAt(scope, idx, items, label) {
+    const list = listFor(scope), made = prepare(items, scope);
+    if (!made.length) return 0;
+    endTyping(); pushUndo(label);
+    let at;
+    if (idx < list.length && !list[idx].t.trim()) { list.splice(idx, 1); at = idx; }
+    else if (idx < list.length) at = idx + 1;
+    else at = list.length;
+    list.splice(at, 0, ...made);
+    renderScope(scope); tally(); queueSave();
+    return made.length;
+  }
+  // Pasting several lines into one row adds them as separate tasks.
+  sheet.addEventListener("paste", (e) => {
+    if (!e.target.classList.contains("task")) return;
+    const cd = e.clipboardData; if (!cd) return;
+    const raw = cd.getData("text") || "";
+    if (!/\n/.test(raw.replace(/\s+$/, ""))) {
+      e.preventDefault();                                        // strip any pasted styling
+      try { document.execCommand("insertText", false, raw); } catch (err) { e.target.textContent = (e.target.textContent || "") + raw; }
+      commit(e.target); return;
+    }
+    const row = e.target.closest(".row"), items = splitLines(raw);
+    if (items.length < 2) return;
+    e.preventDefault();
+    const n = insertAt(row.dataset.scope, +row.dataset.idx, items, "paste");
+    if (n) toast("Added " + n + " lines");
+  });
+  // Dropping an email or text file onto a day.
+  function dropScope(e) { const el = document.elementFromPoint(e.clientX, e.clientY), host = el && el.closest(".rows"), scope = host && host.dataset.scope; return scope ? { scope, idx: listFor(scope).length } : null; }
+  sheet.addEventListener("dragover", (e) => {
+    if (drag) return;
+    const t = e.dataTransfer && e.dataTransfer.types; if (!t) return;
+    if (!(Array.prototype.indexOf.call(t, "Files") >= 0 || Array.prototype.indexOf.call(t, "text/plain") >= 0)) return;
+    e.preventDefault(); sheet.classList.add("dropping");
+  });
+  sheet.addEventListener("dragleave", (e) => { if (e.target === sheet) sheet.classList.remove("dropping"); });
+  sheet.addEventListener("drop", async (e) => {
+    const dt = e.dataTransfer; if (!dt) return;
+    e.preventDefault(); sheet.classList.remove("dropping");
+    const target = dropScope(e);
+    let text = "";
+    const f = dt.files && dt.files[0];
+    if (f) {
+      if (/\.msg$/i.test(f.name || "")) { openImport("Outlook .msg files can't be read in a browser. Open the email, press Ctrl+A then Ctrl+C, and paste it below."); return; }
+      try { text = await f.text(); } catch (err) { text = ""; }
+      if (/[\u0000]/.test(text.slice(0, 400))) { openImport("That file isn't plain text, so it can't be read here. Paste the email body below instead."); return; }
+    }
+    if (!text) text = dt.getData("text/plain") || "";
+    if (!text.trim()) return;
+    if (target) applyExtract(text, target.scope, target.idx); else openImport("", text);
+  });
+  function applyExtract(text, scope, idx, everyLine) {
+    const res = everyLine ? { subject: "", items: splitLines(text) } : extractActions(text);
+    let items = res.items;
+    if (!items.length) { toast("Nothing actionable found"); openImport("No actions found. Edit the text below, or take every line.", text); return; }
+    if (scope === "m") items = [{ t: res.subject || "From email " + short(new Date()), h: true }].concat(items);
+    const n = insertAt(scope, idx, items, "email");
+    toast("Added " + n + " item" + (n === 1 ? "" : "s"));
+  }
+  function openImport(hint, prefill) {
+    $("#importPanel").hidden = false;
+    if (hint) $("#importHint").textContent = hint;
+    if (prefill) $("#importText").value = prefill;
+    $("#importText").focus();
+  }
+  function closeImport() {
+    $("#importPanel").hidden = true; $("#importText").value = "";
+    $("#importHint").textContent = "Outlook: open the email, press Ctrl+A then Ctrl+C, and paste it above.";
+  }
+  function runImport(everyLine) {
+    const text = $("#importText").value;
+    if (!text.trim()) { $("#importText").focus(); return; }
+    const scope = view === "misc" ? "m" : "x";                 // weekly sheet: park it in Overflow
+    applyExtract(text, scope, listFor(scope).length, everyLine);
+    closeImport();
+  }
+
+  /* ---------- moving between weeks ---------- */
+  async function go(delta, target) {
+    clearTimeout(saveTimer); await save();                       // always save under the week we were on
+    if (target) monday = target; else if (delta) monday = addDays(monday, delta);
+    await load(); renderAll(); watch();
+  }
+  function moveTask(fromScope, fromIdx, toScope, toIdx) {
+    const src = listFor(fromScope);
+    if (fromIdx >= src.length) return;
+    if (fromScope === toScope && (toIdx === fromIdx || toIdx === fromIdx + 1)) return;
+    endTyping(); pushUndo("move");
+    const t = src.splice(fromIdx, 1)[0], dst = listFor(toScope);
+    if (fromScope === toScope && toIdx > fromIdx) toIdx--;
+    dst.splice(Math.max(0, Math.min(toIdx, dst.length)), 0, t);
+    renderScope(fromScope); if (toScope !== fromScope) renderScope(toScope);
+    queueSave();
+  }
+  async function pushToNextWeek(items, target) {
+    const nm = addDays(monday, 7), w = await readWeek(nm), dest = target === "extra" ? w.extra : w.days[0];
+    items.forEach((t) => { const o = cp(t); o.done = false; dest.push(o); });   // keeps red/italic markup
+    await writeWeek(nm, w);
+  }
+  const keepable = (t) => t.done || !t.t.trim();
+  async function rollOver() {
+    const open = [], parked = [];
+    for (let d = 0; d < NDAYS; d++) week.days[d].forEach((t) => { if (!t.done && t.t.trim()) open.push(t); });
+    week.extra.forEach((t) => { if (!t.done && t.t.trim()) parked.push(t); });
+    const n = open.length + parked.length;
+    if (!n) { toast("Nothing unfinished to roll over."); return; }
+    if (!(await askConfirm(`Move ${n} unfinished item${n === 1 ? "" : "s"} into next week? Dated tasks go to Monday; Overflow items stay in Overflow.`, "Roll over"))) return;
+    endTyping();
+    pushUndo("roll over", await otherKeys([key(addDays(monday, 7))]));
+    if (open.length) await pushToNextWeek(open);
+    if (parked.length) await pushToNextWeek(parked, "extra");
+    for (let d = 0; d < NDAYS; d++) week.days[d] = week.days[d].filter(keepable);
+    week.extra = week.extra.filter(keepable);
+    renderAll(); await save();
+    toast(`Rolled over ${n} item${n === 1 ? "" : "s"}`);
+  }
+
+  /* ---------- back up / restore (same file format as the old board) ---------- */
+  const toOldKey = (k) => (k === MISC_KEY ? "todo:misc" : "todo:week:" + k.replace(/^week-/, ""));
+  async function backup() {
+    await save();
+    if (!downloads) { toast("Saving files isn't available in this view."); return; }
+    const keys = (await store.keys()).filter((k) => k === MISC_KEY || k.startsWith("week-")), out = {};
+    for (const k of keys) { const raw = await store.get(k); if (raw) try { out[toOldKey(k)] = JSON.parse(raw); } catch (e) {} }
+    const n = new Date();
+    const name = `weekly-todo-backup-${n.getFullYear()}${pad(n.getMonth() + 1)}${pad(n.getDate())}.json`;
+    try {
+      await downloads.save({ filename: name, data: JSON.stringify({ tool: "weekly-todo", saved: n.toISOString(), weeks: out }, null, 2) });
+      setSave("Backed up", true, "ok");
+    } catch (e) { if (!e || e.code !== "declined") toast("Couldn't save the backup file."); }
+  }
+  $("#file").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    let data;
+    try { data = JSON.parse(await f.text()); } catch (err) { toast("That file isn't a readable backup."); e.target.value = ""; return; }
+    const weeks = data && data.weeks;
+    if (!weeks || typeof weeks !== "object") { toast("That file isn't a readable backup."); e.target.value = ""; return; }
+    const ks = Object.keys(weeks).filter((k) => /^todo:week:\d{4}-\d{2}-\d{2}$/.test(k) || k === "todo:misc");
+    if (!ks.length) { toast("No weeks found in that file."); e.target.value = ""; return; }
+    if (!(await askConfirm(`Restore ${ks.length} item${ks.length === 1 ? "" : "s"} from the backup? Weeks with the same date are overwritten.`, "Restore"))) { e.target.value = ""; return; }
+    for (const k of ks) {
+      const nk = k === "todo:misc" ? MISC_KEY : "week-" + k.slice("todo:week:".length);
+      const val = JSON.stringify(k === "todo:misc" ? normList(weeks[k]) : normalise(weeks[k]));
+      await store.set(nk, val); lastSaved[nk] = val;
+    }
+    await load(); await loadMisc(); renderAll(); renderMisc();
+    undoStack.length = 0; redoStack.length = 0; syncUndo();
+    setSave("Restored", true, "ok"); toast("Backup restored");
+    e.target.value = "";
+  });
+
+  /* ---------- boot ---------- */
+  setView(location.hash === "#misc" ? "misc" : "week");
+  renderAll(); renderMisc(); syncUndo();
+  (async () => {
+    const C = window.claude;
+    const [dbNs, userNs, dlNs] = await Promise.all([
+      C?.use ? C.use("db").catch(() => null) : null,
+      C?.use ? C.use("user").catch(() => null) : null,
+      C?.use ? C.use("downloads").catch(() => null) : null
+    ]);
+    downloads = dlNs;
+    $("#backup").hidden = !downloads;
+    if (userNs) {
+      const me = await userNs.me();
+      uid = me.id;
+      if (me.name) { const first = me.name.split(/\s+/)[0]; $("#who").textContent = first + "'s dashboard"; document.title = first + "'s Dashboard"; }
+    }
+    if (dbNs && uid) { db = dbNs; store = backends.db; }
+    $("#where").textContent = store.label;
+    if (store.kind === "memory") $("#warn").textContent = "Nothing typed here will be kept: this view can't reach your saved data and the browser is blocking local storage. Open the page in Claude while signed in.";
+    else if (store.kind === "local") $("#warn").textContent = "Your to-dos are only being saved in this browser. Open the page in Claude while signed in to keep them with your account.";
+    await load(); await loadMisc();
+    renderAll(); renderMisc(); setView(view);
+    setSave("", false, "ok");
+    watch();
+  })();
+})();
+</script>
