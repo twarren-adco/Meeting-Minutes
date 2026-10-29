@@ -231,6 +231,19 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 .empty-note { color: var(--muted); margin: 0; }
+.wn-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 12px; }
+.wn-head h2 { margin: 0 !important; }
+.wn-note { color: var(--muted); font-size: 12.5px; }
+.wn-note.stale { color: var(--red); font-weight: 600; }
+.wn-link { color: var(--head); font-weight: 600; text-decoration: none; }
+.wn-link:hover { text-decoration: underline; }
+.chips.wn { margin-bottom: 12px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 1px 9px 1px 7px; font-size: 12.5px; font-weight: 600; white-space: nowrap; border: 1px solid var(--line-strong); }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.s-complete { color: var(--ok); } .pill.s-progress { color: var(--head); } .pill.s-urgent { color: var(--red); } .pill.s-idle { color: var(--muted); } .pill.s-unset { color: var(--faint); border-style: dashed; }
+.od-date { color: var(--red); font-weight: 700; }
+.soon-date { color: #b07800; font-weight: 700; }
+.wn-star { color: #e29a00; margin-right: 4px; }
 @media (max-width: 860px) { .summary, .dash { grid-template-columns: minmax(0, 1fr); } }
 
 .ctx { position: fixed; z-index: 30; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 30, 80, .2); padding: 5px; min-width: 160px; display: grid; gap: 2px; }
@@ -300,6 +313,15 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
       </div>
     </section>
     <div class="dash">
+      <section class="panel wide" aria-label="My Weinam actions">
+        <div class="wn-head">
+          <h2>Weinam Ck Car Park – my actions (TW)</h2>
+          <span class="wn-note" id="wnNote"></span>
+        </div>
+        <div class="chips wn" id="wnChips"></div>
+        <div class="tbl-wrap"><table class="dt" id="wnTable"></table></div>
+        <p class="wn-note" style="margin:10px 0 0">Read-only copy of the Weinam checklist where Champion is TW, refreshed hourly on weekdays. <a class="wn-link" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist" target="_blank" rel="noopener">Open Weinam to update a task ↗</a></p>
+      </section>
       <section class="panel wide">
         <h2>Status by day</h2>
         <div class="tbl-wrap"><table class="dt" id="dDays"></table></div>
@@ -794,7 +816,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     if (location.hash !== want && !(v === "dash" && !location.hash)) { try { history.replaceState(null, "", want); } catch (e) {} }
     if (misced) renderMisc();
     renderHeader(); tally();
-    if (dash) renderDash();
+    if (dash) { renderDash(); renderWeinam(); }
   }
   window.addEventListener("hashchange", () => setView(viewFromHash()));
 
@@ -803,6 +825,53 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
   const barHtml = (done, open) => (done + open ? (done ? `<span style="width:${(done / (done + open)) * 100}%;background:var(--ok)" title="Done: ${done}"></span>` : "") + (open ? `<span style="width:${(open / (done + open)) * 100}%;background:var(--faint)" title="Open: ${open}"></span>` : "") : "");
   const num = (n) => (n ? n : `<span class="zero">0</span>`);
   const taskHtml = (t) => (t.r ? clean(t.r) || esc(t.t) : esc(t.t));
+  /* ---------- Weinam actions: a copy of the Weinam tasks where Champion = TW, written hourly into
+     data/users/<you>/weinam-tw by a scheduled Claude task (the two pages can't read each other's data) ---------- */
+  let weinam = null, unwatchWeinam = null;
+  const WEINAM_URL = "https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist";
+  const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const isoPlus = (n) => { const d = addDays(new Date(), n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const fmtIso = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y.slice(2)}`; };
+  const PILL = { "Complete": ["s-complete", "Complete"], "In Progress": ["s-progress", "In progress"], "Urgent": ["s-urgent", "Urgent"], "Not Started": ["s-idle", "Not started"], "N/A this project": ["s-unset", "N/A"], "": ["s-unset", "Not set"] };
+  function watchWeinam() {
+    if (store.kind !== "db" || unwatchWeinam) return;
+    unwatchWeinam = db.doc(docPath("weinam-tw")).onSnapshot((snap) => { weinam = snap.exists ? snap.data() : null; renderWeinam(); }, () => {});
+  }
+  function renderWeinam() {
+    const note = $("#wnNote"), chips = $("#wnChips"), table = $("#wnTable");
+    if (!weinam || !Array.isArray(weinam.tasks)) {
+      note.textContent = ""; chips.innerHTML = "";
+      table.innerHTML = `<tbody><tr><td class="l" style="color:var(--muted)">${store.kind === "db" ? "Waiting for the first copy from Weinam. It arrives with the next hourly sync." : "Open this page in Claude while signed in to see your Weinam actions."}</td></tr></tbody>`;
+      return;
+    }
+    const t0 = isoToday(), t7 = isoPlus(7);
+    const closed = (t) => t.status === "Complete" || t.status === "N/A this project";
+    const all = weinam.tasks, open = all.filter((t) => !closed(t));
+    const overdue = open.filter((t) => t.due && t.due < t0), soon = open.filter((t) => t.due && t.due >= t0 && t.due <= t7);
+    const done = all.filter((t) => t.status === "Complete").length;
+    chips.innerHTML =
+      `<span class="chip"><span class="dot" style="background:var(--faint)"></span>Open <b>${open.length}</b></span>` +
+      `<span class="chip"><span class="dot" style="background:var(--red)"></span>Overdue <b>${overdue.length}</b></span>` +
+      `<span class="chip"><span class="dot" style="background:#e2a400"></span>Due in 7 days <b>${soon.length}</b></span>` +
+      `<span class="chip"><span class="dot" style="background:var(--ok)"></span>Complete <b>${done}</b></span>`;
+    const when = weinam.syncedAt ? new Date(weinam.syncedAt) : null;
+    const ageH = when ? (Date.now() - when.getTime()) / 36e5 : Infinity;
+    note.textContent = when ? `Synced ${pad(when.getHours())}:${pad(when.getMinutes())} ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][when.getDay()]} ${when.getDate()} ${MONTHS[when.getMonth()]}` : "";
+    note.classList.toggle("stale", ageH > 26);
+    if (ageH > 26) note.textContent += " · out of date";
+    const byDue = (a, b) => (a.due || "9999") < (b.due || "9999") ? -1 : (a.due || "9999") > (b.due || "9999") ? 1 : 0;
+    const rows = open.slice().sort(byDue);
+    table.innerHTML = rows.length
+      ? `<thead><tr><th>#</th><th class="l">Task</th><th class="l">Status</th><th>Start by</th><th>Complete by</th><th class="l">Category</th></tr></thead><tbody>` +
+        rows.map((t) => {
+          const [cls, label] = PILL[t.status || ""] || PILL[""];
+          const dueCls = t.due && t.due < t0 ? "od-date" : t.due && t.due <= t7 ? "soon-date" : "";
+          return `<tr><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${WEINAM_URL}" target="_blank" rel="noopener">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
+            `<td class="l"><span class="pill ${cls}">${label}</span></td><td>${fmtIso(t.start)}</td><td><span class="${dueCls}">${fmtIso(t.due)}${dueCls === "od-date" ? " · overdue" : ""}</span></td><td class="l">${esc(t.group || "")}</td></tr>`;
+        }).join("") + `</tbody>`
+      : `<tbody><tr><td class="l" style="color:var(--muted)">No open Weinam actions with TW as Champion.${done ? ` ${done} complete.` : ""}</td></tr></tbody>`;
+  }
+
   let dashToken = 0;
   async function renderDash() {
     if ($("#dashView").hidden) return;
@@ -1190,7 +1259,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
     await load(); await loadMisc();
     renderAll(); renderMisc(); setView(view);
     setSave("", false, "ok");
-    watch();
+    watch(); watchWeinam(); renderWeinam();
   })();
 })();
 </script>
