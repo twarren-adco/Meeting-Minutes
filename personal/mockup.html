@@ -1,0 +1,504 @@
+<title>Dashboard Upgrade Mock-up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: the personal dashboard's ADCO band and pale sheet; a review banner, then one framed mock per proposed feature,
+   grouped by the tab it would live on, each with Approve / Change / Not now controls and a summary to copy back. */
+:root {
+  --bg: #f2f5fc; --surface: #ffffff; --surface-2: #ebf0fa; --ink: #0b2a5c; --head: #0047bb; --muted: #4a5464; --faint: #8592a6;
+  --line: #dbe4f5; --line-strong: #ccdaf1; --brand: #0047bb; --brand-ink: #ffffff; --band: #0047bb; --band-ink: #ffffff; --band-muted: #cfdcf5;
+  --sky: #00b2ff; --ok: #1b7a4b; --ok-bg: #e3f3ea; --red: #c0392b; --red-bg: #fbe5e3; --amber: #b07800; --amber-bg: #fff4d6; --gold: #e29a00;
+  --violet: #6a3fb5; --violet-bg: #efe8fb; --focus-soft: rgba(0, 71, 187, .12); --hover: rgba(0, 71, 187, .05);
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --f-body: "Figtree", "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #061631; --surface: #0b2148; --surface-2: #102b5a; --ink: #e9effb; --head: #9fc0ff; --muted: #a9b6cc; --faint: #7f8ea8;
+    --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --band: #0047bb; --band-muted: #cfdcf5; --sky: #4cc8ff;
+    --ok: #6fd6a0; --ok-bg: #12352a; --red: #ff8f86; --red-bg: #401a1c; --amber: #f2bd5c; --amber-bg: #3a2c12; --gold: #f5c04a;
+    --violet: #c4a8ff; --violet-bg: #2a1f4a; --hover: rgba(255,255,255,.04); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #061631; --surface: #0b2148; --surface-2: #102b5a; --ink: #e9effb; --head: #9fc0ff; --muted: #a9b6cc; --faint: #7f8ea8;
+  --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --band: #0047bb; --band-muted: #cfdcf5; --sky: #4cc8ff;
+  --ok: #6fd6a0; --ok-bg: #12352a; --red: #ff8f86; --red-bg: #401a1c; --amber: #f2bd5c; --amber-bg: #3a2c12; --gold: #f5c04a;
+  --violet: #c4a8ff; --violet-bg: #2a1f4a; --hover: rgba(255,255,255,.04); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.4; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--head); outline-offset: 2px; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1480px; margin: 0 auto; }
+
+.band { background: var(--band); color: var(--band-ink); }
+.band .wrap { padding-block: 18px 0; display: grid; grid-template-columns: auto 1fr auto; gap: 8px 18px; align-items: center; }
+.mark { border: 2px solid var(--band-ink); font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: .08em; padding: 4px 12px 2px; line-height: 1.1; align-self: start; }
+.eyebrow { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; color: var(--band-muted); }
+h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1.15; }
+.sub { color: var(--band-muted); font-size: 14px; }
+.search { justify-self: end; position: relative; width: min(340px, 100%); }
+.search input { width: 100%; height: 36px; border-radius: 4px; border: 1px solid rgba(255,255,255,.4); background: rgba(255,255,255,.12); color: var(--band-ink); padding: 0 12px 0 34px; }
+.search input::placeholder { color: var(--band-muted); }
+.search svg { position: absolute; left: 11px; top: 11px; color: var(--band-muted); }
+.tabs { grid-column: 1 / -1; display: flex; gap: 4px; margin-top: 10px; overflow-x: auto; scrollbar-width: none; }
+.tab { flex: none; color: var(--band-muted); font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 14px 9px; border-bottom: 3px solid transparent; text-decoration: none; }
+.tab:hover { color: var(--band-ink); }
+.tab.on { color: var(--band-ink); border-bottom-color: var(--band-ink); }
+.tab.ext { margin-left: auto; }
+
+main.wrap { padding-block: 20px 60px; display: grid; gap: 18px; }
+main.wrap > * { min-width: 0; }
+.review { background: var(--surface); border: 2px dashed var(--brand); border-radius: 6px; padding: 14px 18px; display: grid; gap: 4px; }
+.review b { color: var(--head); font-family: var(--f-display); font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.review p { margin: 0; color: var(--muted); max-width: 95ch; }
+.group-title { font-family: var(--f-display); font-weight: 700; font-size: 22px; letter-spacing: .04em; text-transform: uppercase; color: var(--head); margin: 14px 0 -4px; display: flex; align-items: center; gap: 12px; }
+.group-title::after { content: ""; flex: 1; height: 2px; background: var(--line-strong); }
+
+.feature { position: relative; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--bg); padding: 12px; display: grid; gap: 12px; }
+.f-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.f-no { font-family: var(--f-display); font-weight: 700; font-size: 15px; background: var(--brand); color: var(--brand-ink); border-radius: 4px; padding: 2px 8px; }
+.f-name { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .03em; text-transform: uppercase; color: var(--head); }
+.f-tier { font-size: 12px; font-weight: 600; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 1px 9px; background: var(--surface); }
+.f-why { flex: 1 1 320px; color: var(--muted); font-size: 13px; margin: 0; }
+.vote { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; background: var(--surface); margin-left: auto; }
+.vote button { border: 0; background: none; padding: 6px 12px; font-weight: 600; font-size: 12.5px; color: var(--head); }
+.vote button + button { border-left: 1px solid var(--line-strong); }
+.vote button[aria-pressed="true"][data-v="approve"] { background: var(--ok); color: #fff; }
+.vote button[aria-pressed="true"][data-v="change"] { background: var(--amber); color: #fff; }
+.vote button[aria-pressed="true"][data-v="no"] { background: var(--faint); color: #fff; }
+.feature.v-approve { border-color: var(--ok); }
+.feature.v-no { opacity: .62; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+.panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.panel h2 small { font-family: var(--f-body); text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--muted); font-weight: 500; }
+.label { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; color: var(--head); }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.btn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 4px; height: 32px; padding: 0 12px; font-weight: 600; font-size: 13px; color: var(--head); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+
+/* Today list */
+.today { list-style: none; margin: 0; padding: 0; }
+.today li { display: grid; grid-template-columns: 22px 18px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--line); }
+.today li:last-child { border-bottom: 0; }
+.box { width: 16px; height: 16px; border: 1.5px solid var(--faint); border-radius: 3px; }
+.box.on { background: var(--brand); border-color: var(--brand); position: relative; }
+.box.on::after { content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg); }
+.flag { color: var(--gold); font-size: 15px; }
+.flag.off { color: var(--line-strong); }
+.t-text { font-weight: 600; }
+.t-text.done { text-decoration: line-through; color: var(--faint); font-weight: 400; }
+.src { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.chip { font-size: 11.5px; font-weight: 600; border-radius: 3px; padding: 1px 6px; border: 1px solid var(--line-strong); color: var(--head); background: var(--surface-2); white-space: nowrap; }
+.chip.wn { color: var(--brand); }
+.chip.mt { color: var(--violet); background: var(--violet-bg); border-color: transparent; }
+.chip.od { color: var(--red); background: var(--red-bg); border-color: transparent; }
+.chip.dt { color: var(--amber); background: var(--amber-bg); border-color: transparent; }
+.chip.rc { color: var(--ok); background: var(--ok-bg); border-color: transparent; }
+
+/* Waiting on others */
+.who { display: grid; gap: 8px; }
+.who + .who { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.who-h { display: flex; align-items: center; gap: 8px; }
+.ini { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 12px; background: var(--surface-2); color: var(--head); border: 1px solid var(--line-strong); }
+.who-h b { color: var(--head); }
+.who-h .btn { margin-left: auto; height: 28px; font-size: 12px; }
+.w-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; font-size: 13.5px; padding-left: 38px; }
+
+/* Look-ahead */
+.la { display: grid; grid-template-columns: 70px repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; min-width: 720px; }
+.la > div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; min-height: 64px; display: grid; align-content: start; gap: 4px; }
+.la .hd { background: #0047bb; color: #fff; min-height: 0; font-family: var(--f-display); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+.la .wk { background: var(--surface-2); color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 13px; }
+.la .d { font-size: 11.5px; color: var(--muted); }
+.la .today-c { box-shadow: inset 0 3px 0 var(--sky); }
+.ev { font-size: 11.5px; font-weight: 600; border-radius: 3px; padding: 2px 5px; line-height: 1.25; }
+.ev.key { background: #fff4d6; color: #7a5200; border-left: 3px solid var(--gold); }
+.ev.tw { background: #e1eafb; color: #0047bb; }
+.ev.mt { background: var(--violet-bg); color: var(--violet); }
+.ev.me { background: var(--surface-2); color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+
+/* Weekly review */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.meter { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin: 4px 0 12px; }
+.meter i { display: block; height: 100%; width: 40%; background: var(--ok); }
+
+/* Search dropdown */
+.results { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 12px 30px rgba(0,30,80,.18); padding: 6px; max-width: 560px; }
+.results .grp { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: 11.5px; color: var(--muted); padding: 8px 8px 4px; }
+.results .hit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 7px 8px; border-radius: 4px; }
+.results .hit:hover { background: var(--hover); }
+.results mark { background: #fff1a8; color: inherit; border-radius: 2px; padding: 0 1px; }
+
+/* Board snippets */
+.board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; min-width: 640px; }
+.col { border-right: 1px solid var(--line); }
+.col:last-child { border-right: 0; }
+.col .h { background: #0047bb; color: #fff; padding: 8px 10px; font-family: var(--f-display); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; }
+.col .h span { display: block; font-family: var(--f-body); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 12px; opacity: .85; }
+.line { display: grid; grid-template-columns: 18px 16px minmax(0, 1fr); gap: 7px; align-items: start; padding: 7px 8px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.line .box { margin-top: 2px; }
+.line.hi { background: #fff8e1; }
+:root[data-theme="dark"] .line.hi { background: #3a2c12; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .line.hi { background: #3a2c12; } }
+.pop { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; padding: 12px; box-shadow: 0 10px 26px rgba(0,30,80,.15); display: grid; gap: 8px; }
+.pop .r { display: grid; grid-template-columns: minmax(0, 1fr) 110px 90px 22px; gap: 8px; align-items: center; font-size: 13px; }
+.field { border: 1px solid var(--line-strong); border-radius: 4px; padding: 5px 8px; background: var(--surface); font-size: 13px; color: var(--ink); }
+
+/* Meeting snippets */
+.m-item { border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: 4px; padding: 10px 12px; display: grid; gap: 6px; background: var(--surface); }
+.m-item.ba { border-left-color: var(--violet); background: var(--violet-bg); }
+.m-item + .m-item { margin-top: 8px; }
+.m-h { display: flex; gap: 8px; align-items: baseline; }
+.m-no { font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--head); min-width: 22px; }
+.m-t { font-weight: 700; color: var(--head); }
+.m-act { display: grid; grid-template-columns: 38px minmax(0, 1fr) 54px 74px 70px; gap: 6px; font-size: 13px; align-items: center; padding-left: 30px; }
+.m-act .ref { color: var(--head); font-weight: 600; font-size: 12px; }
+.tpl { display: flex; flex-wrap: wrap; gap: 6px; }
+.tpl span { border: 1px dashed var(--line-strong); border-radius: 4px; padding: 3px 8px; font-size: 12.5px; background: var(--surface); }
+.email { white-space: pre-wrap; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 12px; max-height: 300px; overflow: auto; color: var(--ink); }
+table.dt { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 680px; }
+.dt th, .dt td { padding: 7px 9px; border: 1px solid var(--line); text-align: left; }
+.dt th { background: #0047bb; color: #fff; font-weight: 600; font-size: 12px; }
+.dt td.c { text-align: center; }
+.scroll { overflow-x: auto; }
+
+.summary { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 5; background: var(--surface); border: 1px solid var(--brand); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,30,80,.2); padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.summary b { color: var(--head); }
+.summary .counts { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.summary .counts span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+.summary .a::before { background: var(--ok); } .summary .c::before { background: var(--amber); } .summary .n::before { background: var(--faint); }
+.summary .btn { margin-left: auto; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(80px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--ink); color: var(--surface); border-radius: 6px; padding: 10px 16px; font-weight: 500; }
+
+@media (max-width: 900px) {
+  .band .wrap { grid-template-columns: auto minmax(0, 1fr); }
+  .search { grid-column: 1 / -1; justify-self: stretch; width: 100%; }
+  h1 { font-size: 24px; }
+  .row2 { grid-template-columns: minmax(0, 1fr); }
+  .vote { margin-left: 0; }
+  .today li { grid-template-columns: 22px 18px minmax(0, 1fr); }
+  .today .src { grid-column: 3; justify-content: flex-start; }
+  .m-act { grid-template-columns: 34px minmax(0, 1fr); padding-left: 0; }
+  .w-item { padding-left: 0; }
+}
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div class="mark">ADCO</div>
+    <div>
+      <div class="eyebrow">Personal dashboard · Mock-up for review</div>
+      <h1>Tom's dashboard</h1>
+      <div class="sub">Week 44 · 26 Oct – 30 Oct 2026</div>
+    </div>
+    <label class="search" aria-label="Search everything (mock-up)">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="mockSearch" placeholder="Search minutes, meetings and Weinam… (feature 11)" value="">
+    </label>
+    <nav class="tabs" aria-label="Tabs (mock-up)">
+      <a class="tab on" href="#dash">Dashboard</a>
+      <a class="tab" href="#board">My minutes</a>
+      <span class="tab">Misc list</span>
+      <a class="tab" href="#meetings">Meeting minutes</a>
+      <span class="tab ext">Weinam Ck Car Park ↗</span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="review">
+    <b>Mock-up for review: nothing on this page is live</b>
+    <p>This shows how features 1–11 would look on your dashboard, using sample Weinam data. Buttons and tick boxes don't do anything yet. Mark each feature <b style="font-size:inherit;text-transform:none;letter-spacing:0">Approve</b>, <b style="font-size:inherit;text-transform:none;letter-spacing:0">Change</b> or <b style="font-size:inherit;text-transform:none;letter-spacing:0">Not now</b>, then use <b style="font-size:inherit;text-transform:none;letter-spacing:0">Copy my choices</b> at the bottom and paste them back to Claude.</p>
+  </section>
+
+  <!-- ===================== DASHBOARD TAB ===================== -->
+  <div class="group-title" id="dash">Dashboard tab</div>
+
+  <section class="feature" data-f="1">
+    <div class="f-head"><span class="f-no">#1</span><span class="f-name">Today view</span><span class="f-tier">Quick win</span>
+      <p class="f-why">One list at the top of the dashboard: today's My minutes tasks, Weinam TW items due or overdue, and meeting actions due today. Overdue first, then flagged, with the source shown on each line.</p></div>
+    <div class="panel">
+      <h2>Today · Fri 30 Oct <small>7 to do · 2 overdue · 1 done</small></h2>
+      <ul class="today">
+        <li><span class="box"></span><span class="flag">★</span><span class="t-text">Temp carpark closes &amp; cars removed</span><span class="src"><span class="chip od">Overdue 2 days</span><span class="chip wn">Weinam 4.2</span></span></li>
+        <li><span class="box"></span><span class="flag off">★</span><span class="t-text">Chase council for TCP approval</span><span class="src"><span class="chip od">Overdue 1 day</span><span class="chip mt">Bull Civil #3 · 1.2</span></span></li>
+        <li><span class="box"></span><span class="flag">★</span><span class="t-text">Send level 6 cost implications to EDQ</span><span class="src"><span class="chip dt">Due today</span><span class="chip mt">EDQ client #1 · 1.1</span></span></li>
+        <li><span class="box"></span><span class="flag">★</span><span class="t-text">Review DA reports</span><span class="src"><span class="chip">My minutes · Fri</span></span></li>
+        <li><span class="box"></span><span class="flag off">★</span><span class="t-text">Finalise site logistics &amp; layout plans</span><span class="src"><span class="chip dt">Due 9 Nov</span><span class="chip wn">Weinam 2.1</span></span></li>
+        <li><span class="box"></span><span class="flag off">★</span><span class="t-text">Timesheets</span><span class="src"><span class="chip rc">↻ Every Friday</span><span class="chip">My minutes · Fri</span></span></li>
+        <li><span class="box on"></span><span class="flag off">★</span><span class="t-text done">Call TTW re piling loads</span><span class="src"><span class="chip">My minutes · Fri</span></span></li>
+      </ul>
+      <p class="small muted" style="margin:10px 0 0">Tick here and it ticks off wherever it came from. Weinam items open Weinam, since the dashboard only has a read-only copy.</p>
+    </div>
+  </section>
+
+  <div class="row2">
+    <section class="feature" data-f="2">
+      <div class="f-head"><span class="f-no">#2</span><span class="f-name">Waiting on others</span><span class="f-tier">Quick win</span>
+        <p class="f-why">Every open action owed to you by someone else, across all your meetings, grouped by person and oldest first.</p></div>
+      <div class="panel">
+        <h2>Waiting on others <small>6 open · 3 overdue</small></h2>
+        <div class="who">
+          <div class="who-h"><span class="ini">MB</span><b>Mark Bull</b><span class="muted small">Bull Civil</span><button class="btn" type="button">Copy chase-up</button></div>
+          <div class="w-item"><span>Submit SWMS for temporary carpark <span class="chip mt">Bull Civil #3 · 1.1</span></span><span class="chip od">4 days overdue</span></div>
+          <div class="w-item"><span>Issue updated 3-week lookahead <span class="chip mt">Bull Civil #3 · 2.1</span></span><span class="chip dt">Due 2 Nov</span></div>
+        </div>
+        <div class="who">
+          <div class="who-h"><span class="ini">EDQ</span><b>Tony Zettl</b><span class="muted small">EDQ</span><button class="btn" type="button">Copy chase-up</button></div>
+          <div class="w-item"><span>Confirm level 6 decision <span class="chip mt">EDQ client #1 · 2.1</span></span><span class="chip od">6 days overdue</span></div>
+          <div class="w-item"><span>Provide carpark brief <span class="chip mt">EDQ client #1 · 1.3</span></span><span class="chip od">2 days overdue</span></div>
+        </div>
+        <div class="who">
+          <div class="who-h"><span class="ini">RW</span><b>Richard Watson</b><span class="muted small">Colliers</span><button class="btn" type="button">Copy chase-up</button></div>
+          <div class="w-item"><span>Updated traffic report for DA <span class="chip mt">Design coord #2 · 3.1</span></span><span class="chip dt">Due 6 Nov</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature" data-f="7">
+      <div class="f-head"><span class="f-no">#7</span><span class="f-name">Friday weekly review</span><span class="f-tier">Medium</span>
+        <p class="f-why">From Friday lunchtime, a guided 10-minute checklist replaces this panel until it's done.</p></div>
+      <div class="panel">
+        <h2>Weekly review · Week 44 <small>2 of 5 done</small></h2>
+        <div class="meter"><i></i></div>
+        <ul class="steps">
+          <li><span class="box on"></span><span class="t-text done">Tick off what got done this week</span><span class="chip rc">Done</span></li>
+          <li><span class="box on"></span><span class="t-text done">Send this week's meeting actions to My minutes</span><span class="chip rc">Done</span></li>
+          <li><span class="box"></span><span class="t-text">Roll 5 unfinished items into week 45</span><button class="btn" type="button">Roll over</button></li>
+          <li><span class="box"></span><span class="t-text">Chase 3 overdue items in Waiting on others</span><button class="btn" type="button">Open</button></li>
+          <li><span class="box"></span><span class="t-text">Set next week's goals (key date: Bronze ECI, 10 Nov)</span><button class="btn" type="button">Set goals</button></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <section class="feature" data-f="8">
+    <div class="f-head"><span class="f-no">#8</span><span class="f-name">3-week look-ahead</span><span class="f-tier">Medium</span>
+      <p class="f-why">The next 15 working days in one strip: Weinam key dates, your TW due dates, meetings and your own scheduled minutes. Click any item to open it.</p></div>
+    <div class="panel">
+      <h2>3-week look-ahead <small>2 Nov – 20 Nov</small></h2>
+      <div class="scroll">
+        <div class="la">
+          <div class="hd">Week</div><div class="hd">Mon</div><div class="hd">Tue</div><div class="hd">Wed</div><div class="hd">Thu</div><div class="hd">Fri</div>
+          <div class="wk">WK 45</div>
+          <div><span class="d">2 Nov</span><span class="ev tw">Award fencing contract</span><span class="ev mt">Bull Civil mobilise</span></div>
+          <div><span class="d">3 Nov</span><span class="ev me">Bronze program update</span></div>
+          <div><span class="d">4 Nov</span><span class="ev me">Confirm carpark brief</span></div>
+          <div><span class="d">5 Nov</span><span class="ev mt">Bull Civil trade mtg #4</span></div>
+          <div><span class="d">6 Nov</span><span class="ev tw">Award electrical contract</span></div>
+          <div class="wk">WK 46</div>
+          <div><span class="d">9 Nov</span><span class="ev tw">Site logistics plans</span></div>
+          <div class="today-c"><span class="d">10 Nov</span><span class="ev key">★ Bronze ECI submission</span><span class="ev tw">Tender temp fencing</span></div>
+          <div><span class="d">11 Nov</span></div>
+          <div><span class="d">12 Nov</span><span class="ev mt">EDQ client mtg #2</span></div>
+          <div><span class="d">13 Nov</span></div>
+          <div class="wk">WK 47</div>
+          <div><span class="d">16 Nov</span></div>
+          <div><span class="d">17 Nov</span></div>
+          <div><span class="d">18 Nov</span><span class="ev tw">Submit site est. package</span><span class="ev tw">Submit design reports to EDQ</span></div>
+          <div><span class="d">19 Nov</span><span class="ev mt">Bull Civil trade mtg #5</span></div>
+          <div><span class="d">20 Nov</span></div>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:#fff4d6;border-left:3px solid #e29a00"></i>Weinam key date</span><span><i style="background:#e1eafb"></i>Weinam TW due</span><span><i style="background:var(--violet-bg)"></i>Meeting / meeting action</span><span><i style="background:var(--surface-2)"></i>My minutes</span></div>
+    </div>
+  </section>
+
+  <section class="feature" data-f="11">
+    <div class="f-head"><span class="f-no">#11</span><span class="f-name">Search everything</span><span class="f-tier">Medium</span>
+      <p class="f-why">The search box in the header (top right) searches My minutes, the misc list, meetings and your Weinam copy, and shows results as you type.</p></div>
+    <div class="results" role="img" aria-label="Example search results for 'traffic'">
+      <div class="grp">Meetings · 2</div>
+      <div class="hit"><span><mark>Traffic</mark> control plan still awaiting council approval</span><span class="chip mt">Bull Civil #3 · 1</span></div>
+      <div class="hit"><span>Updated <mark>traffic</mark> report for DA</span><span class="chip mt">Design coord #2 · 3.1</span></div>
+      <div class="grp">Weinam (TW) · 1</div>
+      <div class="hit"><span><mark>Traffic</mark> Control Plan – council approval</span><span class="chip wn">Weinam 1.13</span></div>
+      <div class="grp">My minutes · 1</div>
+      <div class="hit"><span>Call council re <mark>traffic</mark> plan</span><span class="chip">WK 43 · Wed</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== MY MINUTES TAB ===================== -->
+  <div class="group-title" id="board">My minutes tab</div>
+
+  <div class="row2">
+    <section class="feature" data-f="6">
+      <div class="f-head"><span class="f-no">#6</span><span class="f-name">Recurring tasks</span><span class="f-tier">Quick win</span>
+        <p class="f-why">Set a task up once and it appears in the right day every week or month, with a ↻ tag.</p></div>
+      <div class="pop">
+        <span class="label">Recurring tasks</span>
+        <div class="r"><span>Timesheets</span><span class="field">Every week</span><span class="field">Friday</span><span class="muted">×</span></div>
+        <div class="r"><span>Site walk with BE</span><span class="field">Every week</span><span class="field">Thursday</span><span class="muted">×</span></div>
+        <div class="r"><span>Monthly report to EDQ</span><span class="field">Monthly</span><span class="field">Last Fri</span><span class="muted">×</span></div>
+        <div class="r"><span>Programme update</span><span class="field">Fortnightly</span><span class="field">Monday</span><span class="muted">×</span></div>
+        <div><button class="btn" type="button">+ Add recurring task</button></div>
+      </div>
+    </section>
+
+    <section class="feature" data-f="9">
+      <div class="f-head"><span class="f-no">#9</span><span class="f-name">Priority flags</span><span class="f-tier">Medium</span>
+        <p class="f-why">Star up to three "Top 3" tasks a day. They're highlighted on the board and go to the top of the Today view.</p></div>
+      <div class="scroll">
+        <div class="board">
+          <div class="col"><div class="h">Thursday<span>29 Oct</span></div>
+            <div class="line hi"><span class="box"></span><span class="flag">★</span><span><b>Send level 6 costs to EDQ</b></span></div>
+            <div class="line"><span class="box"></span><span class="flag off">★</span><span>Site walk with BE <span class="chip rc">↻</span></span></div>
+            <div class="line"><span class="box on"></span><span class="flag off">★</span><span class="t-text done">Call Mode Design</span></div>
+          </div>
+          <div class="col"><div class="h">Friday<span>30 Oct · Today</span></div>
+            <div class="line hi"><span class="box"></span><span class="flag">★</span><span><b>Review DA reports</b></span></div>
+            <div class="line hi"><span class="box"></span><span class="flag">★</span><span><b>Chase council – TCP</b></span></div>
+            <div class="line"><span class="box"></span><span class="flag off">★</span><span>Timesheets <span class="chip rc">↻</span></span></div>
+          </div>
+          <div class="col"><div class="h" style="background:var(--surface-2);color:var(--head)">Overflow<span>no fixed day</span></div>
+            <div class="line"><span class="box"></span><span class="flag off">★</span><span>Book design workshop</span></div>
+            <div class="line"><span class="box"></span><span class="flag off">★</span><span>Chase EDQ brief</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== MEETING MINUTES TAB ===================== -->
+  <div class="group-title" id="meetings">Meeting minutes tab</div>
+
+  <div class="row2">
+    <section class="feature" data-f="4">
+      <div class="f-head"><span class="f-no">#4</span><span class="f-name">Agenda templates</span><span class="f-tier">Quick win</span>
+        <p class="f-why">A new meeting starts with that type's standard agenda. You edit each template once.</p></div>
+      <div class="panel">
+        <h2>New meeting · Trade <small>template applied</small></h2>
+        <div class="tpl"><span>1. Safety</span><span>2. Programme</span><span>3. Quality &amp; defects</span><span>4. RFIs</span><span>5. Variations</span><span>6. Site logistics</span><span>7. General business</span></div>
+        <p class="small muted" style="margin:10px 0 6px">Other templates:</p>
+        <div class="tpl"><span>Client: Design · Cost · Programme · Approvals · Risks</span><span>Consultant: Deliverables · RFIs · Coordination</span></div>
+        <p style="margin:10px 0 0"><button class="btn" type="button">Edit Trade template</button></p>
+      </div>
+    </section>
+
+    <section class="feature" data-f="3">
+      <div class="f-head"><span class="f-no">#3</span><span class="f-name">Business arising</span><span class="f-tier">Quick win</span>
+        <p class="f-why">Item 0 of every follow-up meeting lists last meeting's open actions, to review before new business.</p></div>
+      <div class="panel">
+        <div class="m-item ba">
+          <div class="m-h"><span class="m-no">0</span><span class="m-t">Business arising from trade meeting #3 (29 Oct)</span></div>
+          <div class="m-act"><span class="ref">1.1</span><span>Submit SWMS for temporary carpark</span><span><b>MB</b></span><span class="chip od">Overdue</span><span class="muted small">Open</span></div>
+          <div class="m-act"><span class="ref">1.2</span><span>Chase council for TCP approval</span><span><b>TW</b></span><span class="muted small">02/11/26</span><span class="muted small">Open</span></div>
+          <div class="m-act"><span class="ref">2.1</span><span class="t-text done">Issue updated 3-week lookahead</span><span><b>MB</b></span><span></span><span style="color:var(--ok);font-weight:600" class="small">Closed</span></div>
+        </div>
+        <div class="m-item"><div class="m-h"><span class="m-no">1</span><span class="m-t">Safety</span></div><span class="muted small">Discussion…</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="row2">
+    <section class="feature" data-f="10">
+      <div class="f-head"><span class="f-no">#10</span><span class="f-name">Email-ready summary</span><span class="f-tier">Medium</span>
+        <p class="f-why">"Copy email" puts a tidy summary on your clipboard, with actions grouped by person. Paste it into Outlook and attach the Word minutes.</p></div>
+      <div class="panel">
+        <p style="margin:0 0 8px"><button class="btn primary" type="button">Export to Word</button> <button class="btn" type="button">Copy email</button></p>
+        <div class="email">Subject: Minutes – Bull Civil trade meeting #3 – 29 Oct 2026
+
+Hi all,
+
+Please find attached the minutes from today's trade meeting. Key actions:
+
+MARK BULL (Bull Civil)
+  1.1  Submit SWMS for temporary carpark – due 30/10
+TOM WARREN (ADCO)
+  1.2  Chase council for TCP approval – due 02/11
+
+Next meeting: Thu 5 Nov, 9:30am, site office.
+
+Please advise of any errors or omissions within 48 hours.
+
+Regards,
+Tom Warren</div>
+      </div>
+    </section>
+
+    <section class="feature" data-f="5">
+      <div class="f-head"><span class="f-no">#5</span><span class="f-name">Action register (Excel)</span><span class="f-tier">Quick win</span>
+        <p class="f-why">One button exports every action from every meeting to a single spreadsheet, ready to filter by owner or status.</p></div>
+      <div class="panel">
+        <p style="margin:0 0 8px"><button class="btn" type="button">Export action register</button> <span class="small muted">Weinam Action Register 2026-10-30.xlsx</span></p>
+        <div class="scroll"><table class="dt">
+          <thead><tr><th>Meeting</th><th>Date</th><th>Ref</th><th>Action</th><th>By</th><th>Due</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Bull Civil #3</td><td>29/10/26</td><td>1.1</td><td>Submit SWMS for temporary carpark</td><td class="c">MB</td><td>30/10/26</td><td style="color:var(--red);font-weight:600">Overdue</td></tr>
+            <tr><td>Bull Civil #3</td><td>29/10/26</td><td>1.2</td><td>Chase council for TCP approval</td><td class="c">TW</td><td>02/11/26</td><td>Open</td></tr>
+            <tr><td>Bull Civil #3</td><td>29/10/26</td><td>2.1</td><td>Issue updated 3-week lookahead</td><td class="c">MB</td><td>—</td><td style="color:var(--ok);font-weight:600">Closed</td></tr>
+            <tr><td>EDQ client #1</td><td>28/10/26</td><td>1.1</td><td>Send level 6 cost implications</td><td class="c">TW</td><td>30/10/26</td><td>Open</td></tr>
+            <tr><td>EDQ client #1</td><td>28/10/26</td><td>2.1</td><td>Confirm level 6 decision</td><td class="c">EDQ</td><td>24/10/26</td><td style="color:var(--red);font-weight:600">Overdue</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="summary" id="summary" aria-live="polite">
+    <b>Your choices</b>
+    <span class="counts"><span class="a" id="cA">0 approved</span><span class="c" id="cC">0 to change</span><span class="n" id="cN">0 not now</span><span class="muted" id="cU">11 not marked</span></span>
+    <button class="btn primary" id="copyChoices" type="button">Copy my choices</button>
+  </div>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  const NAMES = {};
+  document.querySelectorAll(".feature").forEach((f) => { NAMES[f.dataset.f] = f.querySelector(".f-name").textContent; });
+  let votes = {};
+  try { votes = JSON.parse(localStorage.getItem("mockVotes") || "{}") || {}; } catch (e) { votes = {}; }
+  const LABEL = { approve: "Approve", change: "Change", no: "Not now" };
+  document.querySelectorAll(".feature").forEach((f) => {
+    const v = document.createElement("div");
+    v.className = "vote"; v.setAttribute("role", "group"); v.setAttribute("aria-label", "Decision for feature " + f.dataset.f);
+    v.innerHTML = ["approve", "change", "no"].map((k) => `<button type="button" data-v="${k}" aria-pressed="false">${LABEL[k]}</button>`).join("");
+    f.querySelector(".f-head").appendChild(v);
+  });
+  function paint() {
+    let a = 0, c = 0, n = 0;
+    document.querySelectorAll(".feature").forEach((f) => {
+      const val = votes[f.dataset.f];
+      f.classList.toggle("v-approve", val === "approve"); f.classList.toggle("v-no", val === "no");
+      f.querySelectorAll(".vote button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === val)));
+      if (val === "approve") a++; else if (val === "change") c++; else if (val === "no") n++;
+    });
+    const total = document.querySelectorAll(".feature").length;
+    document.getElementById("cA").textContent = a + " approved";
+    document.getElementById("cC").textContent = c + " to change";
+    document.getElementById("cN").textContent = n + " not now";
+    document.getElementById("cU").textContent = (total - a - c - n) + " not marked";
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".vote button"); if (!b) return;
+    const id = b.closest(".feature").dataset.f;
+    votes[id] = votes[id] === b.dataset.v ? undefined : b.dataset.v;
+    try { localStorage.setItem("mockVotes", JSON.stringify(votes)); } catch (err) {}
+    paint();
+  });
+  function toast(t) { const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (el.hidden = true), 2400); }
+  document.getElementById("copyChoices").addEventListener("click", async () => {
+    const ids = Object.keys(NAMES).sort((x, y) => x - y);
+    const line = (k) => ids.filter((i) => votes[i] === k).map((i) => `#${i} ${NAMES[i]}`).join(", ") || "none";
+    const text = `Dashboard mock-up decisions\nApprove: ${line("approve")}\nChange: ${line("change")}\nNot now: ${line("no")}\nNot marked: ${ids.filter((i) => !votes[i]).map((i) => "#" + i).join(", ") || "none"}`;
+    try { await navigator.clipboard.writeText(text); toast("Copied. Paste it back to Claude, and add what you'd change."); }
+    catch (err) { toast("Couldn't copy here. Just tell Claude which numbers you approved."); }
+  });
+  // Feature 11 preview: typing in the header search jumps to the example results.
+  document.getElementById("mockSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") document.querySelector('[data-f="11"]').scrollIntoView({ behavior: "smooth", block: "center" }); });
+  paint();
+})();
+</script>
