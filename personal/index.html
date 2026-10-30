@@ -302,6 +302,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .mm-act.done .mm-in[data-a="text"] { text-decoration: line-through; color: var(--faint); }
 .mm-done { display: inline-flex; gap: 5px; align-items: center; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
 .mm-small { font-size: 12.5px; color: var(--muted); }
+.mm-flags { display: inline-flex; flex-direction: column; gap: 2px; }
+.mm-sent { font-size: 11.5px; font-weight: 600; color: var(--ok); white-space: nowrap; }
 .linkbtn { background: none; border: 0; color: var(--head); font-weight: 600; font-size: 13px; padding: 2px 0; }
 .linkbtn:hover { text-decoration: underline; }
 @media (max-width: 1000px) { .mm { grid-template-columns: minmax(0, 1fr); } .mm-items { max-height: 260px; } .mm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -1369,7 +1371,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     if (!o || typeof o !== "object") return m;
     for (const k of ["title", "type", "project", "date", "time", "location", "chair", "minutedBy", "notes", "createdAt"]) if (typeof o[k] === "string") m[k] = o[k];
     m.attendees = Array.isArray(o.attendees) ? o.attendees.map((a) => ({ name: String(a.name || ""), company: String(a.company || ""), initials: String(a.initials || ""), att: ATT.includes(a.att) ? a.att : "Present" })) : [];
-    m.items = Array.isArray(o.items) ? o.items.map((it) => ({ topic: String(it.topic || ""), notes: String(it.notes || ""), actions: Array.isArray(it.actions) ? it.actions.map((a) => ({ text: String(a.text || ""), by: String(a.by || ""), due: String(a.due || ""), done: !!a.done })) : [] })) : [];
+    m.items = Array.isArray(o.items) ? o.items.map((it) => ({ topic: String(it.topic || ""), notes: String(it.notes || ""), actions: Array.isArray(it.actions) ? it.actions.map((a) => ({ text: String(a.text || ""), by: String(a.by || ""), due: String(a.due || ""), done: !!a.done, ...(a.sent ? { sent: true } : {}) })) : [] })) : [];
     if (o.next && typeof o.next === "object") m.next = { date: String(o.next.date || ""), time: String(o.next.time || ""), location: String(o.next.location || "") };
     return m;
   }
@@ -1426,7 +1428,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         `<input class="mm-in" data-a="text" value="${esc(a.text)}" placeholder="Action" aria-label="Action ${i + 1}.${j + 1}">` +
         `<input class="mm-in" data-a="by" value="${esc(a.by)}" placeholder="By" aria-label="Action by" list="mmPeople">` +
         `<input class="mm-in" data-a="due" type="date" value="${esc(a.due)}" aria-label="Due">` +
-        `<label class="mm-done"><input type="checkbox" data-a="done" ${a.done ? "checked" : ""}> Done</label>` +
+        `<span class="mm-flags"><label class="mm-done"><input type="checkbox" data-a="done" ${a.done ? "checked" : ""}> Done</label>${a.sent ? `<span class="mm-sent" title="Already sent to My minutes">✓ In My minutes</span>` : ""}</span>` +
         `<button class="mm-x" type="button" data-del-act title="Delete action" aria-label="Delete action">×</button></div>`).join("");
       return `<div class="mm-item" data-i="${i}"><div class="mm-item-head"><span class="mm-no">${i + 1}</span>` +
         `<input class="mm-in" data-it="topic" value="${esc(it.topic)}" placeholder="Agenda item / topic" aria-label="Item ${i + 1} topic">` +
@@ -1443,7 +1445,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       `<td style="width:34px"><button class="mm-x" type="button" data-del-att title="Remove" aria-label="Remove attendee">×</button></td></tr>`).join("");
     const people = [...new Set(m.attendees.flatMap((a) => [a.initials, a.name]).filter(Boolean))];
     box.innerHTML =
-      `<div class="mm-bar"><button class="btn primary" type="button" id="mmWord">Export to Word</button><button class="btn" type="button" id="mmNext" title="Start the next meeting with the same attendees and any open actions">Next meeting from this</button><span class="spacer"></span><button class="btn danger" type="button" id="mmDel">Delete meeting</button></div>` +
+      `<div class="mm-bar"><button class="btn primary" type="button" id="mmWord">Export to Word</button><button class="btn" type="button" id="mmNext" title="Start the next meeting with the same attendees and any open actions">Next meeting from this</button>${(() => { const n = myActions(m).length; return `<button class="btn" type="button" id="mmSend" ${n ? "" : "disabled"} title="${n ? "Add your open actions from this meeting to My minutes, on the day they're due" : "No new open actions for you in this meeting"}">Send my actions to My minutes${n ? ` (${n})` : ""}</button>`; })()}<span class="spacer"></span><button class="btn danger" type="button" id="mmDel">Delete meeting</button></div>` +
       `<section class="panel"><input class="mm-title" data-f="title" value="${esc(m.title)}" placeholder="Meeting title, e.g. Bull Civil – trade meeting #3" aria-label="Meeting title">` +
       `<div class="mm-grid"><label><span class="label">Type</span><select class="mm-sel" data-f="type">${typeOpts}</select></label>` +
       field("Date", "date", m.date, "date") + field("Time", "time", m.time, "time") + field("Location", "location", m.location) +
@@ -1504,6 +1506,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       renderMeetList(); renderMeeting(); toast("Next meeting started with open actions carried forward.");
     }
     else if (b.id === "mmWord") exportWord(m, b);
+    else if (b.id === "mmSend") sendMyActions(m);
   });
   $("#mmNew").addEventListener("click", async () => {
     const m = blankMeeting({ type: meetFilter || "Trade" });
@@ -1512,6 +1515,49 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   });
   $("#mmFilter").addEventListener("change", (e) => { meetFilter = e.target.value; renderMeetList(); });
   $("#mmList").addEventListener("click", (e) => { const b = e.target.closest("[data-meet]"); if (!b) return; curMeet = b.dataset.meet; renderMeetList(); renderMeeting(); });
+
+  /* ---------- send my meeting actions to My minutes ---------- */
+  // "Mine" = Action by TW, your own initials, or your name. Each goes to the week and day it's due:
+  // overdue or due today → today (or Overflow at the weekend); a weekend or no due date → that week's Overflow.
+  function mine(by) {
+    const v = String(by || "").trim().toUpperCase(); if (!v) return false;
+    const ids = new Set(["TW"]);
+    if (myName) { ids.add(myName.toUpperCase()); ids.add(myName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").toUpperCase()); }
+    return ids.has(v);
+  }
+  const myActions = (m) => m.items.flatMap((it, i) => it.actions.map((a, j) => ({ a, i, j }))).filter(({ a }) => a.text.trim() && !a.done && !a.sent && mine(a.by));
+  const dateOf = (iso) => { const [y, mo, d] = iso.split("-").map(Number); return new Date(y, mo - 1, d); };
+  async function sendMyActions(m) {
+    const list = myActions(m);
+    if (!list.length) { toast("No new open actions for you in this meeting."); return; }
+    const today = new Date(), todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const plan = new Map();                                     // week key -> { mon, adds: [{ scope, task }] }
+    for (const { a, i, j } of list) {
+      let target = a.due ? dateOf(a.due) : null;
+      if (target && target < todayMid) target = todayMid;      // overdue lands on today
+      const mon = mondayOf(target || todayMid), dow = target ? (target.getDay() + 6) % 7 : 5;
+      const scope = target && dow < NDAYS ? String(dow) : "x";
+      const label = `${a.text.trim()} (${m.title || m.type + " meeting"} ${i + 1}.${j + 1}${a.due ? ", due " + shortIso(a.due) : ""})`;
+      const k = key(mon);
+      if (!plan.has(k)) plan.set(k, { mon, adds: [] });
+      plan.get(k).adds.push({ scope, task: { t: label, done: false } });
+    }
+    endTyping();
+    const others = [...plan.keys()].filter((k) => k !== key(monday));
+    pushUndo("send actions", others.length ? await otherKeys(others) : null);
+    let sameWeek = 0;
+    for (const [k, p] of plan) {
+      const w = k === key(monday) ? week : await readWeek(p.mon);
+      for (const { scope, task } of p.adds) (scope === "x" ? w.extra : w.days[+scope]).push(task);
+      if (k === key(monday)) sameWeek += p.adds.length; else await writeWeek(p.mon, w);
+    }
+    if (sameWeek) { renderAll(); await save(); }
+    list.forEach(({ a }) => (a.sent = true));
+    await saveMeeting(m, true);
+    renderMeeting(); renderMeetList();
+    const weeks = plan.size;
+    toast(`Sent ${list.length} action${list.length === 1 ? "" : "s"} to My minutes${weeks > 1 ? ` across ${weeks} weeks` : ""}.`);
+  }
 
   /* ---------- Word export (docx built in the browser) ---------- */
   function loadDocx() {
