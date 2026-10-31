@@ -22,4 +22,11 @@ https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
 - The Dashboard's top row also shows **Weinam key dates** (Weinam's typed key-date notes plus every starred key task), carried by the same hourly copy.
 - The Dashboard also shows **Weinam Ck Car Park – my actions (TW)**: a read-only copy of the Weinam tasks where Champion is TW, written to `data/users/<id>/weinam-tw` by a scheduled Claude task ("Weinam TW actions → personal dashboard", weekdays hourly 6:07am–6:07pm Brisbane time). The two pages can't read each other's databases, so this copy is how the personal page sees Weinam.
 - **Meeting minutes** tab: other meetings (trade, client, consultant, design, site, internal) with details, attendees, numbered items with actions, and next meeting. **Export to Word** builds a formatted .docx in the browser (docx library from jsDelivr); **Next meeting from this** carries attendees and open actions forward. **Send my actions to My minutes** copies open actions by TW (or your initials/name) into the weekly board on the day they're due (overdue → today, no date → Overflow) and marks them so they're never sent twice. Each meeting is a private `data/users/<id>/mtg-<id>` document.
+- Approved productivity features (see `personal/mockup.html`):
+  - **Today** (Dashboard): today's My minutes items plus unticked ones from earlier this week, Weinam TW items due/overdue, and your meeting actions due/overdue, overdue first, tickable in place.
+  - **Waiting on others** (Dashboard): open meeting actions owned by anyone else, grouped by person, with a Copy chase-up message.
+  - **3-week look-ahead** (Dashboard): this week and the next two, combining Weinam key dates and TW due dates, meetings, your meeting actions and My minutes.
+  - **Recurring tasks** (My minutes › ↻ Recurring): weekly, fortnightly or first/last-weekday-of-month tasks, stored in the private `recurring` document and added once per week from the current week on.
+  - **Copy email** (each meeting): email-ready summary with open actions grouped by person.
+  - **Export action register** (Meeting minutes list): every action from every meeting in one styled .xlsx with filters.
 - **Back up / Restore** use the same file format as the old board, so a backup from the old board can be restored here.

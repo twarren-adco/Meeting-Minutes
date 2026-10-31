@@ -309,6 +309,56 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 @media (max-width: 1000px) { .mm { grid-template-columns: minmax(0, 1fr); } .mm-items { max-height: 260px; } .mm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .mm-act { grid-template-columns: 38px minmax(0, 1fr) 28px; } .mm-act .mm-in[data-a="by"], .mm-act .mm-in[data-a="due"], .mm-act .mm-done { grid-column: 2; } .mm-grid .wide2 { grid-column: span 2; } }
 
+/* Today, waiting on others, look-ahead, recurring */
+.today-list { list-style: none; margin: 0; padding: 0; }
+.today-list li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.today-list li:last-child { border-bottom: 0; }
+.today-list .tbox { width: 18px; height: 18px; border-radius: 3px; border: 1.5px solid var(--faint); background: var(--surface); padding: 0; position: relative; }
+.today-list .tbox:hover { border-color: var(--brand); }
+.today-list li.done .tbox { background: var(--brand); border-color: var(--brand); }
+.today-list li.done .tbox::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg); }
+.today-list .ext { font-size: 13px; color: var(--head); text-decoration: none; text-align: center; }
+.today-list .tt { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.today-list li.done .tt { text-decoration: line-through; color: var(--faint); font-weight: 400; }
+.today-list .tt a { color: inherit; text-decoration: none; }
+.today-list .tt a:hover { text-decoration: underline; }
+.srcs { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tag { font-size: 11.5px; font-weight: 600; border-radius: 3px; padding: 1px 6px; border: 1px solid var(--line-strong); color: var(--head); background: var(--surface-2); white-space: nowrap; }
+.tag.mt { color: #6a3fb5; background: #efe8fb; border-color: transparent; }
+.tag.od { color: var(--red); background: #fbe5e3; border-color: transparent; }
+.tag.dt { color: #8a5a00; background: #fff4d6; border-color: transparent; }
+.tag.rc { color: var(--ok); background: #e3f3ea; border-color: transparent; }
+:root[data-theme="dark"] .tag.mt { color: #c4a8ff; background: #2a1f4a; } :root[data-theme="dark"] .tag.od { background: #401a1c; } :root[data-theme="dark"] .tag.dt { color: #f2bd5c; background: #3a2c12; } :root[data-theme="dark"] .tag.rc { background: #12352a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.mt { color: #c4a8ff; background: #2a1f4a; } :root:not([data-theme="light"]) .tag.od { background: #401a1c; } :root:not([data-theme="light"]) .tag.dt { color: #f2bd5c; background: #3a2c12; } :root:not([data-theme="light"]) .tag.rc { background: #12352a; } }
+.who-g { display: grid; gap: 6px; }
+.who-g + .who-g { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.who-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ini { min-width: 30px; height: 30px; padding: 0 4px; border-radius: 15px; display: grid; place-items: center; font-weight: 700; font-size: 12px; background: var(--surface-2); color: var(--head); border: 1px solid var(--line-strong); }
+.who-h b { color: var(--head); }
+.who-h .btn { margin-left: auto; height: 28px; font-size: 12px; }
+.w-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13.5px; padding-left: 38px; }
+.w-row a { color: var(--ink); text-decoration: none; } .w-row a:hover { text-decoration: underline; color: var(--head); }
+.la-wrap { overflow-x: auto; }
+.la { display: grid; grid-template-columns: 64px repeat(5, minmax(120px, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; min-width: 700px; }
+.la > div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; min-height: 66px; display: grid; align-content: start; gap: 4px; min-width: 0; }
+.la .hd { background: var(--thead); color: var(--thead-ink); min-height: 0; font-family: var(--f-display); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+.la .wk { background: var(--surface-2); color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 13px; }
+.la .d { font-size: 11.5px; color: var(--muted); }
+.la .now { box-shadow: inset 0 3px 0 var(--sky); }
+.la .past { background: var(--bg); }
+.ev { font-size: 11.5px; font-weight: 600; border-radius: 3px; padding: 2px 5px; line-height: 1.25; border: 0; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.ev.key { background: #fff4d6; color: #7a5200; box-shadow: inset 3px 0 0 #e29a00; }
+.ev.tw { background: #e1eafb; color: #0047bb; }
+.ev.mt { background: #efe8fb; color: #6a3fb5; }
+.ev.me { background: var(--surface-2); color: var(--ink); }
+.ev.late { box-shadow: inset 3px 0 0 var(--red); }
+.ev.more { background: none; color: var(--muted); font-weight: 500; padding: 0; cursor: default; }
+.rec-rule { display: grid; grid-template-columns: minmax(0, 1fr) 130px 120px 120px 28px; gap: 8px; align-items: center; }
+.rec-rule input, .rec-rule select { height: 32px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 8px; min-width: 0; }
+.row.rec .task::after { content: " ↻"; color: var(--ok); font-weight: 700; }
+.copybox { width: 100%; min-height: 220px; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px; background: var(--surface-2); color: var(--ink); }
+@media (max-width: 860px) { .w-row { padding-left: 0; } .rec-rule { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today-list li { grid-template-columns: 22px minmax(0, 1fr); } .today-list .srcs { grid-column: 2; justify-content: flex-start; } }
+
 .ctx { position: fixed; z-index: 30; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 30, 80, .2); padding: 5px; min-width: 160px; display: grid; gap: 2px; }
 .ctx button { display: flex; align-items: center; gap: 9px; width: 100%; border: 0; background: transparent; text-align: left; font-size: 13.5px; padding: 7px 9px; border-radius: 4px; }
 .ctx button:hover { background: var(--hover); }
@@ -386,6 +436,23 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       </div>
     </section>
     <div class="dash">
+      <section class="panel wide" aria-label="Today">
+        <h2 id="tdHead">Today</h2>
+        <ul class="today-list" id="tdList"></ul>
+      </section>
+      <section class="panel wide" aria-label="3-week look-ahead">
+        <h2 id="laHead">3-week look-ahead</h2>
+        <div class="la-wrap"><div class="la" id="laGrid"></div></div>
+        <div class="legend"><span><i style="background:#fff4d6;box-shadow:inset 3px 0 0 #e29a00"></i>Weinam key date</span><span><i style="background:#e1eafb"></i>Weinam TW due</span><span><i style="background:#efe8fb"></i>Meeting / my meeting action</span><span><i style="background:var(--surface-2)"></i>My minutes</span></div>
+      </section>
+      <section class="panel" aria-label="Waiting on others">
+        <h2 id="woHead">Waiting on others</h2>
+        <div id="woList"></div>
+      </section>
+      <section class="panel">
+        <h2>Open actions this week</h2>
+        <div class="tbl-wrap"><table class="dt" id="dOpen"></table></div>
+      </section>
       <section class="panel wide" aria-label="My Weinam actions">
         <div class="wn-head">
           <h2>Weinam Ck Car Park – my actions (TW)</h2>
@@ -399,10 +466,6 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <h2>Status by day</h2>
         <div class="tbl-wrap"><table class="dt" id="dDays"></table></div>
         <div class="legend"><span><i style="background:var(--ok)"></i>Done</span><span><i style="background:var(--faint)"></i>Open</span></div>
-      </section>
-      <section class="panel">
-        <h2>Open actions this week</h2>
-        <div class="tbl-wrap"><table class="dt" id="dOpen"></table></div>
       </section>
       <section class="panel">
         <h2>Misc list</h2>
@@ -420,6 +483,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       <div class="tools">
         <button class="btn primary" id="mmNew" type="button">+ New meeting</button>
         <select id="mmFilter" aria-label="Show meetings of type"><option value="">All meeting types</option></select>
+        <button class="btn" id="mmRegister" type="button" title="Every action from every meeting in one spreadsheet">Export action register</button>
       </div>
       <ul class="mm-items" id="mmList"></ul>
     </aside>
@@ -446,12 +510,19 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     <span class="sep"></span>
     <button class="btn wk-only" id="roll" type="button" title="Move unfinished items into next week">Roll over</button>
     <button class="btn primary" id="fromEmail" type="button" title="Paste an email or a list and pull out the actions">From email</button>
+    <button class="btn wk-only" id="recBtn" type="button" title="Tasks that add themselves every week, fortnight or month">↻ Recurring</button>
     <span class="spacer"></span>
     <button class="btn" id="backup" type="button" title="Save every week and the misc list as a backup file">Back up</button>
     <button class="btn" id="restore" type="button" title="Load a backup file, including one from the old board">Restore</button>
   </div>
 
 
+  <div class="import" id="recPanel" hidden>
+    <div class="mm-sec-head" style="margin:0"><h2 style="margin:0;color:var(--head);font-family:var(--f-display);font-size:18px;letter-spacing:.04em;text-transform:uppercase">Recurring tasks</h2><button class="btn" id="recClose" type="button">Done</button></div>
+    <p class="mm-small" style="margin:0">These add themselves to My minutes from this week on, with a ↻ mark. Deleting one from a week only removes it from that week.</p>
+    <div id="recRules" style="display:grid;gap:8px"></div>
+    <div><button class="linkbtn" id="recAdd" type="button">+ Add recurring task</button></div>
+  </div>
   <div class="import" id="importPanel" hidden>
     <textarea id="importText" spellcheck="false" aria-label="Email or list to import" placeholder="Paste an email or a list of dot points here, then choose how to bring it in."></textarea>
     <div class="row2">
@@ -557,11 +628,12 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   }
 
   /* ---------- model ---------- */
-  function blank() { const d = []; for (let i = 0; i < NDAYS; i++) d.push([]); return { goals: [], days: d, extra: [], notes: "" }; }
+  function blank() { const d = []; for (let i = 0; i < NDAYS; i++) d.push([]); return { goals: [], days: d, extra: [], notes: "", rec: [] }; }
   const ok = (t) => t && typeof t.t === "string";
   function cp(t) {
     const o = { t: t.t, done: !!t.done };
     if (t.h) o.h = true;
+    if (t.rec) o.rec = String(t.rec);
     if (typeof t.r === "string") { const r = clean(t.r); if (r && plain(r) === t.t) o.r = r; }
     return o;
   }
@@ -575,6 +647,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       for (let i = NDAYS; i < o.days.length; i++) if (Array.isArray(o.days[i])) w.extra = w.extra.concat(o.days[i].filter(ok).map(cp));
     }
     if (typeof o.notes === "string") w.notes = o.notes;
+    if (Array.isArray(o.rec)) w.rec = o.rec.filter((x) => typeof x === "string");
     return w;
   }
   function listFor(s) { if (s === "g") return week.goals; if (s === "x") return week.extra; if (s === "m") return misc; return week.days[+s]; }
@@ -587,6 +660,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const raw = await store.get(key(monday));
     try { week = normalise(raw ? JSON.parse(raw) : null); } catch (e) { week = blank(); }
     lastSaved[key(monday)] = raw;
+    if (applyRecurring(week, monday)) queueSave();
   }
   async function loadMisc() {
     const raw = await store.get(MISC_KEY);
@@ -604,7 +678,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const n = new Date();
     setSave("Saved " + pad(n.getHours()) + ":" + pad(n.getMinutes()), true, "ok");
   }
-  async function readWeek(d) { const raw = await store.get(key(d)); try { return normalise(raw ? JSON.parse(raw) : null); } catch (e) { return blank(); } }
+  async function readWeek(d) { const raw = await store.get(key(d)); let w; try { w = normalise(raw ? JSON.parse(raw) : null); } catch (e) { w = blank(); } applyRecurring(w, d); return w; }
   async function writeWeek(d, w) { const j = JSON.stringify(w); await store.set(key(d), j); lastSaved[key(d)] = j; }
   function setSave(s, on, state) {
     const el = $("#save"); el.textContent = s; el.classList.toggle("on", !!on);
@@ -726,7 +800,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   function rowHTML(scope, idx, task) {
     const empty = !task || !task.t, head = !!(task && task.h && task.t);
-    return `<div class="row${empty ? " empty" : ""}${head ? " heading" : ""}${task && task.done && !head ? " done" : ""}" data-scope="${scope}" data-idx="${idx}">` +
+    return `<div class="row${empty ? " empty" : ""}${head ? " heading" : ""}${task && task.done && !head ? " done" : ""}${task && task.rec && !empty ? " rec" : ""}" data-scope="${scope}" data-idx="${idx}">` +
       `<button class="tick" type="button" aria-label="Tick off"></button>` +
       `<div class="acts">` +
         (scope === "m" ? `<button class="hbtn" type="button" title="Make this line a heading (or start it with # )">H</button>` : "") +
@@ -993,6 +1067,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   async function renderDash() {
     if ($("#dashView").hidden) return;
     const my = ++dashToken;
+    renderProductivity();
     const thisMon = mondayOf(new Date()), today = new Date();
     const cur = sameDay(thisMon, monday) ? week : await readWeek(thisMon);
     if (my !== dashToken) return;
@@ -1445,7 +1520,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       `<td style="width:34px"><button class="mm-x" type="button" data-del-att title="Remove" aria-label="Remove attendee">×</button></td></tr>`).join("");
     const people = [...new Set(m.attendees.flatMap((a) => [a.initials, a.name]).filter(Boolean))];
     box.innerHTML =
-      `<div class="mm-bar"><button class="btn primary" type="button" id="mmWord">Export to Word</button><button class="btn" type="button" id="mmNext" title="Start the next meeting with the same attendees and any open actions">Next meeting from this</button>${(() => { const n = myActions(m).length; return `<button class="btn" type="button" id="mmSend" ${n ? "" : "disabled"} title="${n ? "Add your open actions from this meeting to My minutes, on the day they're due" : "No new open actions for you in this meeting"}">Send my actions to My minutes${n ? ` (${n})` : ""}</button>`; })()}<span class="spacer"></span><button class="btn danger" type="button" id="mmDel">Delete meeting</button></div>` +
+      `<div class="mm-bar"><button class="btn primary" type="button" id="mmWord">Export to Word</button><button class="btn" type="button" id="mmEmail" title="Copy an email-ready summary with actions grouped by person">Copy email</button><button class="btn" type="button" id="mmNext" title="Start the next meeting with the same attendees and any open actions">Next meeting from this</button>${(() => { const n = myActions(m).length; return `<button class="btn" type="button" id="mmSend" ${n ? "" : "disabled"} title="${n ? "Add your open actions from this meeting to My minutes, on the day they're due" : "No new open actions for you in this meeting"}">Send my actions to My minutes${n ? ` (${n})` : ""}</button>`; })()}<span class="spacer"></span><button class="btn danger" type="button" id="mmDel">Delete meeting</button></div>` +
       `<section class="panel"><input class="mm-title" data-f="title" value="${esc(m.title)}" placeholder="Meeting title, e.g. Bull Civil – trade meeting #3" aria-label="Meeting title">` +
       `<div class="mm-grid"><label><span class="label">Type</span><select class="mm-sel" data-f="type">${typeOpts}</select></label>` +
       field("Date", "date", m.date, "date") + field("Time", "time", m.time, "time") + field("Location", "location", m.location) +
@@ -1507,6 +1582,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     }
     else if (b.id === "mmWord") exportWord(m, b);
     else if (b.id === "mmSend") sendMyActions(m);
+    else if (b.id === "mmEmail") copyEmail(m);
   });
   $("#mmNew").addEventListener("click", async () => {
     const m = blankMeeting({ type: meetFilter || "Trade" });
@@ -1639,6 +1715,309 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     } finally { btn.disabled = false; btn.textContent = "Export to Word"; }
   }
 
+  /* ======================= productivity: Today, Waiting on others, 3-week look-ahead ======================= */
+  const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const daysFrom = (iso, base) => { const [y, m, d] = iso.split("-").map(Number), [a, b, c] = base.split("-").map(Number); return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(a, b - 1, c)) / 864e5); };
+  const WEINAM_LINK = "https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist";
+  const mRef = (m, i, j) => `${m.title || m.type + " meeting"} · ${i + 1}.${j + 1}`;
+  function allActions() {
+    const out = [];
+    for (const m of meetings.values()) m.items.forEach((it, i) => it.actions.forEach((a, j) => { if (a.text.trim()) out.push({ m, a, i, j }); }));
+    return out;
+  }
+  let prodToken = 0;
+  async function renderProductivity() {
+    const my = ++prodToken;
+    if (!meetLoaded) await loadMeetings();
+    const thisMon = mondayOf(new Date());
+    const weeks = [thisMon, addDays(thisMon, 7), addDays(thisMon, 14)];
+    const data = await Promise.all(weeks.map((m) => (sameDay(m, monday) ? week : readWeek(m))));
+    if (my !== prodToken) return;
+    renderToday(data[0], thisMon); renderWaiting(); renderLookahead(weeks, data);
+  }
+
+  // #1 Today: my minutes for today (plus unticked from earlier this week), Weinam TW due/overdue, my meeting actions due/overdue.
+  let todayItems = [];
+  function renderToday(cur, thisMon) {
+    const t0 = isoToday(), now = new Date(), dow = (now.getDay() + 6) % 7, items = [];
+    for (let d = 0; d < NDAYS; d++) {
+      if (d > dow) break;
+      cur.days[d].forEach((t, idx) => {
+        if (t.h || !t.t.trim()) return;
+        if (d < dow && t.done) return;
+        items.push({ kind: "me", mon: thisMon, scope: String(d), idx, text: t.t, done: t.done, rec: !!t.rec, late: d < dow ? dow - d : 0, sort: d < dow ? 0 : 2, tag: d < dow ? `From ${DAYS[d].slice(0, 3)}` : "" });
+      });
+    }
+    if (weinam && Array.isArray(weinam.tasks)) weinam.tasks.forEach((t) => {
+      if (t.status === "Complete" || t.status === "N/A this project" || !t.due || t.due > t0) return;
+      const late = -daysFrom(t.due, t0);
+      items.push({ kind: "wn", text: t.task, ref: t.ref, late, sort: late ? 0 : 1, due: t.due });
+    });
+    allActions().forEach(({ m, a, i, j }) => {
+      if (!mine(a.by) || !a.due || a.due > t0) return;
+      if (a.done && a.due < t0) return;
+      const late = -daysFrom(a.due, t0);
+      items.push({ kind: "mt", m, a, i, j, text: a.text, done: a.done, late, sort: a.done ? 3 : late ? 0 : 1, due: a.due });
+    });
+    items.sort((x, y) => x.sort - y.sort || y.late - x.late);
+    todayItems = items;
+    const open = items.filter((x) => !x.done).length, late = items.filter((x) => !x.done && x.late).length, done = items.length - open;
+    const wkend = dow > 4;
+    $("#tdHead").innerHTML = `Today · ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${open} to do${late ? ` · ${late} overdue` : ""}${done ? ` · ${done} done` : ""}</small>`;
+    $("#tdList").innerHTML = items.length ? items.map((x, n) => {
+      const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
+      if (x.kind === "wn") return `<li><a class="ext" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam to update">↗</a><span class="tt"><a href="${WEINAM_LINK}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
+      if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
+      return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
+    }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
+  }
+  $("#tdList").addEventListener("click", async (e) => {
+    const box = e.target.closest("[data-td]"), open = e.target.closest("[data-td-open]");
+    if (open) {
+      e.preventDefault();
+      const x = todayItems[+open.dataset.tdOpen]; if (!x) return;
+      if (x.kind === "mt") { curMeet = x.m.id; setView("meet"); return; }
+      if (!sameDay(x.mon, monday)) await go(0, x.mon);
+      setView("week");
+      requestAnimationFrame(() => { const t = document.querySelector(`.rows[data-scope="${x.scope}"] .row[data-idx="${x.idx}"] .task`); if (t) { t.scrollIntoView({ block: "center" }); t.focus(); caretToEnd(t); } });
+      return;
+    }
+    if (!box) return;
+    const x = todayItems[+box.dataset.td]; if (!x) return;
+    if (x.kind === "mt") { x.a.done = !x.a.done; await saveMeeting(x.m, true); }
+    else {
+      if (sameDay(x.mon, monday)) { const t = week.days[+x.scope][x.idx]; if (t) { endTyping(); pushUndo(t.done ? "untick" : "tick"); t.done = !t.done; } await save(); }
+      else { const w = await readWeek(x.mon), t = w.days[+x.scope][x.idx]; if (t) { t.done = !t.done; await writeWeek(x.mon, w); } }
+    }
+    renderDash();
+  });
+
+  // #2 Waiting on others: open meeting actions owned by anyone but me, grouped by person, most overdue first.
+  let waitGroups = [];
+  function personFor(by) {
+    const v = by.trim().toUpperCase();
+    for (const m of [...meetings.values()].sort((a, b) => (b.date || "").localeCompare(a.date || ""))) for (const p of m.attendees) {
+      if ((p.initials && p.initials.trim().toUpperCase() === v) || (p.name && p.name.trim().toUpperCase() === v)) return { name: p.name || by, company: p.company };
+    }
+    return { name: by, company: "" };
+  }
+  function renderWaiting() {
+    const t0 = isoToday(), groups = new Map();
+    allActions().forEach((x) => {
+      const by = x.a.by.trim();
+      if (!by || x.a.done || mine(by)) return;
+      const k = by.toUpperCase();
+      if (!groups.has(k)) groups.set(k, { by, items: [] });
+      groups.get(k).items.push({ ...x, late: x.a.due && x.a.due < t0 ? -daysFrom(x.a.due, t0) : 0 });
+    });
+    waitGroups = [...groups.values()].map((g) => ({ ...g, person: personFor(g.by), items: g.items.sort((a, b) => b.late - a.late || (a.a.due || "9").localeCompare(b.a.due || "9")) }))
+      .sort((a, b) => (b.items[0].late || 0) - (a.items[0].late || 0) || b.items.length - a.items.length);
+    const total = waitGroups.reduce((n, g) => n + g.items.length, 0), late = waitGroups.reduce((n, g) => n + g.items.filter((x) => x.late).length, 0);
+    $("#woHead").innerHTML = `Waiting on others <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
+    $("#woList").innerHTML = waitGroups.length ? waitGroups.map((g, gi) => {
+      const ini = g.by.length <= 4 ? g.by.toUpperCase() : g.by.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase();
+      return `<div class="who-g"><div class="who-h"><span class="ini">${esc(ini)}</span><b>${esc(g.person.name)}</b>${g.person.company ? `<span class="mm-small">${esc(g.person.company)}</span>` : ""}<button class="btn" type="button" data-chase="${gi}">Copy chase-up</button></div>` +
+        g.items.map((x, n) => `<div class="w-row"><span><a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a> <span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span>${x.late ? `<span class="tag od">${x.late} day${x.late === 1 ? "" : "s"} overdue</span>` : x.a.due ? `<span class="tag dt">Due ${shortIso(x.a.due)}</span>` : `<span class="tag">No due date</span>`}</div>`).join("") + `</div>`;
+    }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything from your meetings right now. Actions assigned to other people in Meeting minutes show up here.</p>`;
+  }
+  async function copyText(text, label) {
+    try { await navigator.clipboard.writeText(text); toast(label); return true; }
+    catch (e) { showCopyBox(text); return false; }
+  }
+  function showCopyBox(text) {
+    let box = document.getElementById("copyFallback");
+    if (!box) { box = document.createElement("div"); box.id = "copyFallback"; box.className = "import"; box.innerHTML = `<p class="mm-small" style="margin:0">Copying isn't available here. Press Ctrl+C to copy the selected text below.</p><textarea class="copybox" aria-label="Text to copy"></textarea><div><button class="btn" type="button">Close</button></div>`; box.querySelector("button").onclick = () => box.remove(); $("main").prepend(box); }
+    const ta = box.querySelector("textarea"); ta.value = text; box.scrollIntoView({ block: "center" }); ta.focus(); ta.select();
+  }
+  $("#woList").addEventListener("click", (e) => {
+    const c = e.target.closest("[data-chase]"), o = e.target.closest("[data-wo-open]");
+    if (o) { e.preventDefault(); const [gi, n] = o.dataset.woOpen.split(":").map(Number); const x = waitGroups[gi]?.items[n]; if (x) { curMeet = x.m.id; setView("meet"); } return; }
+    if (!c) return;
+    const g = waitGroups[+c.dataset.chase]; if (!g) return;
+    const first = (g.person.name || g.by).split(/\s+/)[0];
+    const lines = g.items.map((x) => `- ${x.a.text} (${x.m.title || x.m.type + " meeting"}${x.m.date ? " " + shortIso(x.m.date) : ""}, item ${x.i + 1}.${x.j + 1}${x.a.due ? `, due ${shortIso(x.a.due)}` : ""}${x.late ? ` – ${x.late} day${x.late === 1 ? "" : "s"} overdue` : ""})`);
+    copyText(`Hi ${first},\n\nJust following up on the open action${g.items.length === 1 ? "" : "s"} from our meetings:\n\n${lines.join("\n")}\n\nCould you please let me know where ${g.items.length === 1 ? "this is" : "these are"} at?\n\nThanks,\n${(myName || "Tom").split(/\s+/)[0]}`, `Chase-up for ${first} copied. Paste it into an email or Teams.`);
+  });
+
+  // #8 3-week look-ahead: this week and the next two, Monday to Friday.
+  let laItems = [];
+  function renderLookahead(weeks, data) {
+    const t0 = isoToday(), from = isoOf(weeks[0]), to = isoOf(addDays(weeks[2], 4));
+    const cells = new Map(); laItems = [];
+    const add = (iso, ev) => { if (!iso || iso < from || iso > to) return; if (!cells.has(iso)) cells.set(iso, []); ev.n = laItems.length; laItems.push(ev); cells.get(iso).push(ev); };
+    if (weinam) {
+      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", text: "★ " + t.task, link: WEINAM_LINK, rank: 0 }));
+      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: "tw" + (t.due < t0 ? " late" : ""), text: t.task, link: WEINAM_LINK, rank: 1 }); });
+    }
+    for (const m of meetings.values()) {
+      add(m.date, { cls: "mt", text: (m.time ? m.time + " " : "") + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
+      if (m.next.date && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) add(m.next.date, { cls: "mt", text: "Next: " + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
+    }
+    allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent) add(a.due, { cls: "mt" + (a.due < t0 ? " late" : ""), text: a.text, meet: m.id, rank: 3 }); });
+    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) add(isoOf(addDays(mon, d)), { cls: "me", text: (t.rec ? "↻ " : "") + t.t, mon, scope: String(d), idx, rank: 4 }); })));
+    $("#laHead").innerHTML = `3-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[2], 4))}</small>`;
+    let h = `<div class="hd">Week</div>` + DAYS.map((d) => `<div class="hd">${d.slice(0, 3)}</div>`).join("");
+    weeks.forEach((mon) => {
+      h += `<div class="wk">WK ${pad(isoWeek(mon).wk)}</div>`;
+      for (let d = 0; d < NDAYS; d++) {
+        const iso = isoOf(addDays(mon, d)), evs = (cells.get(iso) || []).sort((a, b) => a.rank - b.rank);
+        const shown = evs.slice(0, 4), more = evs.length - shown.length;
+        h += `<div class="${iso === t0 ? "now" : iso < t0 ? "past" : ""}"><span class="d">${short(addDays(mon, d))}</span>` +
+          shown.map((ev) => (ev.link ? `<a class="ev ${ev.cls}" href="${ev.link}" target="_blank" rel="noopener" style="text-decoration:none">${esc(ev.text)}</a>` : `<button class="ev ${ev.cls}" type="button" data-la="${ev.n}">${esc(ev.text)}</button>`)).join("") +
+          (more ? `<span class="ev more">+${more} more</span>` : "") + `</div>`;
+      }
+    });
+    $("#laGrid").innerHTML = h;
+  }
+  $("#laGrid").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-la]"); if (!b) return;
+    const ev = laItems[+b.dataset.la]; if (!ev) return;
+    if (ev.meet) { curMeet = ev.meet; setView("meet"); return; }
+    if (!sameDay(ev.mon, monday)) await go(0, ev.mon);
+    setView("week");
+    requestAnimationFrame(() => { const t = document.querySelector(`.rows[data-scope="${ev.scope}"] .row[data-idx="${ev.idx}"] .task`); if (t) { t.scrollIntoView({ block: "center" }); t.focus(); caretToEnd(t); } });
+  });
+
+  /* ======================= #6 recurring tasks ======================= */
+  // Rules live in the private document "recurring". A rule adds its task to a week once (the week remembers it in
+  // week.rec), only for this week onwards, so deleting an instance doesn't bring it back.
+  let recRules = [];
+  const FREQ = { weekly: "Every week", fortnightly: "Every 2 weeks", monthly: "Monthly" };
+  async function loadRecurring() { const raw = await store.get("recurring"); try { recRules = (raw ? JSON.parse(raw) : []).filter((r) => r && r.id && typeof r.text === "string"); } catch (e) { recRules = []; } }
+  const saveRecurring = () => store.set("recurring", JSON.stringify(recRules));
+  function recDay(rule, mon) {
+    if (rule.freq === "weekly") return rule.day;
+    if (rule.freq === "fortnightly") { const a = rule.anchor ? dateOf(rule.anchor) : mon; const diff = Math.round((mon - mondayOf(a)) / 6048e5); return diff % 2 === 0 ? rule.day : -1; }
+    // monthly: first or last <weekday> of a month, if that date falls in this Monday–Friday
+    for (let d = 0; d < NDAYS; d++) {
+      if (d !== rule.day) continue;
+      const date = addDays(mon, d), nextWeek = addDays(date, 7), prevWeek = addDays(date, -7);
+      if (rule.pos === "last" ? nextWeek.getMonth() !== date.getMonth() : prevWeek.getMonth() !== date.getMonth()) return d;
+    }
+    return -1;
+  }
+  function applyRecurring(w, mon) {
+    if (!recRules.length || mon < mondayOf(new Date())) return false;
+    let changed = false;
+    for (const r of recRules) {
+      if (!r.text.trim() || w.rec.includes(r.id)) continue;
+      const d = recDay(r, mon); if (d < 0) continue;
+      w.days[d].push({ t: r.text.trim(), done: false, rec: r.id });
+      w.rec.push(r.id); changed = true;
+    }
+    return changed;
+  }
+  const DAY_OPTS = (sel) => DAYS.map((d, i) => `<option value="${i}" ${i === sel ? "selected" : ""}>${d}</option>`).join("");
+  function renderRecPanel() {
+    $("#recRules").innerHTML = recRules.length ? recRules.map((r, i) => `<div class="rec-rule" data-r="${i}">` +
+      `<input data-rf="text" value="${esc(r.text)}" placeholder="Task, e.g. Timesheets" aria-label="Recurring task">` +
+      `<select data-rf="freq" aria-label="How often">${Object.entries(FREQ).map(([k, v]) => `<option value="${k}" ${k === r.freq ? "selected" : ""}>${v}</option>`).join("")}</select>` +
+      (r.freq === "monthly" ? `<select data-rf="pos" aria-label="Which week of the month"><option value="first" ${r.pos !== "last" ? "selected" : ""}>First</option><option value="last" ${r.pos === "last" ? "selected" : ""}>Last</option></select>` : `<span class="mm-small">${r.freq === "fortnightly" ? "Starting WK " + pad(isoWeek(mondayOf(r.anchor ? dateOf(r.anchor) : new Date())).wk) : "on"}</span>`) +
+      `<select data-rf="day" aria-label="Day">${DAY_OPTS(r.day)}</select>` +
+      `<button class="mm-x" type="button" data-rdel title="Remove" aria-label="Remove recurring task">×</button></div>`).join("")
+      : `<p class="mm-small" style="margin:0">No recurring tasks yet.</p>`;
+  }
+  let recTimer = null;
+  async function recChanged(reapply) {
+    clearTimeout(recTimer);
+    recTimer = setTimeout(async () => {
+      await saveRecurring();
+      if (reapply && applyRecurring(week, monday)) { renderAll(); queueSave(); }
+    }, 600);
+  }
+  $("#recBtn").addEventListener("click", async () => { await loadRecurring(); renderRecPanel(); $("#recPanel").hidden = !$("#recPanel").hidden; });
+  $("#recClose").addEventListener("click", async () => { $("#recPanel").hidden = true; clearTimeout(recTimer); await saveRecurring(); if (applyRecurring(week, monday)) { renderAll(); queueSave(); } });
+  $("#recAdd").addEventListener("click", () => {
+    recRules.push({ id: "r" + newId(), text: "", freq: "weekly", day: 4, pos: "last", anchor: isoOf(mondayOf(new Date())) });
+    renderRecPanel(); $(`#recRules [data-r="${recRules.length - 1}"] [data-rf="text"]`)?.focus();
+  });
+  $("#recRules").addEventListener("input", (e) => {
+    const row = e.target.closest("[data-r]"); if (!row) return;
+    const r = recRules[+row.dataset.r], f = e.target.dataset.rf;
+    r[f] = f === "day" ? +e.target.value : e.target.value;
+    if (f === "freq") renderRecPanel();
+    recChanged(f !== "text");
+  });
+  $("#recRules").addEventListener("change", (e) => { if (e.target.tagName === "INPUT") recChanged(true); });
+  $("#recRules").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-rdel]"); if (!b) return;
+    recRules.splice(+b.closest("[data-r]").dataset.r, 1); renderRecPanel(); recChanged(false);
+  });
+
+  /* ======================= #10 email-ready summary ======================= */
+  function copyEmail(m) {
+    const by = new Map();
+    m.items.forEach((it, i) => it.actions.forEach((a, j) => {
+      if (!a.text.trim() || a.done) return;
+      const k = (a.by || "Unassigned").trim().toUpperCase();
+      if (!by.has(k)) by.set(k, { who: a.by || "Unassigned", list: [] });
+      by.get(k).list.push(`  ${i + 1}.${j + 1}  ${a.text.trim()}${a.due ? " – due " + shortIso(a.due).slice(0, 5) : ""}`);
+    }));
+    const blocks = [...by.values()].map((g) => { const p = personFor(g.who); return `${(p.name || g.who).toUpperCase()}${p.company ? ` (${p.company})` : ""}\n${g.list.join("\n")}`; });
+    const when = [m.date ? longIso(m.date) : "", m.time].filter(Boolean).join(", ");
+    const next = [m.next.date ? longIso(m.next.date) : "", m.next.time, m.next.location].filter(Boolean).join(", ");
+    const text = `Subject: Minutes – ${m.title || m.type + " meeting"}${m.date ? " – " + longIso(m.date) : ""}\n\nHi all,\n\nPlease find attached the minutes from ${m.title ? "the " + m.title : "today's " + (m.type || "").toLowerCase() + " meeting"}${when ? " (" + when + ")" : ""}. ` +
+      (blocks.length ? `Key actions:\n\n${blocks.join("\n\n")}` : "There are no open actions.") +
+      (next ? `\n\nNext meeting: ${next}.` : "") + `\n\nPlease advise of any errors or omissions within 48 hours.\n\nRegards,\n${m.minutedBy || myName || ""}`;
+    copyText(text, "Email summary copied. Paste it into Outlook and attach the Word minutes.");
+  }
+
+  /* ======================= #5 action register (Excel) ======================= */
+  function loadJSZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    return new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"; sc.onload = () => (window.JSZip ? res(window.JSZip) : rej(new Error("load"))); sc.onerror = () => rej(new Error("load")); document.head.appendChild(sc); });
+  }
+  const xe = (v) => String(v ?? "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const serialOf = (iso) => { const [y, m, d] = iso.split("-").map(Number); return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(1899, 11, 30)) / 864e5); };
+  async function exportRegister(btn) {
+    if (!meetLoaded) await loadMeetings();
+    if (!downloads) { toast("Saving files isn't available in this view."); return; }
+    const rows = allActions().sort((x, y) => (y.m.date || "").localeCompare(x.m.date || "") || x.i - y.i || x.j - y.j);
+    if (!rows.length) { toast("No meeting actions to export yet."); return; }
+    btn.disabled = true; const label = btn.textContent; btn.textContent = "Preparing…";
+    try {
+      const JSZip = await loadJSZip(), t0 = isoToday();
+      const L = "ABCDEFGHI".split("");
+      const s = (r, c, v, st) => (v === "" || v == null ? `<c r="${L[c]}${r}" s="${st}"/>` : `<c r="${L[c]}${r}" s="${st}" t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`);
+      const dcell = (r, c, iso) => (iso ? `<c r="${L[c]}${r}" s="3"><v>${serialOf(iso)}</v></c>` : `<c r="${L[c]}${r}" s="2"/>`);
+      let sheet = `<row r="1" ht="22" customHeight="1">${s(1, 0, "ACTION REGISTER", 6)}</row><row r="2">${s(2, 0, `Exported ${shortIso(t0)} · ${rows.length} actions · ${rows.filter((x) => !x.a.done).length} open`, 7)}</row>` +
+        `<row r="3" ht="22" customHeight="1">${["Meeting", "Type", "Meeting date", "Ref", "Item", "Action", "By", "Due", "Status"].map((h, c) => s(3, c, h, 1)).join("")}</row>`;
+      rows.forEach((x, n) => {
+        const r = n + 4, status = x.a.done ? "Closed" : x.a.due && x.a.due < t0 ? "Overdue" : "Open";
+        sheet += `<row r="${r}">${s(r, 0, x.m.title || x.m.type + " meeting", 2)}${s(r, 1, x.m.type, 2)}${dcell(r, 2, x.m.date)}${s(r, 3, `${x.i + 1}.${x.j + 1}`, 2)}${s(r, 4, x.m.items[x.i].topic, 2)}${s(r, 5, x.a.text, 2)}${s(r, 6, x.a.by, 2)}${dcell(r, 7, x.a.due)}${s(r, 8, status, status === "Overdue" ? 4 : status === "Closed" ? 5 : 2)}</row>`;
+      });
+      const last = rows.length + 3;
+      const zip = new JSZip();
+      zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`);
+      zip.file("_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`);
+      zip.file("xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
+      zip.file("xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Action register" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'Action register'!$A$3:$I$${last}</definedName></definedNames></workbook>`);
+      zip.file("xl/styles.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts>` +
+        `<fonts count="6"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFC0392B"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FF1B7A4B"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FF0047BB"/><name val="Arial"/></font><font><i/><sz val="9"/><color rgb="FF4A5464"/><name val="Arial"/></font></fonts>` +
+        `<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0047BB"/><bgColor indexed="64"/></patternFill></fill></fills>` +
+        `<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFCCDAF1"/></left><right style="thin"><color rgb="FFCCDAF1"/></right><top style="thin"><color rgb="FFCCDAF1"/></top><bottom style="thin"><color rgb="FFCCDAF1"/></bottom><diagonal/></border></borders>` +
+        `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8">` +
+        `<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>` +
+        `<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>` +
+        `<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>` +
+        `<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top"/></xf>` +
+        `<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top"/></xf>` +
+        `<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top"/></xf>` +
+        `<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>` +
+        `<xf numFmtId="0" fontId="5" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`);
+      zip.file("xl/worksheets/sheet1.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><tabColor rgb="FF0047BB"/></sheetPr><dimension ref="A1:I${last}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="14.4"/>` +
+        `<cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="12" customWidth="1"/><col min="3" max="3" width="13" customWidth="1"/><col min="4" max="4" width="7" customWidth="1"/><col min="5" max="5" width="24" customWidth="1"/><col min="6" max="6" width="50" customWidth="1"/><col min="7" max="7" width="9" customWidth="1"/><col min="8" max="8" width="12" customWidth="1"/><col min="9" max="9" width="11" customWidth="1"/></cols>` +
+        `<sheetData>${sheet}</sheetData><autoFilter ref="A3:I${last}"/><pageMargins left="0.5" right="0.5" top="0.75" bottom="0.75" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape"/></worksheet>`);
+      const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      await downloads.save({ filename: `Action Register ${t0}.xlsx`, data: blob });
+    } catch (e) {
+      if (e && e.code === "declined") {}
+      else if (e && e.message === "load") toast("Couldn't load the Excel exporter. Check your connection and try again.");
+      else toast("Couldn't create the spreadsheet.");
+    } finally { btn.disabled = false; btn.textContent = label; }
+  }
+  $("#mmRegister").addEventListener("click", (e) => exportRegister(e.currentTarget));
+
   /* ---------- boot ---------- */
   setView(viewFromHash());
   renderAll(); renderMisc(); syncUndo();
@@ -1661,6 +2040,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#where").textContent = store.label;
     if (store.kind === "memory") $("#warn").textContent = "Nothing typed here will be kept: this view can't reach your saved data and the browser is blocking local storage. Open the page in Claude while signed in.";
     else if (store.kind === "local") $("#warn").textContent = "Your to-dos are only being saved in this browser. Open the page in Claude while signed in to keep them with your account.";
+    await loadRecurring();
     await load(); await loadMisc();
     meetLoaded = false;
     renderAll(); renderMisc(); setView(view);
