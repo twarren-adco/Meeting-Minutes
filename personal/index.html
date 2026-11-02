@@ -634,6 +634,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const o = { t: t.t, done: !!t.done };
     if (t.h) o.h = true;
     if (t.rec) o.rec = String(t.rec);
+    if (t.src) o.src = String(t.src);
     if (typeof t.r === "string") { const r = clean(t.r); if (r && plain(r) === t.t) o.r = r; }
     return o;
   }
@@ -914,7 +915,9 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       endTyping(); pushUndo(list[idx].done ? "untick" : "tick");
       list[idx].done = !list[idx].done;
       row.classList.toggle("done", list[idx].done);
-      tally(); queueSave(); return;
+      tally(); queueSave();
+      syncActionFromTask(list[idx]);
+      return;
     }
     if (e.target.classList.contains("del")) {
       if (idx >= list.length) return;
@@ -1446,7 +1449,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     if (!o || typeof o !== "object") return m;
     for (const k of ["title", "type", "project", "date", "time", "location", "chair", "minutedBy", "notes", "createdAt"]) if (typeof o[k] === "string") m[k] = o[k];
     m.attendees = Array.isArray(o.attendees) ? o.attendees.map((a) => ({ name: String(a.name || ""), company: String(a.company || ""), initials: String(a.initials || ""), att: ATT.includes(a.att) ? a.att : "Present" })) : [];
-    m.items = Array.isArray(o.items) ? o.items.map((it) => ({ topic: String(it.topic || ""), notes: String(it.notes || ""), actions: Array.isArray(it.actions) ? it.actions.map((a) => ({ text: String(a.text || ""), by: String(a.by || ""), due: String(a.due || ""), done: !!a.done, ...(a.sent ? { sent: true } : {}) })) : [] })) : [];
+    m.items = Array.isArray(o.items) ? o.items.map((it) => ({ topic: String(it.topic || ""), notes: String(it.notes || ""), actions: Array.isArray(it.actions) ? it.actions.map((a) => ({ text: String(a.text || ""), by: String(a.by || ""), due: String(a.due || ""), done: !!a.done, id: String(a.id || newId()), ...(a.sent ? { sent: true } : {}), ...(a.sentTo ? { sentTo: String(a.sentTo) } : {}) })) : [] })) : [];
     if (o.next && typeof o.next === "object") m.next = { date: String(o.next.date || ""), time: String(o.next.time || ""), location: String(o.next.location || "") };
     return m;
   }
@@ -1545,9 +1548,10 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     else if (d.it) { const i = +t.closest(".mm-item").dataset.i; m.items[i][d.it] = t.value; }
     else if (d.a) {
       const row = t.closest(".mm-act"), a = m.items[+row.dataset.i].actions[+row.dataset.j];
-      if (d.a === "done") { a.done = t.checked; row.classList.toggle("done", a.done); } else a[d.a] = t.value;
+      if (d.a === "done") { a.done = t.checked; row.classList.toggle("done", a.done); syncTaskFromAction(m, a, +row.dataset.i, +row.dataset.j); } else a[d.a] = t.value;
     } else return;
     saveMeeting(m);
+    if (d.a) updateSendBtn(m);
     if (d.f === "title" || d.f === "date" || d.f === "type" || d.a === "done") renderMeetList();
   });
   $("#mmEditor").addEventListener("change", (e) => { if (e.target.matches('select, input[type="date"], input[type="time"], input[type="checkbox"]')) e.target.dispatchEvent(new Event("input", { bubbles: true })); });
@@ -1558,7 +1562,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     if (b.id === "mmAddAtt") { m.attendees.push({ name: "", company: "", initials: "", att: "Present" }); redraw(`tr[data-k="${m.attendees.length - 1}"] [data-p="name"]`); }
     else if (b.hasAttribute("data-del-att")) { m.attendees.splice(+b.closest("tr").dataset.k, 1); redraw(); }
     else if (b.id === "mmAddItem") { m.items.push({ topic: "", notes: "", actions: [] }); redraw(`.mm-item[data-i="${m.items.length - 1}"] [data-it="topic"]`); }
-    else if (b.hasAttribute("data-add-act")) { const i = +b.closest(".mm-item").dataset.i; m.items[i].actions.push({ text: "", by: "", due: "", done: false }); redraw(`.mm-act[data-i="${i}"][data-j="${m.items[i].actions.length - 1}"] [data-a="text"]`); }
+    else if (b.hasAttribute("data-add-act")) { const i = +b.closest(".mm-item").dataset.i; m.items[i].actions.push({ text: "", by: "", due: "", done: false, id: newId() }); redraw(`.mm-act[data-i="${i}"][data-j="${m.items[i].actions.length - 1}"] [data-a="text"]`); }
     else if (b.hasAttribute("data-del-act")) { const row = b.closest(".mm-act"); m.items[+row.dataset.i].actions.splice(+row.dataset.j, 1); redraw(); }
     else if (b.hasAttribute("data-move")) { const i = +b.closest(".mm-item").dataset.i, j = i + +b.dataset.move; if (j < 0 || j >= m.items.length) return; [m.items[i], m.items[j]] = [m.items[j], m.items[i]]; redraw(); }
     else if (b.hasAttribute("data-del-item")) {
@@ -1603,6 +1607,40 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   }
   const myActions = (m) => m.items.flatMap((it, i) => it.actions.map((a, j) => ({ a, i, j }))).filter(({ a }) => a.text.trim() && !a.done && !a.sent && mine(a.by));
   const dateOf = (iso) => { const [y, mo, d] = iso.split("-").map(Number); return new Date(y, mo - 1, d); };
+  // A sent action and its My minutes copy are the same piece of work: ticking either one ticks the other.
+  async function syncActionFromTask(t) {
+    if (!t || !t.src) return;
+    if (!meetLoaded) await loadMeetings();
+    const [mid, aid] = t.src.split("|"), m = meetings.get(mid);
+    const a = m && m.items.flatMap((it) => it.actions).find((x) => x.id === aid);
+    if (!a || a.done === t.done) return;
+    a.done = t.done; await saveMeeting(m, true);
+    if (view === "meet" && curMeet === m.id) renderMeeting();
+  }
+  async function syncTaskFromAction(m, a, i, j) {
+    if (!a.sent) return;
+    // Find the copy by its link, or (for actions sent before links existed) by its label.
+    const src = `${m.id}|${a.id}`, label = `${a.text.trim()} (${m.title || m.type + " meeting"} ${i + 1}.${j + 1}`;
+    const isCopy = (t) => t.src === src || (!t.src && t.t.startsWith(label));
+    const mons = [];
+    if (a.sentTo) mons.push(dateOf(a.sentTo.replace(/^week-/, "")));
+    mons.push(mondayOf(new Date()));
+    if (a.due) mons.push(mondayOf(dateOf(a.due)));
+    for (const mon of mons) {
+      const same = sameDay(mon, monday), w = same ? week : await readWeek(mon);
+      const t = w.days.concat([w.extra]).flat().find(isCopy);
+      if (!t) continue;
+      if (t.done !== a.done) { t.done = a.done; if (same) { renderAll(); await save(); } else await writeWeek(mon, w); }
+      return;
+    }
+  }
+  function updateSendBtn(m) {
+    const b = $("#mmSend"); if (!b) return;
+    const n = myActions(m).length;
+    b.disabled = !n;
+    b.textContent = `Send my actions to My minutes${n ? ` (${n})` : ""}`;
+    b.title = n ? "Add your open actions from this meeting to My minutes, on the day they're due" : "No new open actions for you in this meeting";
+  }
   async function sendMyActions(m) {
     const list = myActions(m);
     if (!list.length) { toast("No new open actions for you in this meeting."); return; }
@@ -1616,7 +1654,9 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const label = `${a.text.trim()} (${m.title || m.type + " meeting"} ${i + 1}.${j + 1}${a.due ? ", due " + shortIso(a.due) : ""})`;
       const k = key(mon);
       if (!plan.has(k)) plan.set(k, { mon, adds: [] });
-      plan.get(k).adds.push({ scope, task: { t: label, done: false } });
+      if (!a.id) a.id = newId();
+      plan.get(k).adds.push({ scope, task: { t: label, done: false, src: `${m.id}|${a.id}` } });
+      a.sentTo = k;
     }
     endTyping();
     const others = [...plan.keys()].filter((k) => k !== key(monday));
@@ -1754,7 +1794,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       items.push({ kind: "wn", text: t.task, ref: t.ref, late, sort: late ? 0 : 1, due: t.due });
     });
     allActions().forEach(({ m, a, i, j }) => {
-      if (!mine(a.by) || !a.due || a.due > t0) return;
+      if (!mine(a.by) || !a.due || a.due > t0 || a.sent) return;
       if (a.done && a.due < t0) return;
       const late = -daysFrom(a.due, t0);
       items.push({ kind: "mt", m, a, i, j, text: a.text, done: a.done, late, sort: a.done ? 3 : late ? 0 : 1, due: a.due });
@@ -1784,10 +1824,12 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     }
     if (!box) return;
     const x = todayItems[+box.dataset.td]; if (!x) return;
-    if (x.kind === "mt") { x.a.done = !x.a.done; await saveMeeting(x.m, true); }
+    if (x.kind === "mt") { x.a.done = !x.a.done; await saveMeeting(x.m, true); await syncTaskFromAction(x.m, x.a, x.i, x.j); }
     else {
-      if (sameDay(x.mon, monday)) { const t = week.days[+x.scope][x.idx]; if (t) { endTyping(); pushUndo(t.done ? "untick" : "tick"); t.done = !t.done; } await save(); }
-      else { const w = await readWeek(x.mon), t = w.days[+x.scope][x.idx]; if (t) { t.done = !t.done; await writeWeek(x.mon, w); } }
+      if (sameDay(x.mon, monday)) {
+        const t = week.days[+x.scope][x.idx];
+        if (t) { endTyping(); pushUndo(t.done ? "untick" : "tick"); t.done = !t.done; renderAll(); await save(); await syncActionFromTask(t); }
+      } else { const w = await readWeek(x.mon), t = w.days[+x.scope][x.idx]; if (t) { t.done = !t.done; await writeWeek(x.mon, w); await syncActionFromTask(t); } }
     }
     renderDash();
   });
