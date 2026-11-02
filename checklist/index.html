@@ -799,7 +799,8 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     grid.querySelectorAll("tbody").forEach((b) => b.remove());
     let h = "";
     for (const grp of model.groups) {
-      if (anyFilter() && !grp.rows.length) continue;
+      if (filters.group && grp.g.id !== filters.group) continue;
+      if (!grp.rows.length && (filters.status !== null || filters.person || filters.q || filters.section)) continue;
       const gid = esc(grp.g.id);
       h += `<tbody><tr class="grp"><th colspan="${COLS.length + 1}" scope="rowgroup"><div class="grp-in">` +
         `<span class="grp-name" data-gname="${gid}">${esc(grp.g.name)}</span>` +
@@ -1617,7 +1618,8 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     // Rows
     let rows = "", shown = 0, undated = 0;
     for (const g of m.groups) {
-      if (!g.rows.length && anyFilter()) continue;
+      if (filters.group && g.g.id !== filters.group) continue;
+      if (!g.rows.length && (filters.status !== null || filters.person || filters.q || filters.section)) continue;
       rows += `<div class="tl-row tl-grp"><div class="tl-label">${esc(g.g.name)} <small>${g.rows.length} task${g.rows.length === 1 ? "" : "s"}</small></div><div class="tl-track" style="width:${W}px"></div></div>`;
       for (const r of g.rows) {
         const t = r.t, sp = barSpan(t);
