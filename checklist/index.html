@@ -257,6 +257,8 @@ tr.is-key td.c-task { background-image: linear-gradient(90deg, rgba(242,169,0,.1
 /* Dashboard */
 .dash { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dash .wide { grid-column: 1 / -1; }
+.urgent-panel { border-left: 4px solid var(--urg); }
+.urgent-panel h2 small { font-family: var(--f-body); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
 .mine-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--accent, #0047BB); background: var(--surface); font-size: 13px; }
 .linkbtn { font: inherit; font-weight: 600; color: var(--accent, #0047BB); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
@@ -529,6 +531,10 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   </div>
 
   <div id="viewDashboard" class="dash">
+    <section class="panel wide urgent-panel">
+      <h2>Urgent tasks <small id="urgentCount"></small></h2>
+      <div class="tbl-wrap"><table class="dt" id="urgentTable"></table></div>
+    </section>
     <section class="panel wide">
       <h2>Status by section</h2>
       <div class="tbl-wrap"><table class="dt" id="sectionTable"></table></div>
@@ -1074,6 +1080,9 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
         ts.map(([id, t]) => `<tr class="link" data-goto="${esc(id)}"><td>${refs.get(id) || ""}</td><td class="l">${esc(t.task)}</td><td>${t.champion ? `<span class="who">${esc(t.champion)}</span>` : ""}</td><td>${fmtDate(t.due)}</td><td>${cellHTML(COLS[1], t)}</td></tr>`).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">${emptyText}</td></tr></tbody>`;
     const byDue = (a, b) => (a[1].due < b[1].due ? -1 : 1);
+    const urgent = all.filter(([, t]) => t.status === "Urgent").sort((a, b) => (a[1].due || "9") < (b[1].due || "9") ? -1 : 1);
+    $("#urgentCount").textContent = urgent.length ? `${urgent.length} open` : "";
+    $("#urgentTable").innerHTML = list(urgent, "No tasks are marked Urgent.");
     $("#overdueTable").innerHTML = list(all.filter(([, t]) => isOverdue(t)).sort(byDue), "Nothing is overdue.");
     const t0 = today(), t14 = addDays(t0, 14);
     $("#soonTable").innerHTML = list(all.filter(([, t]) => t.due && !isClosed(t) && t.due >= t0 && t.due <= t14).sort(byDue), "Nothing is due in the next 14 days.");
