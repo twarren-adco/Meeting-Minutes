@@ -257,6 +257,12 @@ tr.is-key td.c-task { background-image: linear-gradient(90deg, rgba(242,169,0,.1
 /* Dashboard */
 .dash { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dash .wide { grid-column: 1 / -1; }
+.my-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.my-head h2 { margin-bottom: 4px; }
+.my-who { font-size: 13px; color: var(--muted); }
+.my-who select { font: inherit; color: var(--ink, inherit); margin-left: 4px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.my-hint { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
+#myTable tr.ip td { background: var(--ip-bg, rgba(245,158,87,.14)); }
 .panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
 .tbl-wrap { overflow-x: auto; }
 table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -374,7 +380,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
   #grid tr.flash td { animation: rowflash 2.6s ease-out; }
-  @keyframes rowflash { 0%, 35% { background: #cfe0ff; box-shadow: inset 0 0 0 9999px rgba(0,71,187,.10); } 100% { } }
+  @keyframes rowflash { 0%, 35% { box-shadow: inset 0 0 0 9999px rgba(64,128,255,.28); } 100% { box-shadow: inset 0 0 0 9999px rgba(64,128,255,0); } }
 </style>
 
 <header class="band">
@@ -524,6 +530,12 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   </div>
 
   <div id="viewDashboard" class="dash">
+    <section class="panel wide" id="myPanel">
+      <div class="my-head"><h2>My tasks</h2>
+        <label class="my-who">Showing tasks for <select id="mySelect" aria-label="Champion"></select></label></div>
+      <p class="my-hint">Click a task to jump to it in the Checklist.</p>
+      <div class="tbl-wrap"><table class="dt" id="myTable"></table></div>
+    </section>
     <section class="panel wide">
       <h2>Status by section</h2>
       <div class="tbl-wrap"><table class="dt" id="sectionTable"></table></div>
@@ -961,7 +973,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!tasks.has(id)) return;
     if (tasks.get(id).status === "Complete" && filters.hideDone) setHideDone(false);
     clearFilters();
-    if (location.hash !== "#checklist") location.hash = "#checklist";
+    if (location.hash !== "#checklist") { location.hash = "#checklist"; route(); }
     requestAnimationFrame(() => {
       sel = { id, c: 0 }; paintSel(false); focusGrid();
       const tr = document.querySelector(`#grid tr[data-id="${CSS.escape(id)}"]`);
@@ -1057,10 +1069,34 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
         ts.map(([id, t]) => `<tr class="link" data-goto="${esc(id)}"><td>${refs.get(id) || ""}</td><td class="l">${esc(t.task)}</td><td>${t.champion ? `<span class="who">${esc(t.champion)}</span>` : ""}</td><td>${fmtDate(t.due)}</td><td>${cellHTML(COLS[1], t)}</td></tr>`).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">${emptyText}</td></tr></tbody>`;
     const byDue = (a, b) => (a[1].due < b[1].due ? -1 : 1);
+    renderMyTasks(all, refs);
     $("#overdueTable").innerHTML = list(all.filter(([, t]) => isOverdue(t)).sort(byDue), "Nothing is overdue.");
     const t0 = today(), t14 = addDays(t0, 14);
     $("#soonTable").innerHTML = list(all.filter(([, t]) => t.due && !isClosed(t) && t.due >= t0 && t.due <= t14).sort(byDue), "Nothing is due in the next 14 days.");
   }
+  // "My tasks": the viewer's own open tasks (champion initials guessed from their name, or picked once).
+  let myName = "";
+  const MY_KEY = "weinam.myChampion";
+  const lsGet = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  function renderMyTasks(all, refs) {
+    const champs = [...new Set(all.map(([, t]) => (t.champion || "").trim()).filter(Boolean))].sort();
+    const initials = myName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").toUpperCase();
+    let me = lsGet(MY_KEY);
+    if (!me && initials && champs.some((c) => c.toUpperCase() === initials)) me = champs.find((c) => c.toUpperCase() === initials);
+    const sel_ = $("#mySelect");
+    sel_.innerHTML = `<option value="">Choose…</option>` + champs.map((c) => `<option${c === me ? " selected" : ""}>${esc(c)}</option>`).join("");
+    if (!me) { $("#myTable").innerHTML = `<tbody><tr><td class="l" style="color:var(--muted)">Choose your initials above to list your tasks here.</td></tr></tbody>`; return; }
+    const rank = (t) => (t.status === "In Progress" ? 0 : isOverdue(t) ? 1 : t.status === "Urgent" ? 2 : 3);
+    const mine = all.filter(([, t]) => (t.champion || "").trim().toUpperCase() === me.toUpperCase() && !isClosed(t))
+      .sort((a, b) => rank(a[1]) - rank(b[1]) || ((a[1].due || "9") < (b[1].due || "9") ? -1 : (a[1].due || "9") > (b[1].due || "9") ? 1 : 0));
+    $("#myTable").innerHTML = mine.length
+      ? `<thead><tr><th>#</th><th class="l">Task</th><th>Complete by</th><th>Status</th></tr></thead><tbody>` +
+        mine.map(([id, t]) => `<tr class="link${t.status === "In Progress" ? " ip" : ""}" data-goto="${esc(id)}" tabindex="0"><td>${refs.get(id) || ""}</td><td class="l">${t.key ? "★ " : ""}${esc(t.task)}</td><td>${isOverdue(t) ? `<b style="color:var(--urg)">${fmtDate(t.due)}</b>` : fmtDate(t.due)}</td><td>${cellHTML(COLS[1], t)}</td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td class="l" style="color:var(--muted)">No open tasks for ${esc(me)}.</td></tr></tbody>`;
+  }
+  $("#mySelect").addEventListener("change", (e) => { lsSet(MY_KEY, e.target.value); renderDashboard(); });
+  $("#myTable").addEventListener("keydown", (e) => { const r = e.target.closest("[data-goto]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); gotoTask(r.dataset.goto, true); } });
   function renderAll() {
     renderHeader(); renderSummary(); renderMilestones(); renderPeople(); renderGrid(); renderDashboard(); renderTimeline(); renderContacts();
   }
@@ -1596,7 +1632,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
 
   $("#viewDashboard").addEventListener("click", (e) => {
     const g = e.target.closest("[data-goto]");
-    if (g) { clearFilters(); location.hash = "#checklist"; requestAnimationFrame(() => { sel = { id: g.dataset.goto, c: 5 }; paintSel(); focusGrid(); }); return; }
+    if (g) { gotoTask(g.dataset.goto, true); return; }
     const p = e.target.closest("[data-person]");
     if (p && p.dataset.person) { clearFilters(); filters.person = p.dataset.person; $("#personFilter").value = p.dataset.person; location.hash = "#checklist"; renderGrid(); }
   });
@@ -2103,6 +2139,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!db) { renderAll(); setLive(); return; }
     if (user) {
       myId = await user.id();
+      try { myName = ((await user.me()) || {}).name || ""; } catch {}
       const can = await user.can("data.write");
       canWrite = can !== false;
       if (can === true) confirmedWriter = true;
