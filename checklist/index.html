@@ -28,7 +28,7 @@
   --hover: rgba(0, 71, 187, .04);
 
   --ok: #1b7a4b;       --ok-bg: #e3f3ea;
-  --prog: #0047bb;     --prog-bg: #e1eafb;
+  --prog: #b94e00;     --prog-bg: #fff0dc;
   --urg: #a8201a;      --urg-bg: #fbe5e3;
   --idle: #5b6b86;     --idle-bg: #edf0f5;
   --na: #7d8796;       --na-bg: transparent;
@@ -46,7 +46,7 @@
     --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --brand-ink: #ffffff;
     --band: #0047bb; --band-ink: #ffffff; --band-muted: #cfdcf5; --thead: #0a3a8f; --thead-ink: #ffffff; --sky: #4cc8ff;
     --focus: #4cc8ff; --focus-soft: rgba(76, 200, 255, .15); --hover: rgba(255, 255, 255, .035);
-    --ok: #6fd6a0; --ok-bg: #12352a; --prog: #9fc0ff; --prog-bg: #15336a;
+    --ok: #6fd6a0; --ok-bg: #12352a; --prog: #ffad5c; --prog-bg: #3b2610;
     --urg: #ff8f86; --urg-bg: #401a1c; --idle: #b9c4d6; --idle-bg: #1a3058;
     --na: #7f8ea8; --warn: #f2bd5c; --warn-bg: #3a2c12;
     --row-ok: #0f3324; --row-alert: #3d1820; --row-soon: #36300f;
@@ -58,7 +58,7 @@
   --line: #183664; --line-strong: #24467d; --brand: #2f6fe0; --brand-ink: #ffffff;
   --band: #0047bb; --band-ink: #ffffff; --band-muted: #cfdcf5; --thead: #0a3a8f; --thead-ink: #ffffff; --sky: #4cc8ff;
   --focus: #4cc8ff; --focus-soft: rgba(76, 200, 255, .15); --hover: rgba(255, 255, 255, .035);
-  --ok: #6fd6a0; --ok-bg: #12352a; --prog: #9fc0ff; --prog-bg: #15336a;
+  --ok: #6fd6a0; --ok-bg: #12352a; --prog: #ffad5c; --prog-bg: #3b2610;
   --urg: #ff8f86; --urg-bg: #401a1c; --idle: #b9c4d6; --idle-bg: #1a3058;
   --na: #7f8ea8; --warn: #f2bd5c; --warn-bg: #3a2c12;
   --row-ok: #0f3324; --row-alert: #3d1820; --row-soon: #36300f;
@@ -271,7 +271,7 @@ tr.is-key td.c-task { background-image: linear-gradient(90deg, rgba(242,169,0,.1
 .tm-t td.l a { color: inherit; }
 .tm-t tr.late td { background: color-mix(in srgb, var(--urg) 8%, var(--surface)); }
 .tm-t tr.late td.left { color: var(--urg); font-weight: 700; }
-.tm-t tr.ip td:first-child { box-shadow: inset 3px 0 0 #f59e57; }
+.tm-t tr.ip td:first-child { box-shadow: inset 3px 0 0 var(--bar-prog); }
 .tm-t td.left { font-weight: 600; }
 .tm-t .ref { font-variant-numeric: tabular-nums; color: var(--head); font-weight: 600; }
 .mine-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--accent, #0047BB); background: var(--surface); font-size: 13px; }
@@ -294,11 +294,11 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 
 /* Timeline (Gantt) */
 :root { --key: #e29a00; --today: #00a3eb; --wkend: rgba(0, 71, 187, .035); --gridline: #e3eaf7; --month-line: #c4d3ee;
-  --bar-ok: #1b7a4b; --bar-prog: #0047bb; --bar-urg: #b42318; --bar-idle: #8593ab; --bar-na: #c5ccd8; --bar-unset: #b4c0d6; --bar-warn: #c98a00; }
+  --bar-ok: #1b7a4b; --bar-prog: #f08a1c; --bar-urg: #b42318; --bar-idle: #8593ab; --bar-na: #c5ccd8; --bar-unset: #b4c0d6; --bar-warn: #c98a00; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --key: #f5c04a; --today: #4cc8ff; --wkend: rgba(255,255,255,.025); --gridline: #15315e; --month-line: #2a4a80;
-  --bar-ok: #36b37e; --bar-prog: #4d8dff; --bar-urg: #f0605a; --bar-idle: #61708f; --bar-na: #34446a; --bar-unset: #44557a; --bar-warn: #e3a92e; } }
+  --bar-ok: #36b37e; --bar-prog: #f59a3a; --bar-urg: #f0605a; --bar-idle: #61708f; --bar-na: #34446a; --bar-unset: #44557a; --bar-warn: #e3a92e; } }
 :root[data-theme="dark"] { --key: #f5c04a; --today: #4cc8ff; --wkend: rgba(255,255,255,.025); --gridline: #15315e; --month-line: #2a4a80;
-  --bar-ok: #36b37e; --bar-prog: #4d8dff; --bar-urg: #f0605a; --bar-idle: #61708f; --bar-na: #34446a; --bar-unset: #44557a; --bar-warn: #e3a92e; }
+  --bar-ok: #36b37e; --bar-prog: #f59a3a; --bar-urg: #f0605a; --bar-idle: #61708f; --bar-na: #34446a; --bar-unset: #44557a; --bar-warn: #e3a92e; }
 .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; background: var(--surface); }
 .seg button { border: 0; background: none; height: 34px; padding: 0 14px; font-weight: 600; font-size: 13px; color: var(--head); }
 .seg button + button { border-left: 1px solid var(--line-strong); }
@@ -584,7 +584,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   const STATUSES = ["Not Started", "In Progress", "Urgent", "Complete", "N/A this project"];
   const STATUS_META = {
     "Not Started": { cls: "s-idle", color: "var(--idle)", short: "Not started" },
-    "In Progress": { cls: "s-progress", color: "var(--prog)", short: "In progress" },
+    "In Progress": { cls: "s-progress", color: "var(--bar-prog)", short: "In progress" },
     "Urgent": { cls: "s-urgent", color: "var(--urg)", short: "Urgent" },
     "Complete": { cls: "s-complete", color: "var(--ok)", short: "Complete" },
     "N/A this project": { cls: "s-na", color: "var(--na)", short: "N/A" },

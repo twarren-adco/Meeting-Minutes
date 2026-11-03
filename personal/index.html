@@ -28,7 +28,7 @@
   --focus-soft: rgba(0, 71, 187, .12);
   --hover: rgba(0, 71, 187, .05);
   --ok: #1b7a4b;
-  --red: #c0392b;
+  --red: #c81e1e;
   --warn-bg: #fff6e0; --warn-ink: #6b5720;
   --row: 30px;
   --f-display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
@@ -463,10 +463,10 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .rec-rule { display: grid; grid-template-columns: minmax(0, 1fr) 130px 120px 120px 28px; gap: 8px; align-items: center; }
 .rec-rule input, .rec-rule select { height: 32px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 8px; min-width: 0; }
 .row.rec .task::after { content: " ↻"; color: var(--ok); font-weight: 700; }
-/* In action: any open line containing red text */
-:root { --act: #c2410c; --act-bg: #fff1e6; --act-line: #f59e57; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; } }
-:root[data-theme="dark"] { --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; }
+/* In progress: any open line containing red text */
+:root { --act: #b94e00; --act-bg: #fff0dc; --act-line: #f08a1c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; } }
+:root[data-theme="dark"] { --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; }
 .row.act { background: var(--act-bg); box-shadow: inset 3px 0 0 var(--act-line); }
 .row.act .tick { border-color: var(--act); background: linear-gradient(135deg, var(--act) 50%, var(--surface) 50%); }
 .act-pill { display: none; margin: 3px 0 1px 27px; width: max-content; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 3px; padding: 0 5px; line-height: 17px; color: var(--act); background: var(--surface); border: 1px solid var(--act-line); white-space: nowrap; }
@@ -564,7 +564,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       </section>
       <section class="panel wide" aria-label="2-week look-ahead">
         <h2 id="laHead">2-week look-ahead</h2>
-        <div class="legend la-legend"><span><i class="lg act"></i>In action</span><span><i class="lg mt"></i>Meeting / my meeting action</span><span><i class="lg late"></i>Overdue</span><span>Weinam tasks are listed once per week in the table under the days</span></div>
+        <div class="legend la-legend"><span><i class="lg act"></i>In progress</span><span><i class="lg mt"></i>Meeting / my meeting action</span><span><i class="lg late"></i>Overdue</span><span>Weinam tasks are listed once per week in the table under the days</span></div>
         <div class="la-scroll"><div class="lab" id="laGrid"></div></div>
         <div class="la-nodate" id="laNoDate" hidden></div>
       </section>
@@ -908,7 +908,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   }
   function plain(html) { const box = document.createElement("div"); box.innerHTML = String(html ?? ""); return box.textContent || ""; }
 
-  // In action = open (not ticked), not a heading, and some of the line is red.
+  // In progress = open (not ticked), not a heading, and some of the line is red.
   const isAct = (t) => !!t && !t.done && !t.h && !!t.t.trim() && typeof t.r === "string" && /class="red"/.test(t.r);
 
   /* ---------- render ---------- */
@@ -923,7 +923,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         `<button class="del" type="button" title="Delete" aria-label="Delete">&#215;</button>` +
       `</div>` +
       `<div class="task" contenteditable="true" spellcheck="true" role="textbox" aria-label="Task">${empty ? "" : (task.r || esc(task.t))}</div>` +
-      `<span class="act-pill" title="Has red text, so it's In action. Remove the red (right-click › Plain) to set it back to open.">In action</span></div>`;
+      `<span class="act-pill" title="Has red text, so it's In progress. Remove the red (right-click › Plain) to set it back to open.">In progress</span></div>`;
   }
   function rowsHTML(scope, min = minRows(scope)) {
     const list = listFor(scope); let out = "";
@@ -1098,11 +1098,11 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 
   /* ---------- dashboard: an overview of your minutes, laid out like the Weinam dashboard ---------- */
   const count = (list) => { let n = 0, k = 0, a = 0; list.forEach((t) => { if (t.h || !t.t.trim()) return; n++; if (t.done) k++; else if (isAct(t)) a++; }); return [n, k, a]; };
-  // Done (green), In action (orange), Open (grey). `open` excludes the in-action ones.
+  // Done (green), In progress (orange), Open (grey). `open` excludes the in-progress ones.
   const barHtml = (done, open, act = 0) => {
     const tot = done + open + act; if (!tot) return "";
     const seg = (v, c, l) => (v ? `<span style="width:${(v / tot) * 100}%;background:${c}" title="${l}: ${v}"></span>` : "");
-    return seg(done, "var(--ok)", "Done") + seg(act, "var(--act-line)", "In action") + seg(open, "var(--faint)", "Open");
+    return seg(done, "var(--ok)", "Done") + seg(act, "var(--act-line)", "In progress") + seg(open, "var(--faint)", "Open");
   };
   const num = (n) => (n ? n : `<span class="zero">0</span>`);
   const taskHtml = (t) => (t.r ? clean(t.r) || esc(t.t) : esc(t.t));
@@ -1169,7 +1169,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const done = all.filter((t) => t.status === "Complete").length, inAct = open.filter((t) => t.status === "In Progress").length;
     chips.innerHTML =
       `<span class="chip"><span class="dot" style="background:var(--faint)"></span>Open <b>${open.length}</b></span>` +
-      `<span class="chip"><span class="dot" style="background:var(--act-line)"></span>In action <b>${inAct}</b></span>` +
+      `<span class="chip"><span class="dot" style="background:var(--act-line)"></span>In progress <b>${inAct}</b></span>` +
       `<span class="chip"><span class="dot" style="background:var(--red)"></span>Overdue <b>${overdue.length}</b></span>` +
       `<span class="chip"><span class="dot" style="background:#e2a400"></span>Due in 7 days <b>${soon.length}</b></span>` +
       `<span class="chip"><span class="dot" style="background:var(--ok)"></span>Complete <b>${done}</b></span>`;
@@ -1204,11 +1204,11 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     lists.forEach((d) => { [d.n, d.k, d.a] = count(d.list); total += d.n; done += d.k; act += d.a; });
     const open = total - done - act, [mn, mk] = count(misc), ovOpen = lists[5].n - lists[5].k;
     $("#dPct").textContent = total ? Math.round((done / total) * 100) + "%" : "–";
-    $("#dPctNote").textContent = total ? `complete · ${done} of ${total} done${act ? ` · ${act} in action` : ""}` : "No actions logged this week yet";
+    $("#dPctNote").textContent = total ? `complete · ${done} of ${total} done${act ? ` · ${act} in progress` : ""}` : "No actions logged this week yet";
     $("#dBar").innerHTML = barHtml(done, open, act);
     $("#dChips").innerHTML =
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--faint)"></span>Open <b>${open}</b></a>` +
-      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--act-line)"></span>In action <b>${act}</b></a>` +
+      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--act-line)"></span>In progress <b>${act}</b></a>` +
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--ok)"></span>Done <b>${done}</b></a>` +
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--brand)"></span>Overflow open <b>${ovOpen}</b></a>` +
       `<a class="chip" href="#misc"><span class="dot" style="background:var(--sky)"></span>Misc open <b>${mn - mk}</b></a>`;
@@ -1948,9 +1948,9 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#tdHead").innerHTML = `Today · ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${open} to do${late ? ` · ${late} overdue` : ""}${done ? ` · ${done} done` : ""}</small>`;
     $("#tdList").innerHTML = items.length ? items.map((x, n) => {
       const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
-      if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${x.link}" target="_blank" rel="noopener" title="Open this task in Weinam">↗</a><span class="tt"><a href="${x.link}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
+      if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${x.link}" target="_blank" rel="noopener" title="Open this task in Weinam">↗</a><span class="tt"><a href="${x.link}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In progress</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
       if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
-      return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}${x.wn ? `<a class="tag" href="${x.wn.link}" target="_blank" rel="noopener" title="Also on the Weinam checklist">Weinam ${esc(x.wn.ref)}</a>` : `<span class="tag">My minutes</span>`}</span></li>`;
+      return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In progress</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}${x.wn ? `<a class="tag" href="${x.wn.link}" target="_blank" rel="noopener" title="Also on the Weinam checklist">Weinam ${esc(x.wn.ref)}</a>` : `<span class="tag">My minutes</span>`}</span></li>`;
     }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
   }
   $("#tdList").addEventListener("click", async (e) => {
@@ -2072,7 +2072,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const openTw = weinam ? (weinam.tasks || []).filter((t) => t.status !== "Complete" && t.status !== "N/A this project") : [];
     const keys = weinam ? (weinam.keyTasks || []).filter((t) => t.status !== "N/A this project" && (t.due || t.start)) : [];
     $("#laHead").innerHTML = `2-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[1], 4))}</small>`;
-    const PL = { "In Progress": ["act", "In action"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], Complete: ["done", "Complete"], "": ["", "Not set"] };
+    const PL = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], Complete: ["done", "Complete"], "": ["", "Not set"] };
     const dayName = (iso) => { const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
     const leftTxt = (iso) => { if (!iso) return "No due date"; const n = daysFrom(iso, t0); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
     let h = "";
