@@ -170,6 +170,10 @@ table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-widt
 .c-section { color: var(--muted); font-size: 13px; }
 .c-start, .c-due { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .empty-cell { color: var(--line-strong); }
+.ed { display: grid; gap: 1px; font-size: 12.5px; line-height: 1.3; }
+.ed b { color: var(--head); font-weight: 600; }
+.ed span { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grid td.c-updated { cursor: default; background-image: linear-gradient(var(--hover), var(--hover)); }
 .done-date { display: block; margin: 3px 0 0 4px; color: var(--ok); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .btn[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
 .who { display: inline-block; font-weight: 600; font-size: 12.5px; letter-spacing: .02em; color: var(--head); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 6px; line-height: 20px; }
@@ -560,16 +564,44 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   const SECTIONS = ["1. Authority Approvals", "2. Contracts Administration", "3. Site Set Up", "4. Design & Engineering", "5. Estimating", "6. Program"];
   const DEFAULT_PEOPLE = ["TW", "NS", "EW", "SW", "HSE", "SCM", "BE", "TCH", "Estimator", "WM", "All"];
   const COLS = [
-    { key: "task", label: "Task", w: 17, type: "text" },
+    { key: "task", label: "Task", w: 16, type: "text" },
     { key: "status", label: "Status", w: 9.5, type: "select", opts: STATUSES, blank: "Not set" },
     { key: "champion", label: "Champion", w: 7, type: "person" },
     { key: "support", label: "Support / Input", w: 7.5, type: "person" },
     { key: "start", label: "Start By", w: 6.5, type: "date" },
     { key: "due", label: "Complete By", w: 7.5, type: "date" },
-    { key: "detail", label: "Action / Detail", w: 20, type: "long" },
-    { key: "notes", label: "Live Notes", w: 14, type: "long" },
-    { key: "section", label: "Section", w: 11, type: "select", opts: SECTIONS, blank: "No section" }
+    { key: "detail", label: "Action / Detail", w: 16.5, type: "long" },
+    { key: "notes", label: "Live Notes", w: 12, type: "long" },
+    { key: "section", label: "Section", w: 9.5, type: "select", opts: SECTIONS, blank: "No section" },
+    { key: "updated", label: "Last edited", w: 8.5, type: "ro" }
   ];
+  // "Last edited" is filled in from each task's updatedBy / updatedAt (stamped on every save) and can't be typed into.
+  const nameCache = new Map();
+  function editedBy(t) {
+    if (!t.updatedBy) return "";
+    const p = nameCache.get(t.updatedBy);
+    return p ? (p.isMe ? "You" : p.name || "Someone") : "…";
+  }
+  function editedWhen(t) {
+    const d = t.updatedAt ? new Date(t.updatedAt) : null;
+    if (!d || isNaN(d)) return "";
+    const today = new Date(), yest = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    const hm = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    if (d.toDateString() === today.toDateString()) return "Today " + hm;
+    if (d.toDateString() === yest.toDateString()) return "Yesterday " + hm;
+    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${hm}`;
+  }
+  const editedLabel = (t) => [editedBy(t), editedWhen(t)].filter(Boolean).join(", ");
+  let namesPending = false;
+  async function resolveNames() {
+    if (!user || namesPending) return;
+    const ids = [...new Set([...tasks.values()].map((t) => t.updatedBy).filter((id) => id && !nameCache.has(id)))];
+    if (!ids.length) return;
+    namesPending = true;
+    try { const ps = await user.profiles(ids); for (const id of ids) nameCache.set(id, ps[id] || { name: "", isMe: false }); }
+    finally { namesPending = false; }
+    renderGrid();
+  }
   const FIELDS = ["task", "detail", "section", "champion", "support", "start", "due", "completedOn", "status", "notes"];
 
   const $ = (s) => document.querySelector(s);
@@ -759,6 +791,11 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   function cellHTML(col, t) {
     const v = t[col.key] ?? "";
     switch (col.key) {
+      case "updated": {
+        const by = editedBy(t), when = editedWhen(t);
+        if (!by && !when) return `<span class="empty-cell" title="Not edited on this page yet">—</span>`;
+        return `<div class="ed" title="Last edited${by ? " by " + esc(by) : ""}${t.updatedAt ? " on " + esc(new Date(t.updatedAt).toLocaleString("en-AU")) : ""}">${by ? `<b>${esc(by)}</b>` : ""}<span>${esc(when)}</span></div>`;
+      }
       case "status": {
         const m = STATUS_META[v] || STATUS_META[""];
         const done = v === "Complete" && t.completedOn ? `<span class="done-date" title="Marked complete on ${fmtLong(t.completedOn)}">${fmtLong(t.completedOn)}</span>` : "";
@@ -836,6 +873,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     syncHideDone();
     if (sel && !tasks.has(sel.id)) sel = null;
     paintSel(false);
+    resolveNames();
   }
   function cellEl(s) {
     if (!s) return null;
@@ -1022,6 +1060,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   // ---------- editing ----------
   function startEdit(initial) {
     if (!canWrite || !sel || !tasks.has(sel.id)) return;
+    if (COLS[sel.c].type === "ro") { toast("Last edited fills in automatically when anyone changes the task."); return; }
     const td = cellEl(sel); if (!td) return;
     const col = COLS[sel.c], t = tasks.get(sel.id), cur = t[col.key] ?? "";
     let el;
@@ -1094,6 +1133,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   function clearCell() {
     if (!canWrite || !sel) return;
     const col = COLS[sel.c];
+    if (col.type === "ro") return;
     if (col.key === "task") { toast("A task needs a name. Use the row menu to delete the task."); return; }
     saveTask(sel.id, { [col.key]: "" }); renderAll();
   }
@@ -1130,7 +1170,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       const id = model.flat[start + i]; if (!id) { skipped++; return; }
       const patch = {};
       cells.forEach((raw, j) => {
-        const col = COLS[sel.c + j]; if (!col) return;
+        const col = COLS[sel.c + j]; if (!col || col.type === "ro") return;
         const v = valueFor(col, raw);
         if (v === undefined) bad++; else if (!(col.key === "task" && !v)) patch[col.key] = v;
       });
@@ -1477,7 +1517,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   wrap.addEventListener("copy", (e) => {
     if (editing || !sel || !tasks.has(sel.id)) return;
     const col = COLS[sel.c], v = tasks.get(sel.id)[col.key] || "";
-    e.clipboardData.setData("text/plain", col.type === "date" ? fmtDate(v) : v);
+    e.clipboardData.setData("text/plain", col.type === "ro" ? editedLabel(tasks.get(sel.id)) : col.type === "date" ? fmtDate(v) : v);
     e.preventDefault(); toast("Copied.");
   });
   wrap.addEventListener("paste", (e) => {
