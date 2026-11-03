@@ -550,11 +550,6 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <h2>Urgent tasks <small id="urgentCount"></small></h2>
       <div class="tbl-wrap"><table class="dt" id="urgentTable"></table></div>
     </section>
-    <section class="panel wide" id="teamPanel">
-      <h2>Team tasks started or due this week <small id="teamCount"></small></h2>
-      <p class="team-sub" id="teamSub"></p>
-      <div id="teamList"></div>
-    </section>
     <section class="panel wide">
       <h2>Status by section</h2>
       <div class="tbl-wrap"><table class="dt" id="sectionTable"></table></div>
@@ -568,9 +563,10 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <h2>Overdue</h2>
       <div class="tbl-wrap"><table class="dt" id="overdueTable"></table></div>
     </section>
-    <section class="panel wide">
-      <h2>Due in the next 14 days</h2>
-      <div class="tbl-wrap"><table class="dt" id="soonTable"></table></div>
+    <section class="panel wide" id="teamPanel">
+      <h2>Team tasks started or due this week <small id="teamCount"></small></h2>
+      <p class="team-sub" id="teamSub"></p>
+      <div id="teamList"></div>
     </section>
   </div>
 </main>
@@ -1105,8 +1101,8 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     $("#urgentTable").innerHTML = list(urgent, "No tasks are marked Urgent.");
     renderTeam(all, refs);
     $("#overdueTable").innerHTML = list(all.filter(([, t]) => isOverdue(t)).sort(byDue), "Nothing is overdue.");
-    const t0 = today(), t14 = addDays(t0, 14);
-    $("#soonTable").innerHTML = list(all.filter(([, t]) => t.due && !isClosed(t) && t.due >= t0 && t.due <= t14).sort(byDue), "Nothing is due in the next 14 days.");
+
+
   }
   // "My tasks": the viewer's own open tasks (champion initials guessed from their name, or picked once).
   let myName = "";
