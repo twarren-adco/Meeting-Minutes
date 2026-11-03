@@ -428,6 +428,9 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .rt .pl.urg { background: color-mix(in srgb, var(--red) 12%, var(--surface)); color: var(--red); }
 .rt .pl.done { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); color: var(--ok); }
 .rt .who { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+.rt .rf.m { color: var(--mt, #6a3fb5); border-color: color-mix(in srgb, #7c4dcc 45%, transparent); }
+.wo-t { border: 1px solid var(--line); margin-top: 6px; min-width: 640px; }
+.wo-t th:nth-child(1) { width: 1%; } .wo-t th:nth-child(3), .wo-t th:nth-child(4), .wo-t th:nth-child(5), .wo-t th:nth-child(6) { width: 1%; }
 .rt-none { padding: 8px 10px; color: var(--faint); font-size: 12.5px; background: var(--surface); }
 @media (max-width: 760px) { .wb.mb { grid-template-columns: 100px repeat(5, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .lab { min-width: 720px; } .wb { grid-template-columns: 170px repeat(5, minmax(0, 1fr)); } }
@@ -566,7 +569,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <div class="la-nodate" id="laNoDate" hidden></div>
       </section>
       <section class="panel wide" aria-label="Waiting on others">
-        <h2 id="woHead">Waiting on others</h2>
+        <h2 id="woHead">Waiting on others this week</h2>
+        <p class="mm-small" id="woSub" style="margin:-6px 0 12px"></p>
         <div id="woList"></div>
       </section>
       <section class="panel wide" aria-label="My Weinam actions">
@@ -2001,17 +2005,28 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       if (!groups.has(k)) groups.set(k, { by, items: [] });
       groups.get(k).items.push({ wn: t, a: { text: t.task || "Untitled task", due: t.due || "" }, late: t.due && t.due < t0 ? -daysFrom(t.due, t0) : 0 });
     });
-    waitGroups = [...groups.values()].map((g) => ({ ...g, person: personFor(g.by), items: g.items.sort((a, b) => b.late - a.late || (a.a.due || "9").localeCompare(b.a.due || "9")) }))
+    waitGroups = [...groups.values()].map((g) => ({ ...g, person: personFor(g.by), items: g.items.sort((a, b) => (a.a.due || "9999").localeCompare(b.a.due || "9999")) }))
       .sort((a, b) => (b.items[0].late || 0) - (a.items[0].late || 0) || b.items.length - a.items.length);
     const total = waitGroups.reduce((n, g) => n + g.items.length, 0), late = waitGroups.reduce((n, g) => n + g.items.filter((x) => x.late).length, 0);
-    $("#woHead").innerHTML = `Waiting on others <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
+    const sunTxt = (() => { const d = dateOf(weekEnd); return `Sun ${d.getDate()} ${MONTHS[d.getMonth()]}`; })();
+    $("#woHead").innerHTML = `Waiting on others this week <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
+    $("#woSub").textContent = `Tasks other people own that have started and aren't closed out, or are due by ${sunTxt}: Weinam checklist tasks and actions from your meeting minutes.`;
+    const PLW = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], "": ["", "Not set"] };
+    const dayName = (iso) => { const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? " " + String(d.getFullYear()).slice(2) : ""}`; };
+    const leftTxt = (iso) => { if (!iso) return "No due date"; const n = daysFrom(iso, t0); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
     $("#woList").innerHTML = waitGroups.length ? waitGroups.map((g, gi) => {
       const ini = g.by.length <= 4 ? g.by.toUpperCase() : g.by.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase();
-      return `<div class="who-g"><div class="who-h"><span class="ini">${esc(ini)}</span><b>${esc(g.person.name)}</b>${g.person.company ? `<span class="mm-small">${esc(g.person.company)}</span>` : ""}<button class="btn" type="button" data-chase="${gi}">Copy chase-up</button></div>` +
-        g.items.map((x, n) => `<div class="w-row${x.wn && x.wn.status === "In Progress" ? " act" : ""}"><span>${x.wn
-          ? `<a href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">${esc(x.a.text)}</a> <span class="tag">Weinam ${esc(x.wn.ref || "")}</span>${x.wn.status === "In Progress" ? ` <span class="tag act">In progress</span>` : ""}`
-          : `<a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a> <span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span>`}</span>${x.late ? `<span class="tag od">${x.late} day${x.late === 1 ? "" : "s"} overdue</span>` : x.a.due ? `<span class="tag dt">Due ${shortIso(x.a.due)}</span>` : `<span class="tag">No due date</span>`}</div>`).join("") + `</div>`;
-    }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything right now. Actions assigned to other people in Meeting minutes, and Weinam tasks other people have started or have due this week, show up here.</p>`;
+      const gl = g.items.filter((x) => x.late).length;
+      return `<div class="who-g"><div class="who-h"><span class="ini">${esc(ini)}</span><b>${esc(g.person.name)}</b>${g.person.company ? `<span class="mm-small">${esc(g.person.company)}</span>` : ""}<span class="mm-small">${g.items.length} open${gl ? ` · <b style="color:var(--red)">${gl} overdue</b>` : ""}</span><button class="btn" type="button" data-chase="${gi}">Copy chase-up</button></div>` +
+        `<div style="overflow-x:auto"><table class="rt wo-t"><thead><tr><th>Source</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` +
+        g.items.map((x, n) => {
+          if (x.wn) {
+            const t = x.wn, [pc, pl] = PLW[t.status] || ["", t.status || "Not set"];
+            return `<tr class="${x.late ? "late" : t.status === "In Progress" ? "act" : ""}"><td class="n"><span class="rf">Weinam ${esc(t.ref || "")}</span></td><td><a href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">${esc(x.a.text)}</a></td><td><span class="pl ${pc}">${esc(pl)}</span></td><td class="n">${t.start ? esc(shortIso(t.start)) : "–"}</td><td class="n">${t.due ? esc(dayName(t.due)) : "–"}</td><td class="n left">${esc(leftTxt(t.due))}</td></tr>`;
+          }
+          return `<tr class="${x.late ? "late" : ""}"><td class="n"><span class="rf m">${esc(mRef(x.m, x.i, x.j))}</span></td><td><a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a></td><td><span class="pl">Meeting action</span></td><td class="n">${x.m.date ? esc(shortIso(x.m.date)) : "–"}</td><td class="n">${x.a.due ? esc(dayName(x.a.due)) : "–"}</td><td class="n left">${esc(leftTxt(x.a.due))}</td></tr>`;
+        }).join("") + `</tbody></table></div></div>`;
+    }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything this week. Weinam tasks other people have started or have due this week, and actions assigned to others in Meeting minutes, show up here.</p>`;
   }
   async function copyText(text, label) {
     try { await navigator.clipboard.writeText(text); toast(label); return true; }
