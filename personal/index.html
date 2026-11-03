@@ -253,7 +253,7 @@ table.dt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular
 .chips.wn { margin-bottom: 12px; }
 .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 1px 9px 1px 7px; font-size: 12.5px; font-weight: 600; white-space: nowrap; border: 1px solid var(--line-strong); }
 .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.pill.s-complete { color: var(--ok); } .pill.s-progress { color: var(--head); } .pill.s-urgent { color: var(--red); } .pill.s-idle { color: var(--muted); } .pill.s-unset { color: var(--faint); border-style: dashed; }
+.pill.s-complete { color: var(--ok); } .pill.s-act { color: var(--act); border-color: var(--act-line); background: var(--surface); } .pill.s-progress { color: var(--head); } .pill.s-urgent { color: var(--red); } .pill.s-idle { color: var(--muted); } .pill.s-unset { color: var(--faint); border-style: dashed; }
 .od-date { color: var(--red); font-weight: 700; }
 .soon-date { color: #b07800; font-weight: 700; }
 .wn-star { color: #e29a00; margin-right: 4px; }
@@ -367,6 +367,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .today-list .red, .goal-list .red { color: var(--red); }
 .today-list li.act { background: var(--act-bg); box-shadow: inset 3px 0 0 var(--act-line); }
 .today-list li.act .tbox { border-color: var(--act); background: linear-gradient(135deg, var(--act) 50%, var(--surface) 50%); }
+.dt tr.act td { background: var(--act-bg); }
+.dt tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
 .tag.act { color: var(--act); background: var(--surface); border-color: var(--act-line); text-transform: uppercase; letter-spacing: .04em; font-size: 10.5px; font-weight: 700; }
 .ev.act { background: var(--act-bg); color: var(--act); box-shadow: inset 3px 0 0 var(--act-line); }
 .copybox { width: 100%; min-height: 220px; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px; background: var(--surface-2); color: var(--ink); }
@@ -1015,10 +1017,10 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const isoPlus = (n) => { const d = addDays(new Date(), n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const fmtIso = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y.slice(2)}`; };
-  const PILL = { "Complete": ["s-complete", "Complete"], "In Progress": ["s-progress", "In progress"], "Urgent": ["s-urgent", "Urgent"], "Not Started": ["s-idle", "Not started"], "N/A this project": ["s-unset", "N/A"], "": ["s-unset", "Not set"] };
+  const PILL = { "Complete": ["s-complete", "Complete"], "In Progress": ["s-act", "In progress"], "Urgent": ["s-urgent", "Urgent"], "Not Started": ["s-idle", "Not started"], "N/A this project": ["s-unset", "N/A"], "": ["s-unset", "Not set"] };
   function watchWeinam() {
     if (store.kind !== "db" || unwatchWeinam) return;
-    unwatchWeinam = db.doc(docPath("weinam-tw")).onSnapshot((snap) => { weinam = snap.exists ? snap.data() : null; renderWeinam(); }, () => {});
+    unwatchWeinam = db.doc(docPath("weinam-tw")).onSnapshot((snap) => { weinam = snap.exists ? snap.data() : null; renderWeinam(); if (view === "dash") renderProductivity(); }, () => {});
   }
   // Weinam's key dates: its typed key-date notes plus every starred key task (any champion), soonest first.
   function renderKeyDates() {
@@ -1066,9 +1068,10 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const closed = (t) => t.status === "Complete" || t.status === "N/A this project";
     const all = weinam.tasks, open = all.filter((t) => !closed(t));
     const overdue = open.filter((t) => t.due && t.due < t0), soon = open.filter((t) => t.due && t.due >= t0 && t.due <= t7);
-    const done = all.filter((t) => t.status === "Complete").length;
+    const done = all.filter((t) => t.status === "Complete").length, inAct = open.filter((t) => t.status === "In Progress").length;
     chips.innerHTML =
       `<span class="chip"><span class="dot" style="background:var(--faint)"></span>Open <b>${open.length}</b></span>` +
+      `<span class="chip"><span class="dot" style="background:var(--act-line)"></span>In action <b>${inAct}</b></span>` +
       `<span class="chip"><span class="dot" style="background:var(--red)"></span>Overdue <b>${overdue.length}</b></span>` +
       `<span class="chip"><span class="dot" style="background:#e2a400"></span>Due in 7 days <b>${soon.length}</b></span>` +
       `<span class="chip"><span class="dot" style="background:var(--ok)"></span>Complete <b>${done}</b></span>`;
@@ -1084,7 +1087,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         rows.map((t) => {
           const [cls, label] = PILL[t.status || ""] || PILL[""];
           const dueCls = t.due && t.due < t0 ? "od-date" : t.due && t.due <= t7 ? "soon-date" : "";
-          return `<tr><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${WEINAM_URL}" target="_blank" rel="noopener">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
+          return `<tr class="${t.status === "In Progress" ? "act" : ""}"><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${WEINAM_URL}" target="_blank" rel="noopener">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
             `<td class="l"><span class="pill ${cls}">${label}</span></td><td>${fmtIso(t.start)}</td><td><span class="${dueCls}">${fmtIso(t.due)}${dueCls === "od-date" ? " · overdue" : ""}</span></td><td class="l">${esc(t.group || "")}</td></tr>`;
         }).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">No open Weinam actions with TW as Champion.${done ? ` ${done} complete.` : ""}</td></tr></tbody>`;
@@ -1837,9 +1840,11 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       });
     }
     if (weinam && Array.isArray(weinam.tasks)) weinam.tasks.forEach((t) => {
-      if (t.status === "Complete" || t.status === "N/A this project" || !t.due || t.due > t0) return;
-      const late = -daysFrom(t.due, t0);
-      items.push({ kind: "wn", text: t.task, ref: t.ref, late, sort: late ? 0 : 1, due: t.due });
+      if (t.status === "Complete" || t.status === "N/A this project") return;
+      const act = t.status === "In Progress";
+      if (!act && (!t.due || t.due > t0)) return;
+      const late = t.due && t.due < t0 ? -daysFrom(t.due, t0) : 0;
+      items.push({ kind: "wn", text: t.task, ref: t.ref, act, late, sort: late ? 0 : 1, due: t.due });
     });
     allActions().forEach(({ m, a, i, j }) => {
       if (!mine(a.by) || !a.due || a.due > t0 || a.sent) return;
@@ -1854,7 +1859,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#tdHead").innerHTML = `Today · ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${open} to do${late ? ` · ${late} overdue` : ""}${done ? ` · ${done} done` : ""}</small>`;
     $("#tdList").innerHTML = items.length ? items.map((x, n) => {
       const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
-      if (x.kind === "wn") return `<li><a class="ext" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam to update">↗</a><span class="tt"><a href="${WEINAM_LINK}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
+      if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam to update">↗</a><span class="tt"><a href="${WEINAM_LINK}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
       if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
       return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
     }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
@@ -1937,7 +1942,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const add = (iso, ev) => { if (!iso || iso < from || iso > to) return; if (!cells.has(iso)) cells.set(iso, []); ev.n = laItems.length; laItems.push(ev); cells.get(iso).push(ev); };
     if (weinam) {
       (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", text: "★ " + t.task, link: WEINAM_LINK, rank: 0 }));
-      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: "tw" + (t.due < t0 ? " late" : ""), text: t.task, link: WEINAM_LINK, rank: 1 }); });
+      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: (t.status === "In Progress" ? "tw act" : "tw") + (t.due < t0 ? " late" : ""), text: t.task, link: WEINAM_LINK, rank: 1 }); });
     }
     for (const m of meetings.values()) {
       add(m.date, { cls: "mt", text: (m.time ? m.time + " " : "") + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
