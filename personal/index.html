@@ -312,18 +312,16 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 /* Today, waiting on others, look-ahead, recurring */
 .today-list { list-style: none; margin: 0; padding: 0; }
 /* Today, option A: grouped table */
-.td-t { table-layout: fixed; min-width: 780px; border: 1px solid var(--line); }
+.td-t { min-width: 820px; }
 .td-t td { vertical-align: middle; }
 .td-t td.tk { text-align: center; }
-.td-t td.tt { font-weight: 600; overflow-wrap: anywhere; }
+.td-t td.tt { overflow-wrap: anywhere; }
 .td-t td.tt a { color: var(--ink); text-decoration: none; } .td-t td.tt a:hover { text-decoration: underline; color: var(--head); }
 .td-t td.nt { color: var(--red); font-size: 12.5px; overflow-wrap: anywhere; }
 .td-t td.c { white-space: nowrap; }
 .td-t tr.grp td { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; }
 .td-t tr.grp td b { color: var(--ink); margin-left: 4px; }
 .td-t tr.grp.r td { color: var(--red); }
-.td-t tr.act td { background: color-mix(in srgb, var(--act-bg) 60%, var(--surface)); }
-.td-t tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
 .td-t tr.done td.tt { text-decoration: line-through; font-weight: 400; } .td-t tr.done td.tt a { color: var(--faint); }
 .td-t .tbox { width: 18px; height: 18px; border-radius: 3px; border: 1.5px solid var(--faint); background: var(--surface); padding: 0; position: relative; cursor: pointer; }
 .td-t .tbox:hover { border-color: var(--brand); }
@@ -442,19 +440,31 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .rt td a { color: var(--ink); text-decoration: none; } .rt td a:hover { text-decoration: underline; color: var(--head); }
 .rt .rf { display: inline-block; font-size: 11px; font-weight: 700; color: var(--head); border: 1px solid color-mix(in srgb, var(--head) 40%, transparent); border-radius: 3px; padding: 0 5px; line-height: 18px; white-space: nowrap; }
 .rt .rf.k { color: var(--key-ink, #9a6500); border-color: #e29a00; background: color-mix(in srgb, #ffd466 18%, var(--surface)); }
-.rt tr.late td { background: color-mix(in srgb, var(--red) 9%, var(--surface)); }
-.rt tr.late .left { color: var(--red); font-weight: 700; }
-.rt tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
-.rt .left { font-weight: 600; }
 .rt .duewk { color: var(--head); font-weight: 600; }
 .rt .pl { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 0 8px; line-height: 19px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
 .rt .pl.act { background: var(--act-bg); color: var(--act); }
 .rt .pl.urg { background: color-mix(in srgb, var(--red) 12%, var(--surface)); color: var(--red); }
 .rt .pl.done { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); color: var(--ok); }
 .rt .who { font-size: 11.5px; color: var(--muted); margin-left: 6px; }
+/* shared table look */
+.rt { table-layout: fixed; }
+.rt.bd { border: 1px solid var(--line); }
+.rt td { vertical-align: middle; }
+.rt td a { color: var(--ink); font-weight: 500; text-decoration: none; } .rt td a:hover { text-decoration: underline; color: var(--head); }
+.rt td.wrap { overflow-wrap: anywhere; }
+.rt td .tn { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+.rt tr.act td { background: color-mix(in srgb, var(--act-bg) 55%, var(--surface)); }
+.rt tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
+.rt tr.late td { background: color-mix(in srgb, var(--red) 8%, var(--surface)); }
+.rt tr.late td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.rt tr.link { cursor: pointer; } .rt tr.link:hover td { background: var(--surface-2); }
+.rt .left { font-weight: 600; white-space: nowrap; color: var(--ink); }
+.rt .left.over { color: var(--red); } .rt .left.today { color: var(--warn-ink, #8a5a00); } .rt .left.none { color: var(--muted); font-weight: 500; }
+.rt .pl.mtg { background: color-mix(in srgb, #7c4dcc 12%, var(--surface)); color: var(--mt, #6a3fb5); }
+.rt .carried { color: var(--red); font-weight: 600; white-space: nowrap; }
 .rt .rf.m { color: var(--mt, #6a3fb5); border-color: color-mix(in srgb, #7c4dcc 45%, transparent); }
-.wo-t { border: 1px solid var(--line); margin-top: 6px; min-width: 640px; }
-.wo-t th:nth-child(1) { width: 1%; } .wo-t th:nth-child(3), .wo-t th:nth-child(4), .wo-t th:nth-child(5), .wo-t th:nth-child(6) { width: 1%; }
+.wo-t { margin-top: 6px; min-width: 720px; }
+.wn-t { min-width: 900px; } .la-t { min-width: 720px; }
 .rt-none { padding: 8px 10px; color: var(--faint); font-size: 12.5px; background: var(--surface); }
 @media (max-width: 760px) { .wb.mb { grid-template-columns: 100px repeat(5, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .lab { min-width: 720px; } .wb { grid-template-columns: 170px repeat(5, minmax(0, 1fr)); } }
@@ -603,12 +613,12 @@ table.mm-t { width: 100%; border-collapse: collapse; }
           <span class="wn-note" id="wnNote"></span>
         </div>
         <div class="chips wn" id="wnChips"></div>
-        <div class="tbl-wrap"><table class="dt" id="wnTable"></table></div>
+        <div class="tbl-wrap"><table class="rt bd wn-t" id="wnTable"></table></div>
         <p class="wn-note" style="margin:10px 0 0">Read-only copy of the Weinam checklist where Champion is TW, refreshed hourly on weekdays. <a class="wn-link" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist" target="_blank" rel="noopener">Open Weinam to update a task ↗</a></p>
       </section>
       <section class="panel wide">
         <h2>Misc list</h2>
-        <div class="tbl-wrap"><table class="dt" id="dMisc"></table></div>
+        <div class="tbl-wrap"><table class="rt bd misc-t" id="dMisc"></table></div>
       </section>
     </div>
   </div>
@@ -1205,14 +1215,11 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const byDue = (a, b) => (a.due || "9999") < (b.due || "9999") ? -1 : (a.due || "9999") > (b.due || "9999") ? 1 : 0;
     const rows = open.slice().sort(byDue);
     table.innerHTML = rows.length
-      ? `<thead><tr><th>#</th><th class="l">Task</th><th class="l">Status</th><th>Start by</th><th>Complete by</th><th class="l">Category</th></tr></thead><tbody>` +
-        rows.map((t) => {
-          const [cls, label] = PILL[t.status || ""] || PILL[""];
-          const dueCls = t.due && t.due < t0 ? "od-date" : t.due && t.due <= t7 ? "soon-date" : "";
-          return `<tr class="${t.status === "In Progress" ? "act" : ""}"><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open this task in Weinam">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
-            `<td class="l"><span class="pill ${cls}">${label}</span></td><td>${fmtIso(t.start)}</td><td><span class="${dueCls}">${fmtIso(t.due)}${dueCls === "od-date" ? " · overdue" : ""}</span></td><td class="l">${esc(t.group || "")}</td></tr>`;
-        }).join("") + `</tbody>`
-      : `<tbody><tr><td class="l" style="color:var(--muted)">No open Weinam actions with TW as Champion.${done ? ` ${done} complete.` : ""}</td></tr></tbody>`;
+      ? `<colgroup>${colsStd()}${colsTail}<col style="width:190px"></colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th><th>Category</th></tr></thead><tbody>` +
+        rows.map((t) => `<tr class="${tOver(t.due) ? "late" : t.status === "In Progress" ? "act" : ""}"><td><a class="rf${t.key ? " k" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam">${t.key ? "★ " : ""}Weinam ${esc(t.ref || "")}</a></td>` +
+          `<td class="wrap"><a href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open this task in Weinam">${esc(t.task || "Untitled task")}</a>${t.notes ? `<span class="tn">${esc(t.notes)}</span>` : ""}</td>` +
+          `<td>${tPill(t.status || "")}</td><td class="n">${tStart(t.start)}</td><td class="n">${esc(tDate(t.due))}</td><td class="n">${tLeft(t.due)}</td><td class="wrap" style="color:var(--muted)">${esc(t.group || "")}</td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td style="color:var(--muted)">No open Weinam actions with TW as Champion.${done ? ` ${done} complete.` : ""}</td></tr></tbody>`;
   }
 
   let dashToken = 0;
@@ -1250,8 +1257,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     });
     if (g.name || g.n) shown.push(g);
     $("#dMisc").innerHTML = shown.length
-      ? `<thead><tr><th>Heading</th><th>Total</th><th>Open</th></tr></thead><tbody>` + shown.map((x) => `<tr class="link" data-misc="1"><td class="l">${x.name ? esc(x.name) : "<i>No heading</i>"}</td><td>${x.n}</td><td><b>${num(x.n - x.k)}</b></td></tr>`).join("") + `</tbody>`
-      : `<tbody><tr><td class="l" style="color:var(--muted)">The misc list is empty.</td></tr></tbody>`;
+      ? `<colgroup><col><col style="width:${W_STATUS}px"><col style="width:${W_LEFT}px"></colgroup><thead><tr><th>Heading</th><th>Total</th><th>Open</th></tr></thead><tbody>` + shown.map((x) => `<tr class="link" data-misc="1"><td class="wrap"><a href="#misc">${x.name ? esc(x.name) : "<i>No heading</i>"}</a></td><td class="n">${x.n}</td><td class="n"><span class="left">${x.n - x.k}</span></td></tr>`).join("") + `</tbody>`
+      : `<tbody><tr><td style="color:var(--muted)">The misc list is empty. Add standing items on the Misc list tab.</td></tr></tbody>`;
 
   }
   $("#dashView").addEventListener("click", async (e) => {
@@ -1971,41 +1978,33 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const open = items.filter((x) => !x.done).length, late = items.filter((x) => !x.done && x.late).length, done = items.length - open;
     const wkend = dow > 4;
     $("#tdHead").innerHTML = `Today · ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${open} to do${late ? ` · ${late} overdue` : ""}${done ? ` · ${done} done` : ""}</small>`;
-    // Option A: one table in three groups (carried over, Weinam, today) with fixed columns.
-    const pill = (cls, txt) => `<span class="pl ${cls}">${esc(txt)}</span>`;
-    const dueCell = (x) => {
-      if (x.done) return "";
-      if (x.kind === "me" && x.late) return pill("late", `${x.tag} · ${x.late}d`);
-      const due = x.kind === "me" ? (x.wn ? x.wn.due : "") : x.due;
-      if (x.kind === "me" && !due) return "";
-      if (!due) return pill("", "No due date");
-      const n = daysFrom(due, t0);
-      return n < 0 ? pill("late", `${-n} day${n === -1 ? "" : "s"} over`) : n === 0 ? pill("due", "Due today") : pill("", `${n} day${n === 1 ? "" : "s"} left`);
-    };
-    const statusCell = (x) => {
-      if (x.done) return pill("done", "Done");
-      if (x.kind === "wn") return x.act ? pill("act", "In progress") : x.status === "Urgent" ? pill("urg", "Urgent") : pill("", x.status === "Not Started" ? "Not started" : x.status || "Not set");
-      return x.act ? pill("act", "In progress") : pill("", "To do");
-    };
+    // Option A: one table in three groups (carried over, Weinam, today), same columns and widths as the other tables.
+    const dueIso = (x) => (x.kind === "me" ? (x.wn ? x.wn.due : isoOf(addDays(x.mon, +x.scope))) : x.kind === "mt" ? x.a.due : x.due);
+    const statusCell = (x) => x.done ? tPill("done") : x.kind === "wn" ? tPill(x.status) : x.act ? tPill("In Progress") : x.kind === "mt" ? tPill("meeting") : tPill("todo");
     const srcCell = (x) => x.kind === "wn" ? `<a class="rf" href="${x.link}" target="_blank" rel="noopener" title="Open in Weinam">Weinam ${esc(x.ref)}</a>`
-      : x.kind === "mt" ? `<span class="rf m">${esc(mRef(x.m, x.i, x.j))}</span>`
+      : x.kind === "mt" ? `<span class="rf m" title="${esc(mRef(x.m, x.i, x.j))}">Meeting ${x.i + 1}.${x.j + 1}</span>`
       : x.wn ? `<a class="rf" href="${x.wn.link}" target="_blank" rel="noopener" title="Also on the Weinam checklist">Weinam ${esc(x.wn.ref)}</a>` : `<span class="rf g">My minutes${x.rec ? " ↻" : ""}</span>`;
     const tick = (x, n) => x.kind === "wn" ? `<a class="ext" href="${x.link}" target="_blank" rel="noopener" title="Open this task in Weinam to update it">↗</a>` : `<button class="tbox" type="button" data-td="${n}" aria-label="${x.done ? "Untick" : "Tick off"}"></button>`;
     const taskCell = (x, n) => x.kind === "wn" ? `<a href="${x.link}" target="_blank" rel="noopener">${esc(x.text)}</a>` : `<a href="#" data-td-open="${n}">${esc(x.kind === "me" ? x.main : x.text)}</a>`;
     const groups = [
-      { key: "late", title: "Carried over", red: true, test: (x) => x.kind !== "wn" && !!x.late },
-      { key: "wn", title: "Weinam due today or in progress", test: (x) => x.kind === "wn" },
-      { key: "today", title: "Today", test: (x) => x.kind !== "wn" && !x.late },
+      { title: "Carried over", red: true, test: (x) => x.kind !== "wn" && !!x.late },
+      { title: "Weinam due today or in progress", test: (x) => x.kind === "wn" },
+      { title: "Today", test: (x) => x.kind !== "wn" && !x.late },
     ];
     let rowsHtml = "";
     groups.forEach((g) => {
       const list = items.map((x, n) => [x, n]).filter(([x]) => g.test(x)).sort((a, b) => (a[0].done ? 1 : 0) - (b[0].done ? 1 : 0));
       if (!list.length) return;
-      rowsHtml += `<tr class="grp${g.red ? " r" : ""}"><td colspan="6">${g.title} <b>${list.filter(([x]) => !x.done).length}</b></td></tr>`;
-      rowsHtml += list.map(([x, n]) => `<tr class="${x.done ? "done" : x.act ? "act" : ""}"><td class="tk">${tick(x, n)}</td><td class="tt">${taskCell(x, n)}</td><td class="nt">${esc(x.note || "")}</td><td>${statusCell(x)}</td><td class="c">${dueCell(x)}</td><td>${srcCell(x)}</td></tr>`).join("");
+      rowsHtml += `<tr class="grp${g.red ? " r" : ""}"><td colspan="7">${g.title} <b>${list.filter(([x]) => !x.done).length}</b></td></tr>`;
+      rowsHtml += list.map(([x, n]) => {
+        const due = dueIso(x), over = !x.done && x.kind !== "me" && tOver(due);
+        const cls = x.done ? "done" : over ? "late" : x.act ? "act" : "";
+        return `<tr class="${cls}"><td class="tk">${tick(x, n)}</td><td>${srcCell(x)}</td><td class="tt">${taskCell(x, n)}</td><td class="nt">${esc(x.note || "")}</td><td>${statusCell(x)}</td>` +
+          `<td class="n">${x.kind === "me" && x.late && !x.wn ? `<span class="carried">From ${esc(DAYS[+x.scope].slice(0, 3))}</span>` : esc(tDate(due))}</td><td class="n">${x.done ? "" : tLeft(due)}</td></tr>`;
+      }).join("");
     });
     $("#tdList").innerHTML = items.length
-      ? `<table class="rt td-t"><colgroup><col style="width:38px"><col><col style="width:210px"><col style="width:112px"><col style="width:128px"><col style="width:118px"></colgroup><thead><tr><th></th><th>Task</th><th>Note</th><th>Status</th><th>From / due</th><th>Source</th></tr></thead><tbody>${rowsHtml}</tbody></table>`
+      ? `<table class="rt bd td-t"><colgroup><col style="width:40px"><col style="width:${W_REF}px"><col><col style="width:190px"><col style="width:${W_STATUS}px"><col style="width:${W_DUE}px"><col style="width:${W_LEFT}px"></colgroup><thead><tr><th></th><th>Source</th><th>Task</th><th>Note</th><th>Status</th><th>Due</th><th>Days left</th></tr></thead><tbody>${rowsHtml}</tbody></table>`
       : `<p class="mm-small" style="margin:0">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</p>`;
   }
   $("#tdList").addEventListener("click", async (e) => {
@@ -2066,20 +2065,17 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const sunTxt = (() => { const d = dateOf(weekEnd); return `Sun ${d.getDate()} ${MONTHS[d.getMonth()]}`; })();
     $("#woHead").innerHTML = `Waiting on others: started or due this week <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
     $("#woSub").textContent = `Open Weinam tasks where someone else is Champion and the task has started or is due by ${sunTxt}. Tasks not started yet and due later are left out. Also every open action assigned to someone else in your meeting minutes, whatever its due date.`;
-    const PLW = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], "": ["", "Not set"] };
-    const dayName = (iso) => { const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? " " + String(d.getFullYear()).slice(2) : ""}`; };
-    const leftTxt = (iso) => { if (!iso) return "No due date"; const n = daysFrom(iso, t0); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
     $("#woList").innerHTML = waitGroups.length ? waitGroups.map((g, gi) => {
       const ini = g.by.length <= 4 ? g.by.toUpperCase() : g.by.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase();
       const gl = g.items.filter((x) => x.late).length;
       return `<div class="who-g"><div class="who-h"><span class="ini">${esc(ini)}</span><b>${esc(g.person.name)}</b>${g.person.company ? `<span class="mm-small">${esc(g.person.company)}</span>` : ""}<span class="mm-small">${g.items.length} open${gl ? ` · <b style="color:var(--red)">${gl} overdue</b>` : ""}</span><button class="btn" type="button" data-chase="${gi}">Copy chase-up</button></div>` +
-        `<div style="overflow-x:auto"><table class="rt wo-t"><thead><tr><th>Source</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` +
+        `<div style="overflow-x:auto"><table class="rt bd wo-t"><colgroup>${colsStd()}${colsTail}</colgroup><thead><tr><th>Source</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` +
         g.items.map((x, n) => {
           if (x.wn) {
-            const t = x.wn, [pc, pl] = PLW[t.status] || ["", t.status || "Not set"];
-            return `<tr class="${x.late ? "late" : t.status === "In Progress" ? "act" : ""}"><td class="n"><span class="rf">Weinam ${esc(t.ref || "")}</span></td><td><a href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">${esc(x.a.text)}</a></td><td><span class="pl ${pc}">${esc(pl)}</span></td><td class="n">${t.start ? esc(shortIso(t.start)) : "–"}</td><td class="n">${t.due ? esc(dayName(t.due)) : "–"}</td><td class="n left">${esc(leftTxt(t.due))}</td></tr>`;
+            const t = x.wn;
+            return `<tr class="${x.late ? "late" : t.status === "In Progress" ? "act" : ""}"><td><a class="rf" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">Weinam ${esc(t.ref || "")}</a></td><td class="wrap"><a href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">${esc(x.a.text)}</a></td><td>${tPill(t.status || "")}</td><td class="n">${tStart(t.start)}</td><td class="n">${esc(tDate(t.due))}</td><td class="n">${tLeft(t.due)}</td></tr>`;
           }
-          return `<tr class="${x.late ? "late" : ""}"><td class="n"><span class="rf m">${esc(mRef(x.m, x.i, x.j))}</span></td><td><a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a></td><td><span class="pl">Meeting action</span></td><td class="n">${x.m.date ? esc(shortIso(x.m.date)) : "–"}</td><td class="n">${x.a.due ? esc(dayName(x.a.due)) : "–"}</td><td class="n left">${esc(leftTxt(x.a.due))}</td></tr>`;
+          return `<tr class="${x.late ? "late" : ""}"><td><span class="rf m" title="${esc(mRef(x.m, x.i, x.j))}">Meeting ${x.i + 1}.${x.j + 1}</span></td><td class="wrap"><a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a><span class="tn">${esc(x.m.title || x.m.type + " meeting")}</span></td><td>${tPill("meeting")}</td><td class="n">${tStart(x.m.date)}</td><td class="n">${esc(tDate(x.a.due))}</td><td class="n">${tLeft(x.a.due)}</td></tr>`;
         }).join("") + `</tbody></table></div></div>`;
     }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything this week. Weinam tasks other people have started or have due this week, and actions assigned to others in Meeting minutes, show up here.</p>`;
   }
@@ -2104,6 +2100,23 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 
   // #8 2-week look-ahead: this week and next, Monday to Friday.
   let laItems = [];
+  // ---------- shared table helpers: every dashboard table uses the same dates, days left, status pills and widths ----------
+  function tDate(iso) { if (!iso) return "–"; const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? " " + String(d.getFullYear()).slice(2) : ""}`; }
+  function tStart(iso) { return iso ? shortIso(iso) : "–"; }
+  function tLeft(iso) {
+    if (!iso) return `<span class="left none">No due date</span>`;
+    const n = daysFrom(iso, isoToday());
+    return n < 0 ? `<span class="left over">${-n} day${n === -1 ? "" : "s"} over</span>` : n === 0 ? `<span class="left today">Due today</span>` : `<span class="left">${n} day${n === 1 ? "" : "s"} left</span>`;
+  }
+  function tPill(status) {
+    const m = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], Complete: ["done", "Complete"], "N/A this project": ["", "N/A"], done: ["done", "Done"], todo: ["", "To do"], meeting: ["mtg", "Meeting action"], "": ["", "Not set"] }[status] || ["", status];
+    return `<span class="pl ${m[0]}">${esc(m[1])}</span>`;
+  }
+  const tOver = (iso) => !!iso && iso < isoToday();
+  // Standard column widths: ref/source, status, started, due, days left.
+  const W_REF = 104, W_STATUS = 118, W_START = 92, W_DUE = 118, W_LEFT = 116;
+  const colsStd = (lead = "") => `${lead}<col style="width:${W_REF}px"><col>`;
+  const colsTail = `<col style="width:${W_STATUS}px"><col style="width:${W_START}px"><col style="width:${W_DUE}px"><col style="width:${W_LEFT}px">`;
   // A My minutes line counts as the same item as a Weinam task when its wording starts with the task's wording
   // (the minutes copy often adds a note such as "- emailed 2/11/26").
   const normTxt = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -2127,9 +2140,6 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const openTw = weinam ? (weinam.tasks || []).filter((t) => t.status !== "Complete" && t.status !== "N/A this project") : [];
     const keys = weinam ? (weinam.keyTasks || []).filter((t) => t.status !== "N/A this project" && (t.due || t.start)) : [];
     $("#laHead").innerHTML = `2-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[1], 4))}</small>`;
-    const PL = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], Complete: ["done", "Complete"], "": ["", "Not set"] };
-    const dayName = (iso) => { const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
-    const leftTxt = (iso) => { if (!iso) return "No due date"; const n = daysFrom(iso, t0); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
     let h = "";
     weeks.forEach((mon, wi) => {
       const ds = Array.from({ length: NDAYS }, (_, d) => isoOf(addDays(mon, d))), m0 = ds[0], fri = ds[4];
@@ -2167,12 +2177,11 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       }
       // Weinam running: compact table under the days.
       g += `<div class="rt-wrap"><div class="rt-h"><span>Weinam running ${wi === 0 ? "this" : "next"} week · ${rows.length}</span><a class="wn-link" href="${WEINAM_LINK}" target="_blank" rel="noopener">Open Weinam ↗</a></div>`;
-      g += rows.length ? `<div style="overflow-x:auto"><table class="rt"><thead><tr><th>#</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` + rows.map((r) => {
-        const t = r.t, [pc, pl] = PL[t.status] || ["", t.status || "Not set"], dueIn = t.due && t.due >= m0 && t.due <= fri;
-        return `<tr class="${r.late ? "late" : r.act ? "act" : ""}"><td class="n"><span class="rf${r.key ? " k" : ""}">${r.key ? "★ " : ""}${esc(t.ref || "")}</span></td>` +
-          `<td><a href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam">${esc(t.task || "Untitled task")}</a>${r.other && t.champion ? `<span class="who">${esc(t.champion)}</span>` : ""}</td>` +
-          `<td><span class="pl ${pc}">${esc(pl)}</span></td><td class="n">${t.start ? esc(shortIso(t.start)) : "–"}</td>` +
-          `<td class="n${dueIn ? " duewk" : ""}">${t.due ? esc(dayName(t.due)) : "–"}</td><td class="n left">${esc(leftTxt(t.due))}</td></tr>`;
+      g += rows.length ? `<div style="overflow-x:auto"><table class="rt la-t"><colgroup>${colsStd()}${colsTail}</colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` + rows.map((r) => {
+        const t = r.t, dueIn = t.due && t.due >= m0 && t.due <= fri;
+        return `<tr class="${r.late ? "late" : r.act ? "act" : ""}"><td><a class="rf${r.key ? " k" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam">${r.key ? "★ " : ""}Weinam ${esc(t.ref || "")}</a></td>` +
+          `<td class="wrap"><a href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam">${esc(t.task || "Untitled task")}</a>${r.other && t.champion ? `<span class="who">${esc(t.champion)}</span>` : ""}</td>` +
+          `<td>${tPill(t.status || "")}</td><td class="n">${tStart(t.start)}</td><td class="n${dueIn ? " duewk" : ""}">${esc(tDate(t.due))}</td><td class="n">${tLeft(t.due)}</td></tr>`;
       }).join("") + `</tbody></table></div>` : `<div class="rt-none">No Weinam tasks running or due this week.</div>`;
       g += `</div>`;
       h += g + `</div>`;
