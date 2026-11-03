@@ -511,17 +511,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <p class="wn-note" style="margin:10px 0 0">Read-only copy of the Weinam checklist where Champion is TW, refreshed hourly on weekdays. <a class="wn-link" href="https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist" target="_blank" rel="noopener">Open Weinam to update a task ↗</a></p>
       </section>
       <section class="panel wide">
-        <h2>Status by day</h2>
-        <div class="tbl-wrap"><table class="dt" id="dDays"></table></div>
-        <div class="legend"><span><i style="background:var(--ok)"></i>Done</span><span><i style="background:var(--act-line)"></i>In action</span><span><i style="background:var(--faint)"></i>Open</span></div>
-      </section>
-      <section class="panel">
         <h2>Misc list</h2>
         <div class="tbl-wrap"><table class="dt" id="dMisc"></table></div>
-      </section>
-      <section class="panel wide">
-        <h2>Recent weeks</h2>
-        <div class="tbl-wrap"><table class="dt" id="dWeeks"></table></div>
       </section>
     </div>
   </div>
@@ -1152,8 +1143,6 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const goals = cur.goals.filter((g) => g.t.trim());
     $("#dGoals").innerHTML = goals.length ? goals.map((g) => `<li class="${g.done ? "done" : ""}">${taskHtml(g)}</li>`).join("") : `<li class="muted">No goals set for this week. Add them at the top of My minutes.</li>`;
 
-    $("#dDays").innerHTML = `<thead><tr><th>Day</th><th class="l">Date</th><th>Total</th><th>Done</th><th>In action</th><th>Open</th><th>Breakdown</th></tr></thead><tbody>` +
-      lists.map((d) => `<tr class="link${d.date && sameDay(d.date, today) ? " today" : ""}" data-go="${d.scope}"><td>${d.name}${d.date && sameDay(d.date, today) ? " · Today" : ""}</td><td class="l">${d.date ? short(d.date) : "No fixed day"}</td><td><b>${d.n}</b></td><td>${num(d.k)}</td><td>${d.a ? `<b style="color:var(--act)">${d.a}</b>` : num(0)}</td><td>${num(d.n - d.k - d.a)}</td><td class="bar-cell"><div class="bar">${barHtml(d.k, d.n - d.k - d.a, d.a)}</div></td></tr>`).join("") + `</tbody>`;
 
 
     // Group the misc list under its headings ("No heading" for lines above the first one).
@@ -1168,17 +1157,6 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       ? `<thead><tr><th>Heading</th><th>Total</th><th>Open</th></tr></thead><tbody>` + shown.map((x) => `<tr class="link" data-misc="1"><td class="l">${x.name ? esc(x.name) : "<i>No heading</i>"}</td><td>${x.n}</td><td><b>${num(x.n - x.k)}</b></td></tr>`).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">The misc list is empty.</td></tr></tbody>`;
 
-    const weeks = [];
-    for (let i = 5; i >= 0; i--) weeks.push(addDays(thisMon, -7 * i));
-    const data = await Promise.all(weeks.map((m) => (sameDay(m, monday) ? week : readWeek(m))));
-    if (my !== dashToken) return;
-    $("#dWeeks").innerHTML = `<thead><tr><th>Week</th><th class="l">Period</th><th>Total</th><th>Done</th><th>Open</th><th>% complete</th><th>Breakdown</th></tr></thead><tbody>` +
-      weeks.map((m, i) => {
-        let n = 0, k = 0;
-        data[i].days.concat([data[i].extra]).forEach((l) => { const [a, b] = count(l); n += a; k += b; });
-        const iw = isoWeek(m), thisOne = sameDay(m, thisMon);
-        return `<tr class="link${thisOne ? " today" : ""}" data-week="${m.getTime()}"><td>WK ${pad(iw.wk)}${thisOne ? " · This week" : ""}</td><td class="l">${short(m)} – ${short(addDays(m, 4))}</td><td><b>${num(n)}</b></td><td>${num(k)}</td><td>${num(n - k)}</td><td>${n ? Math.round((k / n) * 100) + "%" : `<span class="zero">–</span>`}</td><td class="bar-cell"><div class="bar">${barHtml(k, n - k)}</div></td></tr>`;
-      }).reverse().join("") + `</tbody>`;
   }
   $("#dashView").addEventListener("click", async (e) => {
     const tr = e.target.closest("tr.link"); if (!tr) return;
