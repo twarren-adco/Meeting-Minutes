@@ -1,0 +1,302 @@
+<title>Look-ahead Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one column of three option boards, each a framed mock of the dashboard panel with a short "what changes" list above it. */
+:root {
+  --brand: #0047BB; --bg: #F2F5FC; --surface: #ffffff; --surface-2: #EBF0FA; --line: #CCDAF1; --ink: #1f2937; --muted: #4A5464; --faint: #8b95a7;
+  --act: #c2410c; --act-bg: #fff1e6; --act-line: #f59e57; --red: #b42318; --key: #b97800; --key-bg: #fff6dc; --mt: #6a3fb5; --ok: #1d7a46;
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --key: #f2bf4d; --key-bg: #2f2610; --mt: #b99af0; --ok: #5fd08f; color-scheme: dark; } }
+:root[data-theme="dark"] { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --key: #f2bf4d; --key-bg: #2f2610; --mt: #b99af0; --ok: #5fd08f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--brand); margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; } h3 { font-size: 16px; }
+.intro p { margin: 6px 0 0; max-width: 70ch; color: var(--muted); }
+.opt { display: grid; gap: 12px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.opt-head .tagline { color: var(--muted); font-size: 14px; }
+.why { margin: 0; padding-left: 18px; color: var(--ink); max-width: 90ch; display: grid; gap: 2px; }
+.board { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+.scroll { overflow-x: auto; }
+.small { font-size: 12.5px; color: var(--muted); }
+.note { color: var(--act); font-size: 12.5px; }
+.when { color: var(--muted); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* shared source markers */
+.src { display: inline-grid; place-items: center; min-width: 46px; height: 20px; padding: 0 6px; border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: .03em; white-space: nowrap; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.src.w { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+.src.k { color: var(--key); border-color: color-mix(in srgb, var(--key) 55%, transparent); background: var(--key-bg); }
+.src.m { color: var(--mt); border-color: color-mix(in srgb, var(--mt) 45%, transparent); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+.dot.act { background: var(--act-line); }
+.ia { color: var(--act); font-weight: 600; font-size: 11.5px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.carried { color: var(--red); font-weight: 600; font-size: 11.5px; white-space: nowrap; }
+
+/* ---------- A: agenda ---------- */
+.ag { display: grid; gap: 0; }
+.ag-wk { font-family: var(--f-display); font-size: 15px; letter-spacing: .05em; text-transform: uppercase; color: var(--brand); padding: 10px 0 6px; border-bottom: 2px solid var(--brand); display: flex; gap: 10px; align-items: baseline; }
+.ag-wk small { font-family: var(--f-body); text-transform: none; letter-spacing: 0; color: var(--muted); font-size: 12.5px; }
+.ag-day { display: grid; grid-template-columns: 92px minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+.ag-day.today { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); }
+.ag-date { padding: 9px 8px 9px 0; font-weight: 700; color: var(--ink); }
+.ag-date span { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+.ag-day.today .ag-date { color: var(--brand); }
+.ag-items { display: grid; }
+.ag-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px dashed color-mix(in srgb, var(--line) 70%, transparent); }
+.ag-row:first-child { border-top: 0; }
+.ag-row .txt { min-width: 0; }
+.ag-row .txt .note { margin-left: 6px; }
+.ag-empty { padding: 9px 0; color: var(--faint); font-size: 13px; }
+.ag-run { display: grid; gap: 4px; padding: 8px 0 10px; }
+.ag-run-h { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.ag-run .ag-row { border-top: 0; padding: 3px 0; }
+
+/* ---------- B: timeline + day lists ---------- */
+.tl { display: grid; grid-template-columns: 210px repeat(10, minmax(54px, 1fr)); min-width: 860px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.tl > div { border-bottom: 1px solid var(--line); min-height: 34px; display: flex; align-items: center; padding: 0 8px; }
+.tl .h { background: var(--brand); color: #fff; font-family: var(--f-display); letter-spacing: .06em; text-transform: uppercase; font-size: 12px; min-height: 30px; border-right: 1px solid color-mix(in srgb, #fff 25%, transparent); }
+.tl .h.wkb { border-left: 2px solid #fff; }
+.tl .lbl { font-size: 13px; gap: 8px; border-right: 1px solid var(--line); min-width: 0; }
+.tl .lbl span.t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl .cell { border-right: 1px solid color-mix(in srgb, var(--line) 60%, transparent); padding: 0; }
+.tl .cell.now { background: color-mix(in srgb, var(--brand) 7%, var(--surface)); }
+.tl .bar { grid-column-end: span 1; height: 18px; margin: 0; border-radius: 3px; background: color-mix(in srgb, var(--brand) 22%, var(--surface)); border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent); font-size: 11px; font-weight: 600; color: var(--brand); padding: 0 6px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+.tl .bar.act { background: var(--act-bg); border-color: var(--act-line); color: var(--act); }
+.tl .bar.open-end { border-right: 0; border-radius: 3px 0 0 3px; }
+.tl .barwrap { display: contents; }
+.tl .diamond { width: 12px; height: 12px; background: var(--key); transform: rotate(45deg); margin: 0 auto; }
+.tl .due { width: 4px; height: 18px; background: var(--brand); margin: 0 auto; border-radius: 2px; }
+.tl .due.act { background: var(--act-line); }
+.days5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.dcol { border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; min-width: 0; }
+.dcol.today { border-color: var(--brand); box-shadow: inset 0 3px 0 var(--brand); }
+.dcol h4 { margin: 0 0 6px; font-size: 13px; color: var(--ink); display: flex; justify-content: space-between; gap: 6px; }
+.dcol h4 span { font-weight: 500; color: var(--muted); font-size: 12px; }
+.dcol ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.dcol li { display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 6px; align-items: start; font-size: 13px; line-height: 1.3; }
+.dcol li .bx { width: 10px; height: 10px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 3px; }
+.dcol li.act .bx { border-color: var(--act); background: var(--act-line); }
+.dcol li .n { display: block; color: var(--act); font-size: 12px; }
+
+/* ---------- C: two lists ---------- */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.col h3 { margin-bottom: 8px; }
+.dl { list-style: none; margin: 0; padding: 0; display: grid; }
+.dl li { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.dl .cd { text-align: center; border-radius: 4px; padding: 3px 0; font-variant-numeric: tabular-nums; line-height: 1.1; background: var(--surface-2); }
+.dl .cd b { display: block; font-size: 16px; color: var(--ink); }
+.dl .cd i { font-style: normal; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.dl .cd.soon { background: color-mix(in srgb, var(--red) 12%, var(--surface)); } .dl .cd.soon b { color: var(--red); }
+.dl .meta { font-size: 12px; color: var(--muted); }
+.grp { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 12px 0 4px; }
+.mm { list-style: none; margin: 0; padding: 0; display: grid; }
+.mm li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 8px; align-items: start; padding: 6px 0; border-bottom: 1px dashed color-mix(in srgb, var(--line) 75%, transparent); }
+.mm .bx { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 3px; }
+.mm li.act .bx { border-color: var(--act); background: linear-gradient(135deg, var(--act-line) 50%, var(--surface) 50%); }
+.mm .note { display: block; }
+.dayh { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0 2px; font-weight: 700; }
+.dayh span { font-weight: 500; font-size: 12px; color: var(--muted); }
+.dayh.today { color: var(--brand); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 760px) {
+  .two, .days5 { grid-template-columns: minmax(0, 1fr); }
+  .ag-day { grid-template-columns: minmax(0, 1fr); }
+  .ag-date { padding-bottom: 0; } .ag-date span { display: inline; margin-left: 6px; }
+  .ag-row { grid-template-columns: 50px minmax(0, 1fr); } .ag-row > :last-child { grid-column: 2; }
+  .dl li { grid-template-columns: 54px minmax(0, 1fr); } .dl li > :last-child { grid-column: 2; }
+}
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>2-week look-ahead: three options</h1>
+    <p>Each mock uses the items from your screenshot (today is Tuesday 3 Nov). All three drop the repeated "My minutes" headings and the full orange cards, and show the red note, such as "emailed 2/11/26", as a short line under the task. Pick one, or mix parts, and I'll build it.</p>
+  </header>
+
+  <!-- ===================== A ===================== -->
+  <section class="opt" aria-labelledby="a-h">
+    <div class="opt-head"><h2 id="a-h">Option A · Agenda list</h2><span class="tagline">A diary page: one line per item, day by day, top to bottom.</span></div>
+    <ul class="why">
+      <li>One line per item: a source tag on the left, the task, and In action on the right.</li>
+      <li>Weinam tasks that run over several days sit at the top of the week, one line each, with their due date.</li>
+      <li>Monday's unticked lines say "Carried over" so you can see they've slipped.</li>
+      <li>Reads the same on a phone. It's the longest of the three on screen.</li>
+    </ul>
+    <div class="board">
+      <div class="ag">
+        <div class="ag-wk">This week <small>WK 45 · 2–6 Nov</small></div>
+        <div class="ag-run">
+          <span class="ag-run-h">Running this week</span>
+          <div class="ag-row"><span class="src w">W 3.5</span><span class="txt">ADG to develop revised carpark arrangements</span><span class="ia"><i class="dot act"></i>In action · due 20 Nov</span></div>
+          <div class="ag-row"><span class="src w">W 3.1</span><span class="txt">Update site establishment plan</span><span class="when">due 16 Nov</span></div>
+          <div class="ag-row"><span class="src w">W 3.4</span><span class="txt">Bottom out 2 x tower crane possibility (will need to be luffers if 2)</span><span class="when">due 16 Nov</span></div>
+        </div>
+        <div class="ag-day">
+          <div class="ag-date">Mon<span>2 Nov</span></div>
+          <div class="ag-items">
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Update Weinam program</span><span class="carried">Carried over</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Sort out Weinam fencing<span class="note">waiting TEA quote 3/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Chase EMM (Adrian) for an updated Condong heritage sign design<span class="note">emailed 2/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Send email to consultants about BA drawings we require</span><span class="carried">Carried over</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Update program with workback date for demo, civil &amp; piling</span><span class="carried">Carried over</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Speak to Caporn &amp; Kellers about worst case scenario piling rig options<span class="note">spoke to &amp; emailed 2/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Chase Borderline to fix Condong filter<span class="note">spoke to 2/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Chase Modscape Tumbi principal door replacement<span class="note">emailed 2/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+          </div>
+        </div>
+        <div class="ag-day today">
+          <div class="ag-date">Tue · Today<span>3 Nov</span></div>
+          <div class="ag-items">
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Call Jesse McDonald (Lucid Consulting) re peer review<span class="note">emailed 2/11/26</span></span><span class="ia"><i class="dot act"></i>In action</span></div>
+          </div>
+        </div>
+        <div class="ag-day">
+          <div class="ag-date">Wed<span>4 Nov</span></div>
+          <div class="ag-items">
+            <div class="ag-row"><span class="src w">W 1.14</span><span class="txt">Traffic Control Plan – council approval</span><span class="when">Weinam due</span></div>
+            <div class="ag-row"><span class="src w">W 5.2</span><span class="txt">Temp carpark closes &amp; cars removed</span><span class="ia"><i class="dot act"></i>In action · due</span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Status consultants defect reports</span><span></span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Submit LSPS FRNSW schedule to BM+G</span><span></span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Issue BM+G performance solutions to SINSW for approval</span><span></span></div>
+            <div class="ag-row"><span class="src">Min</span><span class="txt">Update BM+G rev 2 list</span><span></span></div>
+          </div>
+        </div>
+        <div class="ag-day"><div class="ag-date">Thu<span>5 Nov</span></div><div class="ag-items"><div class="ag-row"><span class="src">Min</span><span class="txt">Balance Weinam carpark PCR</span><span></span></div></div></div>
+        <div class="ag-day"><div class="ag-date">Fri<span>6 Nov</span></div><div class="ag-items"><div class="ag-row"><span class="src w">W 3.6</span><span class="txt">Chase pilers for rig / load info</span><span class="ia"><i class="dot act"></i>In action · due</span></div></div></div>
+
+        <div class="ag-wk">Next week <small>WK 46 · 9–13 Nov</small></div>
+        <div class="ag-day"><div class="ag-date">Mon<span>9 Nov</span></div><div class="ag-items"><div class="ag-empty">Nothing scheduled</div></div></div>
+        <div class="ag-day"><div class="ag-date">Tue<span>10 Nov</span></div><div class="ag-items"><div class="ag-row"><span class="src k">★ 4.3</span><span class="txt"><b>Bronze – ECI Submission (Concept Cost Plan)</b></span><span class="when">Key date</span></div></div></div>
+        <div class="ag-day"><div class="ag-date">Wed–Fri<span>11–13 Nov</span></div><div class="ag-items"><div class="ag-empty">Nothing scheduled</div></div></div>
+      </div>
+      <p class="small" style="margin:10px 0 0">No dates set: <span class="src w">W 3.2</span> Mark up scaffold plan · <span class="src w">W 3.3</span> Mark up logistics &amp; vertical movement plan</p>
+    </div>
+  </section>
+
+  <!-- ===================== B ===================== -->
+  <section class="opt" aria-labelledby="b-h">
+    <div class="opt-head"><h2 id="b-h">Option B · Weinam timeline + daily lists</h2><span class="tagline">A mini Gantt for Weinam, with a plain checklist per day underneath.</span></div>
+    <ul class="why">
+      <li>The top strip shows Weinam tasks as bars from start to due, and key dates as a diamond. You can see what's running and what lands when.</li>
+      <li>Your minutes and meeting actions sit below in five plain day columns, like a paper diary. In action lines get an orange box and the note underneath.</li>
+      <li>Keeps the two kinds of work apart: project dates in the timeline, your own to-dos in the diary.</li>
+    </ul>
+    <div class="board">
+      <div class="scroll">
+        <div class="tl" role="img" aria-label="Timeline of Weinam tasks over two weeks">
+          <div class="h">Weinam (TW)</div>
+          <div class="h">Mon 2</div><div class="h">Tue 3</div><div class="h">Wed 4</div><div class="h">Thu 5</div><div class="h">Fri 6</div>
+          <div class="h wkb">Mon 9</div><div class="h">Tue 10</div><div class="h">Wed 11</div><div class="h">Thu 12</div><div class="h">Fri 13</div>
+
+          <div class="lbl"><span class="src w">3.5</span><span class="t">ADG revised carpark</span></div>
+          <div class="cell"></div><div class="cell" style="grid-column: span 9; padding: 0 4px;"><div class="bar act open-end" style="width:100%">In action · due 20 Nov →</div></div>
+
+          <div class="lbl"><span class="src w">3.1</span><span class="t">Site establishment plan</span></div>
+          <div class="cell" style="grid-column: span 10; padding: 0 4px;"><div class="bar open-end" style="width:100%">Started 2 Nov · due 16 Nov →</div></div>
+
+          <div class="lbl"><span class="src w">3.4</span><span class="t">2 x tower crane possibility</span></div>
+          <div class="cell" style="grid-column: span 10; padding: 0 4px;"><div class="bar open-end" style="width:100%">Started 2 Nov · due 16 Nov →</div></div>
+
+          <div class="lbl"><span class="src w">1.14</span><span class="t">Traffic Control Plan</span></div>
+          <div class="cell" style="grid-column: span 3; padding: 0 4px;"><div class="bar" style="width:100%">due Wed</div></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="lbl"><span class="src w">5.2</span><span class="t">Temp carpark closes</span></div>
+          <div class="cell" style="grid-column: span 3; padding: 0 4px;"><div class="bar act" style="width:100%">In action · due Wed</div></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="lbl"><span class="src w">3.6</span><span class="t">Chase pilers for rig info</span></div>
+          <div class="cell" style="grid-column: span 5; padding: 0 4px;"><div class="bar act" style="width:100%">In action · due Fri</div></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="lbl" style="border-bottom:0"><span class="src k">★ 4.3</span><span class="t">Bronze ECI submission</span></div>
+          <div class="cell" style="border-bottom:0"></div><div class="cell now" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"><i class="diamond"></i></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div><div class="cell" style="border-bottom:0"></div>
+        </div>
+      </div>
+
+      <div class="days5">
+        <div class="dcol"><h4>Mon <span>2 Nov · 5 carried over</span></h4><ul>
+          <li><i class="bx"></i><span>Update Weinam program</span></li>
+          <li class="act"><i class="bx"></i><span>Sort out Weinam fencing<span class="n">waiting TEA quote 3/11/26</span></span></li>
+          <li class="act"><i class="bx"></i><span>Chase EMM (Adrian) for Condong heritage sign design<span class="n">emailed 2/11/26</span></span></li>
+          <li><i class="bx"></i><span>Email consultants about BA drawings</span></li>
+          <li><i class="bx"></i><span>Program workback for demo, civil &amp; piling</span></li>
+          <li class="act"><i class="bx"></i><span>Caporn &amp; Kellers worst case piling rig<span class="n">spoke to &amp; emailed 2/11/26</span></span></li>
+          <li class="act"><i class="bx"></i><span>Chase Borderline – Condong filter<span class="n">spoke to 2/11/26</span></span></li>
+          <li class="act"><i class="bx"></i><span>Chase Modscape Tumbi door<span class="n">emailed 2/11/26</span></span></li>
+        </ul></div>
+        <div class="dcol today"><h4>Tue · Today <span>3 Nov</span></h4><ul>
+          <li class="act"><i class="bx"></i><span>Call Jesse McDonald (Lucid) re peer review<span class="n">emailed 2/11/26</span></span></li>
+        </ul></div>
+        <div class="dcol"><h4>Wed <span>4 Nov</span></h4><ul>
+          <li><i class="bx"></i><span>Status consultants defect reports</span></li>
+          <li><i class="bx"></i><span>Submit LSPS FRNSW schedule to BM+G</span></li>
+          <li><i class="bx"></i><span>BM+G performance solutions to SINSW</span></li>
+          <li><i class="bx"></i><span>Update BM+G rev 2 list</span></li>
+        </ul></div>
+        <div class="dcol"><h4>Thu <span>5 Nov</span></h4><ul><li><i class="bx"></i><span>Balance Weinam carpark PCR</span></li></ul></div>
+        <div class="dcol"><h4>Fri <span>6 Nov</span></h4><ul><li style="color:var(--faint)"><span></span><span>Nothing in your minutes</span></li></ul></div>
+      </div>
+      <p class="small" style="margin:10px 0 0">Next week's minutes columns would follow underneath (empty in this example).</p>
+    </div>
+  </section>
+
+  <!-- ===================== C ===================== -->
+  <section class="opt" aria-labelledby="c-h">
+    <div class="opt-head"><h2 id="c-h">Option C · Deadlines and diary, side by side</h2><span class="tagline">Two lists instead of a calendar grid.</span></div>
+    <ul class="why">
+      <li>Left: every dated deadline in the next two weeks (Weinam, key dates, meeting actions), soonest first, with a countdown box. Overdue and due-soon items turn red.</li>
+      <li>Right: your minutes for the two weeks as a checklist, grouped by day, with the In action notes underneath.</li>
+      <li>The most compact, and the easiest to scan for "what's due next". You lose the calendar shape.</li>
+    </ul>
+    <div class="board">
+      <div class="two">
+        <div class="col">
+          <h3>Deadlines</h3>
+          <ul class="dl">
+            <li><span class="cd soon"><b>1</b><i>day</i></span><span><span class="src w">W 1.14</span> Traffic Control Plan – council approval<span class="meta" style="display:block">Wed 4 Nov</span></span><span></span></li>
+            <li><span class="cd soon"><b>1</b><i>day</i></span><span><span class="src w">W 5.2</span> Temp carpark closes &amp; cars removed<span class="meta" style="display:block">Wed 4 Nov</span></span><span class="ia"><i class="dot act"></i>In action</span></li>
+            <li><span class="cd soon"><b>3</b><i>days</i></span><span><span class="src w">W 3.6</span> Chase pilers for rig / load info<span class="meta" style="display:block">Fri 6 Nov</span></span><span class="ia"><i class="dot act"></i>In action</span></li>
+            <li><span class="cd"><b>7</b><i>days</i></span><span><span class="src k">★ 4.3</span> <b>Bronze – ECI Submission (Concept Cost Plan)</b><span class="meta" style="display:block">Tue 10 Nov · key date</span></span><span></span></li>
+            <li><span class="cd"><b>13</b><i>days</i></span><span><span class="src w">W 3.1</span> Update site establishment plan<span class="meta" style="display:block">Mon 16 Nov · started 2 Nov</span></span><span></span></li>
+            <li><span class="cd"><b>13</b><i>days</i></span><span><span class="src w">W 3.4</span> Bottom out 2 x tower crane possibility<span class="meta" style="display:block">Mon 16 Nov · started 2 Nov</span></span><span></span></li>
+            <li><span class="cd"><b>17</b><i>days</i></span><span><span class="src w">W 3.5</span> ADG to develop revised carpark arrangements<span class="meta" style="display:block">Fri 20 Nov · started 3 Nov</span></span><span class="ia"><i class="dot act"></i>In action</span></li>
+          </ul>
+          <p class="small" style="margin:8px 0 0">No dates set: <span class="src w">W 3.2</span> Scaffold plan · <span class="src w">W 3.3</span> Logistics &amp; vertical movement plan</p>
+        </div>
+        <div class="col">
+          <h3>My minutes</h3>
+          <div class="dayh">Mon 2 Nov <span>5 carried over</span></div>
+          <ul class="mm">
+            <li><i class="bx"></i><span>Update Weinam program</span><span></span></li>
+            <li class="act"><i class="bx"></i><span>Sort out Weinam fencing<span class="note">waiting TEA quote 3/11/26</span></span><span class="ia">In action</span></li>
+            <li class="act"><i class="bx"></i><span>Chase EMM (Adrian) for an updated Condong heritage sign design<span class="note">emailed 2/11/26</span></span><span class="ia">In action</span></li>
+            <li><i class="bx"></i><span>Send email to consultants about BA drawings we require</span><span></span></li>
+            <li><i class="bx"></i><span>Update program with workback date for demo, civil &amp; piling</span><span></span></li>
+            <li class="act"><i class="bx"></i><span>Speak to Caporn &amp; Kellers about worst case piling rig options<span class="note">spoke to &amp; emailed 2/11/26</span></span><span class="ia">In action</span></li>
+            <li class="act"><i class="bx"></i><span>Chase Borderline to fix Condong filter<span class="note">spoke to 2/11/26</span></span><span class="ia">In action</span></li>
+            <li class="act"><i class="bx"></i><span>Chase Modscape Tumbi principal door replacement<span class="note">emailed 2/11/26</span></span><span class="ia">In action</span></li>
+          </ul>
+          <div class="dayh today">Tue 3 Nov · Today</div>
+          <ul class="mm"><li class="act"><i class="bx"></i><span>Call Jesse McDonald (Lucid Consulting) re peer review<span class="note">emailed 2/11/26</span></span><span class="ia">In action</span></li></ul>
+          <div class="dayh">Wed 4 Nov</div>
+          <ul class="mm">
+            <li><i class="bx"></i><span>Status consultants defect reports</span><span></span></li>
+            <li><i class="bx"></i><span>Submit LSPS FRNSW schedule to BM+G</span><span></span></li>
+            <li><i class="bx"></i><span>Issue BM+G performance solutions to SINSW for approval</span><span></span></li>
+            <li><i class="bx"></i><span>Update BM+G rev 2 list</span><span></span></li>
+          </ul>
+          <div class="dayh">Thu 5 Nov</div>
+          <ul class="mm"><li><i class="bx"></i><span>Balance Weinam carpark PCR</span><span></span></li></ul>
+          <div class="grp">Next week · nothing in your minutes yet</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="legend"><span><span class="src w">W 3.1</span>Weinam task (TW)</span><span><span class="src k">★ 4.3</span>Weinam key date</span><span><span class="src">Min</span>My minutes</span><span><span class="src m">Mtg</span>Meeting / my meeting action</span><span class="ia"><i class="dot act"></i>In action</span></div>
+</div>
