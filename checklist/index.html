@@ -503,7 +503,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     <div class="toolbar" style="margin-bottom:12px">
       <label class="field">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input id="cSearch" type="search" placeholder="Search name, company or role" aria-label="Search contacts">
+        <input id="cSearch" type="search" placeholder="Search name, company or discipline" aria-label="Search contacts">
       </label>
       <span class="filter-note" id="cNote"></span>
       <span class="spacer"></span>
@@ -1401,7 +1401,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       merges.push(`B${r}:F${r}`); r++;
     }
     r = 7;
-    rows += `<row r="7" ht="27.75" customHeight="1">` + ["Role", "Position", "Company", "Contact", "Mobile", "Email"].map((h, i) => xStr("ABCDEF"[i] + 7, 9, h)).join("") + `</row>`;
+    rows += `<row r="7" ht="27.75" customHeight="1">` + ["Discipline", "Position", "Company", "Contact", "Mobile", "Email"].map((h, i) => xStr("ABCDEF"[i] + 7, 9, h)).join("") + `</row>`;
     r = 8;
     for (const cat of teamsInUse()) {
       const list = sortedContacts().filter(([, c]) => (c.team || "Other") === cat);
@@ -1830,7 +1830,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
 
   // ---------- contacts ----------
   const CCOLS = [
-    { key: "role", label: "Role", w: 15 },
+    { key: "role", label: "Discipline", w: 15 },
     { key: "position", label: "Position", w: 14 },
     { key: "company", label: "Company", w: 15 },
     { key: "name", label: "Contact", w: 16 },
