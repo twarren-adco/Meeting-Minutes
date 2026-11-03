@@ -116,8 +116,8 @@ h1 { font-size: 30px; } h2 { font-size: 22px; } h3 { font-size: 16px; }
 
 <div class="wrap">
   <header class="intro">
-    <h1>2-week look-ahead: three options</h1>
-    <p>Each mock uses the items from your screenshot (today is Tuesday 3 Nov). All three drop the repeated "My minutes" headings and the full orange cards, and show the red note, such as "emailed 2/11/26", as a short line under the task. Pick one, or mix parts, and I'll build it.</p>
+    <h1>2-week look-ahead options</h1>
+    <p>Each mock uses the items from your screenshot (today is Tuesday 3 Nov). All three drop the repeated "My minutes" headings and the full orange cards, and show the red note, such as "emailed 2/11/26", as a short line under the task. Options B2 to B5 are more variations on the timeline idea in B. Pick one, or mix parts, and I'll build it.</p>
   </header>
 
   <!-- ===================== A ===================== -->
@@ -244,6 +244,250 @@ h1 { font-size: 30px; } h2 { font-size: 22px; } h3 { font-size: 16px; }
       <p class="small" style="margin:10px 0 0">Next week's minutes columns would follow underneath (empty in this example).</p>
     </div>
   </section>
+
+  <!-- ===================== More like B ===================== -->
+  <style>
+  .bx2 { display: grid; gap: 18px; }
+  .wkblk { display: grid; grid-template-columns: 230px repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .wkblk > div { border-bottom: 1px solid var(--line); border-right: 1px solid color-mix(in srgb, var(--line) 60%, transparent); min-width: 0; }
+  .wkblk .h { background: var(--brand); color: #fff; font-family: var(--f-display); letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 6px 8px; }
+  .wkblk .h.now { box-shadow: inset 0 -3px 0 #9fc0ff; }
+  .wkblk .lbl { font-size: 12.5px; display: flex; gap: 6px; align-items: center; padding: 4px 8px; white-space: nowrap; overflow: hidden; }
+  .wkblk .lbl .t { overflow: hidden; text-overflow: ellipsis; }
+  .wkblk .span { padding: 4px; display: flex; align-items: center; }
+  .wkblk .gap { }
+  .barx { width: 100%; height: 20px; border-radius: 3px; font-size: 11px; font-weight: 600; padding: 0 6px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; background: color-mix(in srgb, var(--brand) 18%, var(--surface)); border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent); color: var(--brand); }
+  .barx.act { background: var(--act-bg); border-color: var(--act-line); color: var(--act); }
+  .barx.cont { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right-style: dashed; }
+  .barx.pre { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left-style: dashed; }
+  .keyx { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: var(--key); }
+  .keyx i { width: 11px; height: 11px; background: var(--key); transform: rotate(45deg); flex: none; }
+  .wkblk .mlbl { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px; background: var(--surface-2); }
+  .wkblk .mcell { padding: 8px; background: var(--surface); }
+  .wkblk .mcell.now { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); }
+  .wkblk .mcell ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .wkblk .mcell li { display: grid; grid-template-columns: 11px minmax(0, 1fr); gap: 6px; font-size: 12.5px; line-height: 1.3; }
+  .wkblk .mcell .bx { width: 11px; height: 11px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; }
+  .wkblk .mcell li.act .bx { border-color: var(--act); background: var(--act-line); }
+  .wkblk .mcell .n { display: block; color: var(--act); font-size: 11.5px; }
+  .wkblk .mcell .none { color: var(--faint); font-size: 12px; }
+  .wkblk .wkname { grid-column: 1 / -1; background: var(--surface-2); color: var(--brand); font-family: var(--f-display); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 14px; padding: 6px 8px; }
+
+  .g3 { display: grid; grid-template-columns: 200px repeat(10, minmax(52px, 1fr)); min-width: 820px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .g3 > div { border-bottom: 1px solid var(--line); border-right: 1px solid color-mix(in srgb, var(--line) 55%, transparent); min-height: 32px; display: flex; align-items: center; min-width: 0; }
+  .g3 .h { background: var(--brand); color: #fff; font-family: var(--f-display); letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 0 8px; }
+  .g3 .lbl { gap: 6px; padding: 0 8px; font-size: 12.5px; white-space: nowrap; overflow: hidden; }
+  .g3 .lbl .t { overflow: hidden; text-overflow: ellipsis; }
+  .g3 .span { padding: 0 3px; }
+  .g3 .now { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); }
+  .g3 .lane { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 8px; }
+  .cnt { margin: 0 auto; min-width: 30px; height: 24px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; }
+  .cnt .dot { width: 7px; height: 7px; }
+  .cnt[aria-pressed="true"] { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .cnt.zero { color: var(--faint); cursor: default; }
+  .cnt:focus-visible, .dayrow:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .pick { margin-top: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
+  .pick h4 { margin: 0 0 6px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; }
+  .pick h4 span { font-weight: 500; color: var(--muted); font-size: 12.5px; }
+  .pick ul { list-style: none; margin: 0; padding: 0; columns: 2 300px; column-gap: 24px; }
+  .pick li { break-inside: avoid; display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 8px; padding: 4px 0; font-size: 13.5px; }
+  .pick .bx { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 3px; }
+  .pick li.act .bx { border-color: var(--act); background: var(--act-line); }
+  .pick .n { display: block; color: var(--act); font-size: 12.5px; }
+
+  .vt { display: grid; grid-template-columns: 96px repeat(6, 26px) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .vt > div { border-bottom: 1px solid var(--line); min-width: 0; }
+  .vt .h { background: var(--brand); color: #fff; font-family: var(--f-display); letter-spacing: .04em; text-transform: uppercase; font-size: 11.5px; padding: 6px 4px; text-align: center; }
+  .vt .h.l { text-align: left; padding-left: 8px; }
+  .vt .d { padding: 8px; font-weight: 700; font-size: 13px; }
+  .vt .d span { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .vt .d.now { color: var(--brand); }
+  .vt .ln { position: relative; }
+  .vt .ln.on::before { content: ""; position: absolute; left: 10px; width: 6px; top: 0; bottom: -1px; background: color-mix(in srgb, var(--brand) 45%, var(--surface)); }
+  .vt .ln.on.act::before { background: var(--act-line); }
+  .vt .ln.first::before { top: 10px; border-radius: 3px 3px 0 0; }
+  .vt .ln.last::after { content: ""; position: absolute; left: 6px; top: calc(50% - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--brand); border: 2px solid var(--surface); }
+  .vt .ln.last.act::after { background: var(--act); }
+  .vt .ln.last::before { bottom: 50%; }
+  .vt .ln.cont::before { bottom: -1px; }
+  .vt .ln.key::after { content: ""; position: absolute; left: 7px; top: calc(50% - 6px); width: 12px; height: 12px; background: var(--key); transform: rotate(45deg); }
+  .vt .it { padding: 8px 10px; display: grid; gap: 5px; }
+  .vt .row-now { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); }
+  .vt .it .r { display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; font-size: 13.5px; }
+  .vt .it .r .note { margin-left: 6px; }
+  .vt .wkname { grid-column: 1 / -1; background: var(--surface-2); color: var(--brand); font-family: var(--f-display); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 14px; padding: 6px 8px; }
+  .vt-key { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 8px; font-size: 12.5px; }
+  .vt-key b { color: var(--brand); }
+
+  .g5 { display: grid; grid-template-columns: minmax(260px, 2.4fr) repeat(10, minmax(36px, .5fr)); min-width: 820px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .g5 > div { border-bottom: 1px solid color-mix(in srgb, var(--line) 75%, transparent); border-right: 1px solid color-mix(in srgb, var(--line) 45%, transparent); min-height: 30px; display: flex; align-items: center; min-width: 0; }
+  .g5 .h { background: var(--brand); color: #fff; font-family: var(--f-display); letter-spacing: .05em; text-transform: uppercase; font-size: 11.5px; padding: 0 6px; justify-content: center; }
+  .g5 .h.l { justify-content: flex-start; padding-left: 10px; }
+  .g5 .grp5 { grid-column: 1 / -1; background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 10px; min-height: 26px; }
+  .g5 .lbl { padding: 4px 10px; font-size: 13px; gap: 8px; line-height: 1.3; }
+  .g5 .lbl .note { margin-left: 4px; }
+  .g5 .c { justify-content: center; padding: 0 2px; }
+  .g5 .c.now { background: color-mix(in srgb, var(--brand) 7%, var(--surface)); }
+  .g5 .pip { width: 14px; height: 14px; border-radius: 50%; background: var(--faint); }
+  .g5 .pip.act { background: var(--act-line); }
+  .g5 .pip.late { box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 30%, transparent); }
+  .g5 .sp { padding: 0 2px; }
+  </style>
+
+  <section class="opt" aria-labelledby="b2-h">
+    <div class="opt-head"><h2 id="b2-h">Option B2 · Week blocks</h2><span class="tagline">The timeline and your minutes share the same five columns, one week at a time.</span></div>
+    <ul class="why">
+      <li>Each week is its own block: Weinam bars on top, then your minutes listed under the same day columns. Your eye drops straight down from a bar to that day's to-dos.</li>
+      <li>Five columns instead of ten, so the text has room.</li>
+      <li>A dashed bar end means the task carries on into the next week.</li>
+    </ul>
+    <div class="board"><div class="scroll"><div class="bx2" id="b2" style="min-width:860px"></div></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="b3-h">
+    <div class="opt-head"><h2 id="b3-h">Option B3 · Timeline with a day picker</h2><span class="tagline">The same timeline as B, with your minutes as a count per day.</span></div>
+    <ul class="why">
+      <li>The timeline gets a "My minutes" row showing how many open lines each day has, with an orange dot if any are In action.</li>
+      <li>Click a day's count to list that day's lines underneath. It opens on today. Try it: the counts work in this mock.</li>
+      <li>The tidiest of the timeline options. You only see one day's to-dos at a time.</li>
+    </ul>
+    <div class="board"><div class="scroll"><div class="g3" id="b3"></div></div><div class="pick" id="b3pick"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="b4-h">
+    <div class="opt-head"><h2 id="b4-h">Option B4 · Vertical timeline</h2><span class="tagline">The timeline turned on its side: days run down the page.</span></div>
+    <ul class="why">
+      <li>Each running Weinam task is a coloured line down the left, ending in a dot on its due day (a diamond for the key date). Orange lines are In action.</li>
+      <li>Everything for the day, Weinam and minutes, is listed in one column on the right with full-width text.</li>
+      <li>Reads well on a phone because nothing sits side by side.</li>
+    </ul>
+    <div class="board">
+      <div class="vt-key" id="b4key"></div>
+      <div class="vt" id="b4"></div>
+    </div>
+  </section>
+
+  <section class="opt" aria-labelledby="b5-h">
+    <div class="opt-head"><h2 id="b5-h">Option B5 · Full Gantt list</h2><span class="tagline">Like a programme: every item gets its own row.</span></div>
+    <ul class="why">
+      <li>Weinam tasks are bars. Each minutes line is a dot on its day, with the full task name in a wide left column, so nothing is squeezed.</li>
+      <li>Grouped into Weinam, key dates and My minutes. Lines left unticked from an earlier day have a red ring.</li>
+      <li>The longest option, but every line reads like a sentence.</li>
+    </ul>
+    <div class="board"><div class="scroll"><div class="g5" id="b5"></div></div></div>
+  </section>
+
+  <script>
+  (() => {
+    const DAYS = ["Mon 2", "Tue 3", "Wed 4", "Thu 5", "Fri 6", "Mon 9", "Tue 10", "Wed 11", "Thu 12", "Fri 13"];
+    const LONG = ["Monday 2 Nov", "Tuesday 3 Nov", "Wednesday 4 Nov", "Thursday 5 Nov", "Friday 6 Nov", "Monday 9 Nov", "Tuesday 10 Nov", "Wednesday 11 Nov", "Thursday 12 Nov", "Friday 13 Nov"];
+    const TODAY = 1;
+    // Weinam TW tasks: s/e are day indexes (s < 0 = started earlier, e > 9 = due later)
+    const W = [
+      { ref: "3.5", t: "ADG to develop revised carpark arrangements", s: 1, e: 14, act: true, due: "20 Nov" },
+      { ref: "3.1", t: "Update site establishment plan", s: 0, e: 10, due: "16 Nov" },
+      { ref: "3.4", t: "Bottom out 2 x tower crane possibility", s: 0, e: 10, due: "16 Nov" },
+      { ref: "1.14", t: "Traffic Control Plan – council approval", s: -2, e: 2, due: "Wed 4 Nov" },
+      { ref: "5.2", t: "Temp carpark closes & cars removed", s: -3, e: 2, act: true, due: "Wed 4 Nov" },
+      { ref: "3.6", t: "Chase pilers for rig / load info", s: 0, e: 4, act: true, due: "Fri 6 Nov" },
+    ];
+    const KEY = { ref: "4.3", t: "Bronze – ECI Submission (Concept Cost Plan)", d: 6 };
+    const M = {
+      0: [["Update Weinam program"], ["Sort out Weinam fencing", "waiting TEA quote 3/11/26"], ["Chase EMM (Adrian) for an updated Condong heritage sign design", "emailed 2/11/26"], ["Send email to consultants about BA drawings we require"], ["Update program with workback date for demo, civil & piling"], ["Speak to Caporn & Kellers about worst case piling rig options", "spoke to & emailed 2/11/26"], ["Chase Borderline to fix Condong filter", "spoke to 2/11/26"], ["Chase Modscape Tumbi principal door replacement", "emailed 2/11/26"]],
+      1: [["Call Jesse McDonald (Lucid Consulting) re peer review", "emailed 2/11/26"]],
+      2: [["Status consultants defect reports"], ["Submit LSPS FRNSW schedule to BM+G"], ["Issue BM+G performance solutions to SINSW for approval"], ["Update BM+G rev 2 list"]],
+      3: [["Balance Weinam carpark PCR"]],
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const mins = (d) => (M[d] || []).map(([t, n]) => ({ t, n, act: !!n }));
+    const barLabel = (w) => (w.act ? "In action · " : "") + "due " + w.due;
+
+    // B2: week blocks
+    let h2 = "";
+    [0, 5].forEach((w0, wi) => {
+      let g = `<div class="wkblk"><div class="wkname">${wi ? "Next week · WK 46" : "This week · WK 45"}</div><div class="h">Weinam (TW)</div>` + DAYS.slice(w0, w0 + 5).map((d, i) => `<div class="h${w0 + i === TODAY ? " now" : ""}">${d}${w0 + i === TODAY ? " · Today" : ""}</div>`).join("");
+      W.forEach((w) => {
+        const a = Math.max(w.s, w0), b = Math.min(w.e, w0 + 4);
+        if (b < w0 || a > w0 + 4) return;
+        g += `<div class="lbl"><span class="src w">${w.ref}</span><span class="t" title="${esc(w.t)}">${esc(w.t)}</span></div>`;
+        for (let i = w0; i < a; i++) g += `<div class="gap"></div>`;
+        const cls = "barx" + (w.act ? " act" : "") + (w.e > w0 + 4 ? " cont" : "") + (w.s < w0 ? " pre" : "");
+        g += `<div class="span" style="grid-column: span ${b - a + 1}"><div class="${cls}">${w.e > w0 + 4 ? (w.act ? "In action · " : "") + "continues · due " + w.due : barLabel(w)}</div></div>`;
+        for (let i = b + 1; i <= w0 + 4; i++) g += `<div class="gap"></div>`;
+      });
+      if (KEY.d >= w0 && KEY.d <= w0 + 4) {
+        g += `<div class="lbl"><span class="src k">★ ${KEY.ref}</span><span class="t">${esc(KEY.t)}</span></div>`;
+        for (let i = w0; i <= w0 + 4; i++) g += i === KEY.d ? `<div class="span"><span class="keyx"><i></i>Key date</span></div>` : `<div class="gap"></div>`;
+      }
+      g += `<div class="mlbl">My minutes</div>`;
+      for (let i = w0; i <= w0 + 4; i++) {
+        const L = mins(i);
+        g += `<div class="mcell${i === TODAY ? " now" : ""}">${L.length ? `<ul>${L.map((x) => `<li class="${x.act ? "act" : ""}"><i class="bx"></i><span>${esc(x.t)}${x.n ? `<span class="n">${esc(x.n)}</span>` : ""}</span></li>`).join("")}</ul>` : `<span class="none">Nothing yet</span>`}</div>`;
+      }
+      h2 += g + `</div>`;
+    });
+    document.getElementById("b2").innerHTML = h2;
+
+    // B3: timeline + counts + picker
+    let h3 = `<div class="h">Weinam (TW)</div>` + DAYS.map((d, i) => `<div class="h">${d}</div>`).join("");
+    W.forEach((w) => {
+      const a = Math.max(w.s, 0), b = Math.min(w.e, 9);
+      h3 += `<div class="lbl"><span class="src w">${w.ref}</span><span class="t" title="${esc(w.t)}">${esc(w.t)}</span></div>`;
+      for (let i = 0; i < a; i++) h3 += `<div class="${i === TODAY ? "now" : ""}"></div>`;
+      h3 += `<div class="span" style="grid-column: span ${b - a + 1}"><div class="barx${w.act ? " act" : ""}${w.e > 9 ? " cont" : ""}${w.s < 0 ? " pre" : ""}">${barLabel(w)}</div></div>`;
+      for (let i = b + 1; i <= 9; i++) h3 += `<div></div>`;
+    });
+    h3 += `<div class="lbl"><span class="src k">★ ${KEY.ref}</span><span class="t">${esc(KEY.t)}</span></div>` + DAYS.map((_, i) => `<div class="${i === TODAY ? "now" : ""}" style="justify-content:center">${i === KEY.d ? `<span class="keyx"><i></i></span>` : ""}</div>`).join("");
+    h3 += `<div class="lane">My minutes</div>` + DAYS.map((_, i) => { const L = mins(i), a = L.some((x) => x.act); return `<div class="${i === TODAY ? "now" : ""}" style="background:var(--surface-2)">${L.length ? `<button class="cnt" type="button" data-d="${i}" aria-pressed="${i === TODAY}" aria-label="${L.length} open on ${LONG[i]}">${a ? `<i class="dot act"></i>` : ""}${L.length}</button>` : `<span class="cnt zero">0</span>`}</div>`; }).join("");
+    const g3 = document.getElementById("b3"); g3.innerHTML = h3;
+    const pick = (d) => {
+      const L = mins(d);
+      document.getElementById("b3pick").innerHTML = `<h4>${LONG[d]}${d === TODAY ? " · Today" : ""} <span>${L.length} open${d < TODAY ? " · carried over" : ""}</span></h4><ul>${L.map((x) => `<li class="${x.act ? "act" : ""}"><i class="bx"></i><span>${esc(x.t)}${x.n ? `<span class="n">${esc(x.n)}</span>` : ""}</span></li>`).join("")}</ul>`;
+      g3.querySelectorAll(".cnt[data-d]").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.d === d)));
+    };
+    g3.addEventListener("click", (e) => { const b = e.target.closest(".cnt[data-d]"); if (b) pick(+b.dataset.d); });
+    pick(TODAY);
+
+    // B4: vertical timeline
+    const lanes = W.slice(0, 6);
+    document.getElementById("b4key").innerHTML = lanes.map((w) => `<span><b>${w.ref}</b> ${esc(w.t)}</span>`).join("");
+    let h4 = `<div class="h l">Day</div>` + lanes.map((w) => `<div class="h">${w.ref}</div>`).join("") + `<div class="h l">What's on</div>`;
+    DAYS.forEach((d, i) => {
+      if (i === 0) h4 += `<div class="wkname">This week · WK 45</div>`;
+      if (i === 5) h4 += `<div class="wkname">Next week · WK 46</div>`;
+      const now = i === TODAY ? " row-now" : "";
+      h4 += `<div class="d${i === TODAY ? " now" : ""}${now}">${d.split(" ")[0]}<span>${d.split(" ")[1]} Nov${i === TODAY ? " · Today" : ""}</span></div>`;
+      lanes.forEach((w) => {
+        const on = i >= Math.max(w.s, 0) && i <= Math.min(w.e, 9);
+        const cls = ["ln", on ? "on" : "", w.act ? "act" : "", on && i === w.e ? "last" : "", on && i === w.s ? "first" : ""].filter(Boolean).join(" ");
+        h4 += `<div class="${cls}${now}"></div>`;
+      });
+      const rows = [];
+      W.filter((w) => w.e === i).forEach((w) => rows.push(`<div class="r"><span class="src w">W ${w.ref}</span><span>${esc(w.t)}</span><span class="${w.act ? "ia" : "when"}">${w.act ? `<i class="dot act"></i>In action · ` : ""}Weinam due</span></div>`));
+      if (i === KEY.d) rows.push(`<div class="r"><span class="src k">★ ${KEY.ref}</span><span><b>${esc(KEY.t)}</b></span><span class="when">Key date</span></div>`);
+      mins(i).forEach((x) => rows.push(`<div class="r"><span class="src">Min</span><span>${esc(x.t)}${x.n ? `<span class="note">${esc(x.n)}</span>` : ""}</span>${x.act ? `<span class="ia"><i class="dot act"></i>In action</span>` : i < TODAY ? `<span class="carried">Carried over</span>` : "<span></span>"}</div>`));
+      h4 += `<div class="it${now}">${rows.length ? rows.join("") : `<span class="small">Nothing scheduled</span>`}</div>`;
+    });
+    document.getElementById("b4").innerHTML = h4;
+
+    // B5: full Gantt list
+    let h5 = `<div class="h l">Item</div>` + DAYS.map((d) => `<div class="h">${d}</div>`).join("");
+    h5 += `<div class="grp5">Weinam (TW)</div>`;
+    W.forEach((w) => {
+      const a = Math.max(w.s, 0), b = Math.min(w.e, 9);
+      h5 += `<div class="lbl"><span class="src w">W ${w.ref}</span><span>${esc(w.t)}</span>${w.act ? `<span class="ia"><i class="dot act"></i>In action</span>` : ""}</div>`;
+      for (let i = 0; i < a; i++) h5 += `<div class="c${i === TODAY ? " now" : ""}"></div>`;
+      h5 += `<div class="sp" style="grid-column: span ${b - a + 1}"><div class="barx${w.act ? " act" : ""}${w.e > 9 ? " cont" : ""}${w.s < 0 ? " pre" : ""}">due ${w.due}</div></div>`;
+      for (let i = b + 1; i <= 9; i++) h5 += `<div class="c"></div>`;
+    });
+    h5 += `<div class="grp5">Key dates</div><div class="lbl"><span class="src k">★ ${KEY.ref}</span><span><b>${esc(KEY.t)}</b></span></div>` + DAYS.map((_, i) => `<div class="c${i === TODAY ? " now" : ""}">${i === KEY.d ? `<span class="keyx"><i></i></span>` : ""}</div>`).join("");
+    h5 += `<div class="grp5">My minutes</div>`;
+    for (let d = 0; d < 10; d++) mins(d).forEach((x) => {
+      h5 += `<div class="lbl"><span>${esc(x.t)}${x.n ? `<span class="note">${esc(x.n)}</span>` : ""}</span></div>` + DAYS.map((_, i) => `<div class="c${i === TODAY ? " now" : ""}">${i === d ? `<span class="pip${x.act ? " act" : ""}${d < TODAY ? " late" : ""}" title="${LONG[d]}"></span>` : ""}</div>`).join("");
+    });
+    document.getElementById("b5").innerHTML = h5;
+  })();
+  </script>
 
   <!-- ===================== C ===================== -->
   <section class="opt" aria-labelledby="c-h">
