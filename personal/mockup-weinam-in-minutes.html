@@ -1,0 +1,180 @@
+<title>Weinam in My Minutes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: four option boards stacked; each is the My minutes week strip (five day columns of checklist lines) with Weinam tasks placed a different way. */
+:root {
+  --brand: #0047BB; --bg: #F2F5FC; --surface: #ffffff; --surface-2: #EBF0FA; --line: #CCDAF1; --ink: #1f2937; --muted: #4A5464; --faint: #8b95a7;
+  --act: #c2410c; --act-bg: #fff1e6; --act-line: #f59e57; --red: #b42318; --key: #b97800; --today: #e8f3fd;
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --key: #f2bf4d; --today: #15294a; color-scheme: dark; } }
+:root[data-theme="dark"] { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --key: #f2bf4d; --today: #15294a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 30px; }
+h1, h2 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--brand); margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; }
+.intro p { margin: 6px 0 0; max-width: 78ch; color: var(--muted); }
+.opt { display: grid; gap: 10px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.opt-head span { color: var(--muted); }
+.why { margin: 0; padding-left: 18px; max-width: 92ch; display: grid; gap: 2px; }
+.pc { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; }
+.pc b { font-weight: 700; } .pc .plus b { color: #1d7a46; } .pc .minus b { color: var(--red); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pc .plus b { color: #5fd08f; } }
+:root[data-theme="dark"] .pc .plus b { color: #5fd08f; }
+.scroll { overflow-x: auto; }
+
+/* the My minutes strip, as in the screenshot */
+.wk { display: grid; grid-template-columns: 150px repeat(5, minmax(170px, 1fr)); min-width: 1000px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.wk > div { border-right: 1px solid var(--line); min-width: 0; }
+.wk > div:last-child { border-right: 0; }
+.wk .hd { background: var(--brand); color: #fff; font-family: var(--f-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 6px 10px; border-right-color: color-mix(in srgb, #fff 25%, transparent); }
+.wk .lab { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px; }
+.wk .col { padding: 10px; display: grid; align-content: start; gap: 8px; }
+.wk .col.now { background: var(--today); }
+.wk .band { grid-column: 2 / -1; padding: 8px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.wk .bandlab { grid-column: 1; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px; }
+.it { display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 7px; font-size: 13px; line-height: 1.32; }
+.it .bx { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; background: var(--surface); }
+.it.act .bx { border-color: var(--act); background: var(--act-line); }
+.it .nt { display: block; color: var(--act); font-size: 12px; }
+.it .sub { display: block; color: var(--muted); font-size: 12px; }
+.it .sub.due { color: var(--brand); font-weight: 600; }
+.it .sub.late { color: var(--red); font-weight: 600; }
+.wt { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 45%, transparent); border-radius: 3px; padding: 0 4px; line-height: 15px; margin-right: 5px; vertical-align: 1px; }
+.wt.k { color: var(--key); border-color: color-mix(in srgb, var(--key) 60%, transparent); }
+.it.ghost { opacity: .62; }
+.it.ghost .bx { border-style: dashed; }
+.none { color: var(--faint); font-size: 12.5px; }
+.pin { border: 1px dashed var(--line); border-radius: 4px; padding: 6px 8px; display: grid; gap: 4px; background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+.pin .ph { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.pin .pr { font-size: 12px; line-height: 1.3; display: flex; gap: 5px; align-items: baseline; }
+.pin .pr.act { color: var(--act); }
+.hr { height: 1px; background: var(--line); margin: 2px 0; }
+.band .bl { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.band .it { min-width: 260px; flex: 1 1 260px; max-width: 420px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Weinam tasks in My minutes: four options</h1>
+    <p>The week looks like your screenshot: five day columns of your minutes, nothing else. The difference is where Weinam tasks that run over several days appear. Example: this week, today Tuesday 3 Nov, with your current Weinam tasks. 3.1 and 3.4 run 2–16 Nov; 3.5 runs 3–20 Nov; 3.6 runs 2–6 Nov; 1.14 and 5.2 started last week and are due Wednesday. Weinam lines carry a small blue ref tag; orange boxes are In action. Duplicates are already removed.</p>
+  </header>
+
+  <section class="opt" aria-labelledby="o1">
+    <div class="opt-head"><h2 id="o1">Option 1 · Today while running, then the due day</h2><span>Running tasks sit in today's column, like an unticked line that rolls forward.</span></div>
+    <ul class="why">
+      <li>While a Weinam task is running it appears in <b>today's</b> column only, with "day 2 of 15 · due 16 Nov" underneath.</li>
+      <li>Future columns show a Weinam task only on the day it's <b>due</b>.</li>
+      <li>Past days show only what you wrote that day.</li>
+    </ul>
+    <p class="pc"><span class="plus"><b>+</b> Today shows everything that's live; the rest of the week stays clean.</span><span class="minus"><b>−</b> Today's column gets longer when several tasks are running.</span></p>
+    <div class="scroll"><div class="wk" id="b1"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o2">
+    <div class="opt-head"><h2 id="o2">Option 2 · Start day and due day</h2><span>A Weinam task appears twice: when it starts and when it's due.</span></div>
+    <ul class="why">
+      <li>On its start day it shows "Starts · due 16 Nov". On its due day it shows "Due".</li>
+      <li>Tasks that started before this week show on Monday as "Running from 29 Oct".</li>
+      <li>Nothing in between, so the middle of the week only has your own lines.</li>
+    </ul>
+    <p class="pc"><span class="plus"><b>+</b> Marks the two dates that matter; very little repetition.</span><span class="minus"><b>−</b> Mid-week you can't see what's still running unless you look back to Monday.</span></p>
+    <div class="scroll"><div class="wk" id="b2"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o3">
+    <div class="opt-head"><h2 id="o3">Option 3 · Pinned box at the top of each day</h2><span>A small "Running" box heads every column, your minutes below it.</span></div>
+    <ul class="why">
+      <li>Each day opens with a compact box listing the Weinam tasks running that day (ref and short name, orange if In action).</li>
+      <li>On the due day the task moves out of the box into the list as a proper line with "Due".</li>
+      <li>Your own minutes stay underneath, exactly as now.</li>
+    </ul>
+    <p class="pc"><span class="plus"><b>+</b> Every day shows what's running, but kept apart from your to-dos.</span><span class="minus"><b>−</b> The same box repeats across all five days.</span></p>
+    <div class="scroll"><div class="wk" id="b3"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o4">
+    <div class="opt-head"><h2 id="o4">Option 4 · One "Running this week" row above the days</h2><span>Running tasks listed once, as checklist lines, across the top of the week.</span></div>
+    <ul class="why">
+      <li>A single row above the five columns lists the Weinam tasks running this week, in the same checklist style, with their due date.</li>
+      <li>A task due this week also appears as a line on its due day.</li>
+      <li>The day columns are just your minutes, as in your screenshot.</li>
+    </ul>
+    <p class="pc"><span class="plus"><b>+</b> Each running task shows once; no repetition in the columns.</span><span class="minus"><b>−</b> They sit apart from the day you'll actually work on them.</span></p>
+    <div class="scroll"><div class="wk" id="b4"></div></div>
+  </section>
+
+  <div class="legend"><span><span class="wt">3.1</span>Weinam task (TW)</span><span><span class="it act" style="display:inline-grid"><i class="bx"></i><span></span></span>In action</span><span>Today's column is shaded</span></div>
+</div>
+
+<script>
+(() => {
+  const DAYS = ["Mon 2", "Tue 3", "Wed 4", "Thu 5", "Fri 6"], TODAY = 1;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // My minutes (your screenshot)
+  const M = [
+    [["Update Weinam program"], ["Sort out Weinam fencing", "waiting TEA quote 3/11/26"], ["Chase EMM (Adrian) for an updated Condong heritage sign design", "emailed 2/11/26"], ["Send email to consultants about BA drawings we require"], ["Update program with workback date for demo, civil & piling"], ["Speak to Caporn & Kellers about worst case scenario piling rig options", "spoke to & emailed 2/11/26"], ["Chase Borderline to fix Condong filter", "Spoke to 2/11/26"], ["Chase Modscape Tumbi principal door replacement", "emailed 2/11/26"]],
+    [["Call Jesse McDonald (Lucid Consulting) re peer review", "emailed 2/11/26"]],
+    [["Status consultants defect reports"], ["Submit LSPS FRNSW schedule to BM+G"], ["Issue BM+G performance solutions to SINSW for approval"], ["Update BM+G rev 2 list"]],
+    [["Balance Weinam carpark PCR"]],
+    [],
+  ];
+  // Weinam TW tasks. s/e are day indexes this week (s<0 started earlier, e>4 due later).
+  const W = [
+    { ref: "5.2", t: "Temp carpark closes & cars removed", s: -5, e: 2, act: true, from: "29 Oct", due: "Wed 4 Nov", len: 8, day: 7 },
+    { ref: "1.14", t: "Traffic Control Plan – council approval", s: -4, e: 2, from: "29 Oct", due: "Wed 4 Nov", len: 7, day: 6 },
+    { ref: "3.6", t: "Chase pilers for rig / load info", s: 0, e: 4, act: true, due: "Fri 6 Nov", len: 5, day: 2 },
+    { ref: "3.5", t: "ADG to develop revised carpark arrangements", s: 1, e: 99, act: true, due: "20 Nov", len: 14, day: 1 },
+    { ref: "3.1", t: "Update site establishment plan", s: 0, e: 99, due: "16 Nov", len: 11, day: 2 },
+    { ref: "3.4", t: "Bottom out 2 x tower crane possibility (will need to be luffers if 2)", s: 0, e: 99, due: "16 Nov", len: 11, day: 2 },
+  ];
+  const mine = (d) => M[d].map(([t, n]) => `<div class="it${n ? " act" : ""}"><i class="bx"></i><span>${esc(t)}${n ? `<span class="nt">${esc(n)}</span>` : ""}</span></div>`);
+  const wl = (w, sub, cls = "", extra = "") => `<div class="it${w.act ? " act" : ""}${extra}"><i class="bx"></i><span><span class="wt">${w.ref}</span>${esc(w.t)}${sub ? `<span class="sub ${cls}">${sub}</span>` : ""}</span></div>`;
+  const shell = (cols, band) => {
+    let h = `<div class="hd">Week 45</div>` + DAYS.map((d, i) => `<div class="hd">${d}${i === TODAY ? " · Today" : ""}</div>`).join("");
+    if (band) h += `<div class="bandlab">Running this week</div><div class="band">${band}</div>`;
+    h += `<div class="lab">My minutes</div>` + cols.map((c, i) => `<div class="col${i === TODAY ? " now" : ""}">${c.length ? c.join("") : `<span class="none">Nothing yet</span>`}</div>`).join("");
+    return h;
+  };
+  const running = (w, d) => w.s <= d && w.e >= d;
+
+  // 1: today while running + due day
+  document.getElementById("b1").innerHTML = shell(DAYS.map((_, d) => {
+    const top = [];
+    W.forEach((w) => {
+      if (d === w.e) top.push(wl(w, d === TODAY ? "Due today" : "Due", "due"));
+      else if (d === TODAY && running(w, d)) top.push(wl(w, `day ${w.day} of ${w.len} · due ${w.due}`));
+    });
+    return top.concat(d === TODAY && top.length ? [`<div class="hr"></div>`] : [], mine(d));
+  }));
+
+  // 2: start day and due day
+  document.getElementById("b2").innerHTML = shell(DAYS.map((_, d) => {
+    const top = [];
+    W.forEach((w) => {
+      if (d === w.e) top.push(wl(w, "Due", "due"));
+      else if (d === 0 && w.s < 0) top.push(wl(w, `Running from ${w.from} · due ${w.due}`));
+      else if (d === w.s) top.push(wl(w, `Starts · due ${w.due}`));
+    });
+    return top.concat(mine(d));
+  }));
+
+  // 3: pinned box per day
+  document.getElementById("b3").innerHTML = shell(DAYS.map((_, d) => {
+    const run = W.filter((w) => running(w, d) && w.e !== d);
+    const due = W.filter((w) => w.e === d);
+    const box = run.length ? `<div class="pin"><span class="ph">Running</span>${run.map((w) => `<span class="pr${w.act ? " act" : ""}"><span class="wt">${w.ref}</span>${esc(w.t.length > 34 ? w.t.slice(0, 32) + "…" : w.t)}</span>`).join("")}</div>` : "";
+    return (box ? [box] : []).concat(due.map((w) => wl(w, "Due", "due")), mine(d));
+  }));
+
+  // 4: one row above
+  const band = `<div class="bl">${W.filter((w) => w.e > 4 || w.s < 0 || w.e - w.s > 0).map((w) => wl(w, `${w.s < 0 ? "from " + w.from + " · " : ""}due ${w.due}`)).join("")}</div>`;
+  document.getElementById("b4").innerHTML = shell(DAYS.map((_, d) => W.filter((w) => w.e === d).map((w) => wl(w, "Due", "due")).concat(mine(d))), band);
+})();
+</script>
