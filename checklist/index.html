@@ -664,6 +664,15 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   let db = null, user = null, downloads = null, myId = null;
   let canWrite = false;            // becomes true once we know db is reachable and the viewer isn't view-only
   let loaded = false, metaLoaded = false;
+  // The open view is held here, not read back from the address bar (claude.ai may not let the page change it).
+  const viewFromHash = (h) => (h.startsWith("#task=") ? "checklist" : { "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[h] || "dashboard");
+  let view = viewFromHash(location.hash);
+  function showView(v) {
+    if (view === v) return;
+    view = v;
+    try { history.replaceState(null, "", "#" + v); } catch {}
+    route();
+  }
   let tasks = new Map();           // id -> task (optimistic)
   let serverTasks = new Map();     // last server snapshot
   let contacts = new Map(), serverContacts = new Map(), contactsLoaded = false;
@@ -973,7 +982,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!tasks.has(id)) return;
     if (tasks.get(id).status === "Complete" && filters.hideDone) setHideDone(false);
     clearFilters();
-    if (location.hash !== "#checklist") { location.hash = "#checklist"; route(); }
+    showView("checklist");
     requestAnimationFrame(() => {
       sel = { id, c: 0 }; paintSel(false); focusGrid();
       const tr = document.querySelector(`#grid tr[data-id="${CSS.escape(id)}"]`);
@@ -989,7 +998,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!pendingTask || !loaded || !metaLoaded) return;
     const id = pendingTask; pendingTask = null;
     if (tasks.has(id)) gotoTask(id, true);
-    else { if (location.hash !== "#checklist") location.hash = "#checklist"; toast("That task is no longer on the checklist."); }
+    else { showView("checklist"); toast("That task is no longer on the checklist."); }
   }
   // Category (checklist group) and Section dropdowns; the Checklist and Timeline copies stay in sync.
   function renderGroupSectionFilters() {
@@ -1589,7 +1598,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     const b = e.target.closest("[data-filter]"); if (!b) return;
     const f = b.dataset.filter;
     filters.status = f === "__all" || filters.status === f ? null : f;
-    if (currentView() === "dashboard") location.hash = "#checklist";
+    if (currentView() === "dashboard") showView("checklist");
     renderSummary(); renderGrid(); renderTimeline();
   });
   let qTimer;
@@ -1634,7 +1643,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     const g = e.target.closest("[data-goto]");
     if (g) { gotoTask(g.dataset.goto, true); return; }
     const p = e.target.closest("[data-person]");
-    if (p && p.dataset.person) { clearFilters(); filters.person = p.dataset.person; $("#personFilter").value = p.dataset.person; location.hash = "#checklist"; renderGrid(); }
+    if (p && p.dataset.person) { clearFilters(); filters.person = p.dataset.person; $("#personFilter").value = p.dataset.person; showView("checklist"); renderGrid(); }
   });
   $("#exportBtn").addEventListener("click", exportXlsx);
   $("#milestones").addEventListener("click", (e) => { const li = e.target.closest("[data-goto]"); if (li) gotoTask(li.dataset.goto); });
@@ -1874,11 +1883,11 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   });
   $("#tlPerson").addEventListener("change", (e) => { filters.person = e.target.value; $("#personFilter").value = e.target.value; renderGrid(); renderTimeline(); });
   document.addEventListener("keydown", (e) => {
-    if (location.hash !== "#timeline" || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;
+    if (currentView() !== "timeline" || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;
     if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || "")) return;
     e.preventDefault(); if (canWrite) undo();
   });
-  window.addEventListener("resize", () => { if (location.hash === "#timeline") renderTimeline(); });
+  window.addEventListener("resize", () => { if (currentView() === "timeline") renderTimeline(); });
 
 
   // ---------- contacts ----------
@@ -2107,7 +2116,9 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   }
 
   // The Dashboard is the landing page; the other views are reached by their #hash.
-  const currentView = () => (location.hash.startsWith("#task=") ? "checklist" : { "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[location.hash] || "dashboard");
+  const currentView = () => view;
+  for (const [id, v] of [["#tabDashboard", "dashboard"], ["#tabChecklist", "checklist"], ["#tabTimeline", "timeline"], ["#tabContacts", "contacts"]])
+    $(id).addEventListener("click", (e) => { if (e.ctrlKey || e.metaKey || e.shiftKey) return; e.preventDefault(); showView(v); });
   function route() {
     const v = currentView();
     $("#viewChecklist").hidden = v !== "checklist"; $("#viewDashboard").hidden = v !== "dashboard"; $("#viewTimeline").hidden = v !== "timeline"; $("#viewContacts").hidden = v !== "contacts";
@@ -2121,7 +2132,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (v === "timeline") renderTimeline();
     if (v === "contacts") renderContactsNow();
   }
-  window.addEventListener("hashchange", () => { const t = linkedTask(); if (t) { pendingTask = t; route(); tryPendingTask(); } else route(); });
+  window.addEventListener("hashchange", () => { const t = linkedTask(); view = viewFromHash(location.hash); route(); if (t) { pendingTask = t; tryPendingTask(); } });
 
   // ---------- boot ----------
   let dbResolved = false;
