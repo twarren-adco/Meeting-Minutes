@@ -261,6 +261,9 @@ tr.is-key td.c-task { background-image: linear-gradient(90deg, rgba(242,169,0,.1
 .my-head h2 { margin-bottom: 4px; }
 .my-who { font-size: 13px; color: var(--muted); }
 .my-who select { font: inherit; color: var(--ink, inherit); margin-left: 4px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+.my-opts { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.mine-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--accent, #0047BB); background: var(--surface); font-size: 13px; }
+.linkbtn { font: inherit; font-weight: 600; color: var(--accent, #0047BB); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .my-hint { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
 #myTable tr.ip td { background: var(--ip-bg, rgba(245,158,87,.14)); }
 .panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
@@ -429,6 +432,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   </section>
 
   <div id="viewChecklist" hidden>
+    <div class="mine-note" id="mineNote" hidden><span>Showing your tasks (<b id="mineWho"></b>) because this page is set to open on My checklist.</span>
+      <button type="button" class="linkbtn" id="mineAll">Show everyone</button><button type="button" class="linkbtn" id="mineOff">Open on Dashboard instead</button></div>
     <div class="toolbar" style="margin-bottom:12px">
       <label class="field">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -532,7 +537,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   <div id="viewDashboard" class="dash">
     <section class="panel wide" id="myPanel">
       <div class="my-head"><h2>My tasks</h2>
-        <label class="my-who">Showing tasks for <select id="mySelect" aria-label="Champion"></select></label></div>
+        <div class="my-opts"><label class="my-who">Showing tasks for <select id="mySelect" aria-label="Champion"></select></label>
+        <label class="my-who">Open this page on <select id="openOn" aria-label="Open this page on"><option value="dash">Dashboard</option><option value="mine">My checklist</option></select></label></div></div>
       <p class="my-hint">Click a task to jump to it in the Checklist.</p>
       <div class="tbl-wrap"><table class="dt" id="myTable"></table></div>
     </section>
@@ -667,7 +673,9 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   // The open view is held here, not read back from the address bar (claude.ai may not let the page change it).
   const viewFromHash = (h) => (h.startsWith("#task=") ? "checklist" : { "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[h] || "dashboard");
   let view = viewFromHash(location.hash);
+  try { if (!location.hash && localStorage.getItem("weinam.openOn") === "mine") view = "checklist"; } catch {}
   function showView(v) {
+    navigated = true;
     if (view === v) return;
     view = v;
     try { history.replaceState(null, "", "#" + v); } catch {}
@@ -1088,11 +1096,37 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   const MY_KEY = "weinam.myChampion";
   const lsGet = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  function myChampion(champs = [...new Set([...tasks.values()].map((t) => (t.champion || "").trim()).filter(Boolean))]) {
+    const saved = lsGet(MY_KEY);
+    if (saved) return saved;
+    const initials = myName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").toUpperCase();
+    return (initials && champs.find((c) => c.toUpperCase() === initials)) || "";
+  }
+  // Per person: open this page on the Dashboard (default) or on the Checklist filtered to their own tasks.
+  const OPEN_KEY = "weinam.openOn";
+  let openOn = lsGet(OPEN_KEY) === "mine" ? "mine" : "dash";
+  let mineApplied = false, navigated = false;
+  function applyOpenMine() {
+    if (mineApplied || openOn !== "mine" || navigated || !loaded || !metaLoaded || pendingTask) return;
+    const me = myChampion();
+    if (!me) return;
+    mineApplied = true;
+    clearFilters();
+    if ([...$("#personFilter").options].some((o) => o.value === me)) { filters.person = me; $("#personFilter").value = me; $("#tlPerson").value = me; }
+    showView("checklist"); renderGrid();
+    $("#mineWho").textContent = me; $("#mineNote").hidden = false;
+  }
+  function setOpenOn(v, save = true) {
+    openOn = v === "mine" ? "mine" : "dash"; lsSet(OPEN_KEY, openOn); $("#openOn").value = openOn;
+    if (save && db && myId) db.doc(`data/users/${myId}/weinam-prefs`).set({ openOn, champion: lsGet(MY_KEY) || "" }).catch(() => {});
+  }
+  $("#openOn").addEventListener("change", (e) => { setOpenOn(e.target.value); toast(openOn === "mine" ? "Next time this page opens on the Checklist with your tasks." : "Next time this page opens on the Dashboard."); });
+  $("#mineAll").addEventListener("click", () => { clearFilters(); $("#mineNote").hidden = true; });
+  $("#mineOff").addEventListener("click", () => { setOpenOn("dash"); clearFilters(); $("#mineNote").hidden = true; toast("Next time this page opens on the Dashboard."); });
   function renderMyTasks(all, refs) {
     const champs = [...new Set(all.map(([, t]) => (t.champion || "").trim()).filter(Boolean))].sort();
-    const initials = myName.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").toUpperCase();
-    let me = lsGet(MY_KEY);
-    if (!me && initials && champs.some((c) => c.toUpperCase() === initials)) me = champs.find((c) => c.toUpperCase() === initials);
+    const me = myChampion(champs);
+    $("#openOn").value = openOn;
     const sel_ = $("#mySelect");
     sel_.innerHTML = `<option value="">Choose…</option>` + champs.map((c) => `<option${c === me ? " selected" : ""}>${esc(c)}</option>`).join("");
     if (!me) { $("#myTable").innerHTML = `<tbody><tr><td class="l" style="color:var(--muted)">Choose your initials above to list your tasks here.</td></tr></tbody>`; return; }
@@ -1104,7 +1138,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
         mine.map(([id, t]) => `<tr class="link${t.status === "In Progress" ? " ip" : ""}" data-goto="${esc(id)}" tabindex="0"><td>${refs.get(id) || ""}</td><td class="l">${t.key ? "★ " : ""}${esc(t.task)}</td><td>${isOverdue(t) ? `<b style="color:var(--urg)">${fmtDate(t.due)}</b>` : fmtDate(t.due)}</td><td>${cellHTML(COLS[1], t)}</td></tr>`).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">No open tasks for ${esc(me)}.</td></tr></tbody>`;
   }
-  $("#mySelect").addEventListener("change", (e) => { lsSet(MY_KEY, e.target.value); renderDashboard(); });
+  $("#mySelect").addEventListener("change", (e) => { lsSet(MY_KEY, e.target.value); if (openOn === "mine") setOpenOn("mine"); renderDashboard(); });
   $("#myTable").addEventListener("keydown", (e) => { const r = e.target.closest("[data-goto]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); gotoTask(r.dataset.goto, true); } });
   function renderAll() {
     renderHeader(); renderSummary(); renderMilestones(); renderPeople(); renderGrid(); renderDashboard(); renderTimeline(); renderContacts();
@@ -2150,7 +2184,13 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!db) { renderAll(); setLive(); return; }
     if (user) {
       myId = await user.id();
-      Promise.resolve().then(() => user.me()).then((m) => { myName = (m && m.name) || ""; renderDashboard(); }, () => {});
+      Promise.resolve().then(() => user.me()).then((m) => { myName = (m && m.name) || ""; renderDashboard(); applyOpenMine(); }, () => {});
+      if (myId) db.doc(`data/users/${myId}/weinam-prefs`).get().then((d) => {
+        if (!d.exists) return;
+        const p = d.data() || {};
+        if (p.champion && !lsGet(MY_KEY)) lsSet(MY_KEY, p.champion);
+        if ((p.openOn === "mine") !== (openOn === "mine")) { setOpenOn(p.openOn, false); renderDashboard(); applyOpenMine(); }
+      }).catch(() => {});
       const can = await user.can("data.write");
       canWrite = can !== false;
       if (can === true) confirmedWriter = true;
@@ -2162,7 +2202,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       else if (!meta) meta = { project: "", title: "", keyNotes: "", groups: [] };
       if (!snap.metadata.fromCache) firstLive = true;
       if (editing && editing.group) return;
-      renderAll(); setLive(); tryPendingTask();
+      renderAll(); setLive(); tryPendingTask(); applyOpenMine();
     }, () => { lastError = true; setLive(); });
 
     db.collection("contacts").onSnapshot((snap) => {
@@ -2178,7 +2218,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       loaded = true;
       if (!snap.metadata.fromCache) firstLive = true;
       if (editing && !editing.group && !tasks.has(editing.id)) { editing = null; }
-      renderAll(); setLive(); tryPendingTask();
+      renderAll(); setLive(); tryPendingTask(); applyOpenMine();
     }, (e) => {
       lastError = true; setLive();
       if (e.code !== "revoked") toast("Lost the live connection. Reload the page to reconnect.");
