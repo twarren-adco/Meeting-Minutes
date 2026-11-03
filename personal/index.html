@@ -365,11 +365,26 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .lg.key { border-left-color: #e29a00 !important; } .lg.tw { border-left-color: #0047bb !important; } .lg.mt { border-left-color: #7c4dcc !important; } .lg.me { border-left-color: var(--faint) !important; }
 .lg.act { border-left-color: var(--act-line) !important; background: var(--act-bg); } .lg.late { border-left-color: var(--red) !important; }
 .la-legend { margin: -4px 0 10px; }
+.la .wk { grid-row: span 2; }
+.la .band { grid-column: 2 / -1; min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 7px 8px; background: var(--surface-2); }
+.la .band .bl { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+.og { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; max-width: 100%; font-size: 12.5px; line-height: 1.3; color: var(--ink); text-decoration: none; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid #0047bb; border-radius: 4px; padding: 3px 8px; }
+.og:hover { border-color: var(--line-strong); }
+.og b { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--head); white-space: nowrap; }
+.og span { overflow-wrap: break-word; min-width: 0; }
+.og i { font-style: normal; font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.og.act { border-left-color: var(--act-line); background: var(--act-bg); } .og.act span { color: var(--act); }
+.og.late i { color: var(--red); font-weight: 600; }
+.la-nodate { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.la-nodate .bl { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ev.key .src { color: #f2bf4d; } :root:not([data-theme="light"]) .ev.mt .src { color: #b99af0; } }
 :root[data-theme="dark"] .ev.key .src { color: #f2bf4d; } :root[data-theme="dark"] .ev.mt .src { color: #b99af0; }
 @media (max-width: 760px) {
   .la { grid-template-columns: minmax(0, 1fr); }
   .la .hd { display: none; }
+  .la .wk { grid-row: auto; }
+  .la .band { grid-column: auto; }
+  .og { display: flex; width: 100%; }
   .la > div { min-height: 0; }
   .la .d .wd { display: inline; }
   .la .empty { display: none; }
@@ -480,6 +495,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <h2 id="laHead">2-week look-ahead</h2>
         <div class="legend la-legend"><span><i class="lg key"></i>Weinam key date</span><span><i class="lg tw"></i>Weinam task (TW)</span><span><i class="lg mt"></i>Meeting / my meeting action</span><span><i class="lg me"></i>My minutes</span><span><i class="lg act"></i>In action</span><span><i class="lg late"></i>Overdue</span></div>
         <div class="la" id="laGrid"></div>
+        <div class="la-nodate" id="laNoDate" hidden></div>
       </section>
       <section class="panel wide" aria-label="Waiting on others">
         <h2 id="woHead">Waiting on others</h2>
@@ -1985,8 +2001,22 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       return ev.link ? `<a class="ev ${ev.cls}" href="${ev.link}" target="_blank" rel="noopener" title="Open in Weinam">${inner}</a>` : `<button class="ev ${ev.cls}" type="button" data-la="${ev.n}">${inner}</button>`;
     };
     let h = `<div class="hd">Week</div>` + DAYS.map((d) => `<div class="hd">${d.slice(0, 3)}</div>`).join("");
+    // Weinam TW tasks that run across the week: started (or starting) by Friday but due after it.
+    const openTw = weinam ? (weinam.tasks || []).filter((t) => t.status !== "Complete" && t.status !== "N/A this project") : [];
+    const ongoing = (mon) => {
+      const m0 = isoOf(mon), fri = isoOf(addDays(mon, 4));
+      return openTw.filter((t) => (t.start || (t.status === "In Progress" ? m0 : "")) && (t.start || m0) <= fri && (!t.due || t.due > fri))
+        .sort((a, b) => (a.status === "In Progress" ? 0 : 1) - (b.status === "In Progress" ? 0 : 1) || (a.due || "9").localeCompare(b.due || "9"));
+    };
+    const ogChip = (t, mon) => {
+      const act = t.status === "In Progress", m0 = isoOf(mon);
+      const when = t.start && t.start > m0 && t.start > isoToday() ? `starts ${DAYS[daysFrom(t.start, m0)]?.slice(0, 3) || shortIso(t.start)}${t.due ? " · due " + shortIso(t.due) : ""}` : t.due ? "due " + shortIso(t.due) : "no due date";
+      return `<a class="og${act ? " act" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam"><b>Weinam ${esc(t.ref || "")}${act ? " · In action" : ""}</b><span>${esc(t.task || "Untitled task")}</span><i>${esc(when)}</i></a>`;
+    };
     weeks.forEach((mon, wi) => {
       h += `<div class="wk">${wi === 0 ? "This week" : "Next week"}<small>WK ${pad(isoWeek(mon).wk)}</small></div>`;
+      const og = ongoing(mon);
+      h += `<div class="band"><span class="bl">Ongoing ${wi === 0 ? "this" : "next"} week</span>${og.length ? og.map((t) => ogChip(t, mon)).join("") : `<span class="none">No Weinam tasks running across the week</span>`}</div>`;
       for (let d = 0; d < NDAYS; d++) {
         const day = addDays(mon, d), iso = isoOf(day), evs = (cells.get(iso) || []).sort((a, b) => a.rank - b.rank);
         h += `<div class="${iso === t0 ? "now" : iso < t0 ? "past" : ""}${evs.length ? "" : " empty"}"><span class="d"><span class="wd">${DAYS[d]} </span>${short(day)}${iso === t0 ? " · Today" : ""}</span>` +
@@ -1994,6 +2024,9 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       }
     });
     $("#laGrid").innerHTML = h;
+    const undated = openTw.filter((t) => !t.start && !t.due);
+    $("#laNoDate").hidden = !undated.length;
+    $("#laNoDate").innerHTML = undated.length ? `<span class="bl">Weinam tasks with no dates set</span>` + undated.map((t) => `<a class="og${t.status === "In Progress" ? " act" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam to add dates"><b>Weinam ${esc(t.ref || "")}</b><span>${esc(t.task || "Untitled task")}</span></a>`).join("") : "";
   }
   $("#laGrid").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-la]"); if (!b) return;
