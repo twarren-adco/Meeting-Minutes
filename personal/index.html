@@ -569,7 +569,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <div class="la-nodate" id="laNoDate" hidden></div>
       </section>
       <section class="panel wide" aria-label="Waiting on others">
-        <h2 id="woHead">Waiting on others this week</h2>
+        <h2 id="woHead">Waiting on others: started or due this week</h2>
         <p class="mm-small" id="woSub" style="margin:-6px 0 12px"></p>
         <div id="woList"></div>
       </section>
@@ -2009,8 +2009,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       .sort((a, b) => (b.items[0].late || 0) - (a.items[0].late || 0) || b.items.length - a.items.length);
     const total = waitGroups.reduce((n, g) => n + g.items.length, 0), late = waitGroups.reduce((n, g) => n + g.items.filter((x) => x.late).length, 0);
     const sunTxt = (() => { const d = dateOf(weekEnd); return `Sun ${d.getDate()} ${MONTHS[d.getMonth()]}`; })();
-    $("#woHead").innerHTML = `Waiting on others this week <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
-    $("#woSub").textContent = `Tasks other people own that have started and aren't closed out, or are due by ${sunTxt}: Weinam checklist tasks and actions from your meeting minutes.`;
+    $("#woHead").innerHTML = `Waiting on others: started or due this week <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${total} open${late ? ` · ${late} overdue` : ""}</small>`;
+    $("#woSub").textContent = `Open Weinam tasks where someone else is Champion and the task has started or is due by ${sunTxt}. Tasks not started yet and due later are left out. Also every open action assigned to someone else in your meeting minutes, whatever its due date.`;
     const PLW = { "In Progress": ["act", "In progress"], Urgent: ["urg", "Urgent"], "Not Started": ["", "Not started"], "": ["", "Not set"] };
     const dayName = (iso) => { const d = dateOf(iso); return `${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? " " + String(d.getFullYear()).slice(2) : ""}`; };
     const leftTxt = (iso) => { if (!iso) return "No due date"; const n = daysFrom(iso, t0); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
