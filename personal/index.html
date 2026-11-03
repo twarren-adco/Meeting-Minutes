@@ -427,6 +427,21 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .wb .mc.past .tx { color: var(--muted); }
 .wb .nowb { padding: 8px 10px; color: var(--faint); font-size: 12.5px; grid-column: 1 / -1; }
 .legend i.kd { width: 10px; height: 10px; border-radius: 0; }
+/* temporary Coming up preview */
+.pv-panel { border: 2px dashed var(--line-strong); }
+.pv-panel h2 small { font-family: var(--f-body); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
+.pv-intro { margin: -6px 0 14px; }
+.pv-opt { display: grid; gap: 6px; padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--line); }
+.pv-opt h3 { margin: 0; font-family: var(--f-display); font-size: 16px; letter-spacing: .04em; text-transform: uppercase; color: var(--head); }
+.pv-opt > p { margin: 0 0 4px; }
+.wb .hh.pv-dim { background: color-mix(in srgb, var(--thead) 45%, var(--surface)); }
+.wb .mc.pv-gone { background: repeating-linear-gradient(135deg, var(--surface-2) 0 6px, var(--surface) 6px 12px); color: var(--muted); font-size: 12.5px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.pv-tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 10px; }
+.pv-tabs button { font: inherit; font-family: var(--f-display); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; color: var(--muted); background: none; border: 0; padding: 8px 16px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.pv-tabs button[aria-selected="true"] { color: var(--head); border-bottom-color: var(--brand); }
+.pv-tabs button b { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin-left: 4px; }
+.pv-tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+#pv3 .tbox, #pv2 .tbox { display: inline-block; }
 /* 4B: My minutes day columns, then a compact Weinam running table */
 .wb.mb { grid-template-columns: 118px repeat(5, minmax(0, 1fr)); }
 .wb .rt-wrap { grid-column: 1 / -1; padding: 0; border-right: 0; }
@@ -595,6 +610,15 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       <section class="panel wide" aria-label="Today">
         <h2 id="tdHead">Today</h2>
         <div class="tbl-wrap td-wrap" id="tdList"></div>
+      </section>
+      <section class="panel wide pv-panel" aria-label="Preview: Coming up layouts" id="pvPanel">
+        <h2>Preview: Coming up layouts <small>temporary, for choosing</small></h2>
+        <p class="mm-small pv-intro">Four options for the panel after Today, drawn from your live minutes and Weinam copy. Each shows only what Today doesn't, so nothing appears twice. Pick one and this preview will be removed.</p>
+        <div class="pv-opt"><h3>Option 1 · Coming up: day columns from tomorrow</h3><p class="mm-small">The week-block layout you have now, but past days and today are greyed out ("In Today"), and the Weinam table only lists tasks that aren't already in Today.</p><div class="la-scroll"><div class="lab" id="pv1"></div></div></div>
+        <div class="pv-opt"><h3>Option 2 · Coming up: one dated list</h3><p class="mm-small">One table in the Today style, with a heading row per day. Days with nothing on are skipped.</p><div class="tbl-wrap" id="pv2"></div></div>
+        <div class="pv-opt"><h3>Option 3 · One panel with tabs</h3><p class="mm-small">Today and Coming up in one panel, one view at a time. Try the tabs.</p><div class="pv-tabs" role="tablist" id="pv3tabs"></div><div class="tbl-wrap" id="pv3"></div></div>
+        <div class="pv-opt"><h3>Option 4 · Weinam schedule only</h3><p class="mm-small">Your minutes stay in Today; this panel only lists Weinam dates coming up.</p><div class="tbl-wrap" id="pv4"></div></div>
+        <p class="mm-small" id="pvNoDate"></p>
       </section>
       <section class="panel wide" aria-label="2-week look-ahead">
         <h2 id="laHead">2-week look-ahead</h2>
@@ -1935,7 +1959,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const weeks = [thisMon, addDays(thisMon, 7)];
     const data = await Promise.all(weeks.map((m) => (sameDay(m, monday) ? week : readWeek(m))));
     if (my !== prodToken) return;
-    renderToday(data[0], thisMon); renderWaiting(); renderLookahead(weeks, data);
+    renderToday(data[0], thisMon); renderWaiting(); renderLookahead(weeks, data); renderPreview(weeks, data);
   }
 
   // #1 Today: my minutes for today (plus unticked from earlier this week), Weinam TW due/overdue, my meeting actions due/overdue.
@@ -2191,6 +2215,76 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#laNoDate").hidden = !undated.length;
     $("#laNoDate").innerHTML = undated.length ? `<span class="bl">Weinam tasks with no dates set</span>` + undated.map((t) => `<a class="og" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam to add dates"><b>Weinam ${esc(t.ref || "")}</b><span>${esc(t.task || "Untitled task")}</span></a>`).join("") : "";
   }
+  // ---------- temporary preview of Coming up layouts (rendered from live data; nothing is copied) ----------
+  let pvTab = 0, pvPanes = [];
+  function renderPreview(weeks, data) {
+    if (!$("#pvPanel")) return;
+    weeks = weeks.slice(0, 2); data = data.slice(0, 2);
+    const t0 = isoToday(), end = isoOf(addDays(new Date(), 14)), dow = (new Date().getDay() + 6) % 7;
+    const openTw = weinam ? (weinam.tasks || []).filter((t) => t.status !== "Complete" && t.status !== "N/A this project") : [];
+    const inToday = openTw.filter((t) => t.status === "In Progress" || (t.due && t.due <= t0));
+    const inTodayIds = new Set(inToday.map((t) => t.id));
+    // Upcoming items: anything dated after today, up to two weeks ahead, that Today doesn't already show.
+    const up = [];
+    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => {
+      const iso = isoOf(addDays(mon, d)); if (iso <= t0) return;
+      list.forEach((t) => { if (t.h || !t.t.trim() || t.done) return; const sp = splitNote(t); if (sameAsWeinam(t.t, inToday)) return; up.push({ d: iso, kind: "me", t: sp.main, note: sp.note, act: isAct(t), rec: !!t.rec }); });
+    }));
+    for (const m of meetings.values()) if (m.date > t0 && m.date <= end) up.push({ d: m.date, kind: "mtg", t: m.title || m.type + " meeting", note: m.time || "" });
+    allActions().forEach(({ m, a, i, j }) => { if (mine(a.by) && !a.done && !a.sent && a.due > t0 && a.due <= end) up.push({ d: a.due, kind: "ma", t: a.text, ref: `Meeting ${i + 1}.${j + 1}` }); });
+    openTw.forEach((t) => {
+      if (inTodayIds.has(t.id)) return;
+      const d = t.due && t.due > t0 && t.due <= end ? t.due : t.start && t.start > t0 && t.start <= end ? t.start : "";
+      if (d) up.push({ d, kind: "wn", t: t.task, tk: t, starts: d === t.start && d !== t.due });
+    });
+    (weinam ? weinam.keyTasks || [] : []).forEach((k) => { if (openTw.some((t) => t.id === k.id)) return; const d = k.due || k.start; if (d > t0 && d <= end && k.status !== "Complete") up.push({ d, kind: "key", t: k.task, tk: k }); });
+    up.sort((a, b) => a.d.localeCompare(b.d) || (a.kind === "me" ? 1 : 0) - (b.kind === "me" ? 1 : 0));
+    const src = (u) => u.kind === "wn" || u.kind === "key" ? `<a class="rf${u.kind === "key" || u.tk.key ? " k" : ""}" href="${wnTaskUrl(u.tk)}" target="_blank" rel="noopener">${u.kind === "key" || u.tk.key ? "★ " : ""}Weinam ${esc(u.tk.ref || "")}</a>` : u.kind === "me" ? `<span class="rf g">My minutes${u.rec ? " ↻" : ""}</span>` : `<span class="rf m">${u.kind === "mtg" ? "Meeting" : esc(u.ref)}</span>`;
+    const st = (u) => u.kind === "wn" ? tPill(u.tk.status || "") : u.kind === "key" ? `<span class="pl">Key date</span>` : u.kind === "mtg" ? tPill("meeting") : u.act ? tPill("In Progress") : tPill("todo");
+    const due = (u) => (u.kind === "wn" || u.kind === "key") ? (u.tk.due || u.d) : u.d;
+    const upRow = (u) => `<tr class="${u.act || (u.tk && u.tk.status === "In Progress") ? "act" : ""}"><td class="tk">${u.kind === "wn" || u.kind === "key" ? `<a class="ext" href="${wnTaskUrl(u.tk)}" target="_blank" rel="noopener">↗</a>` : `<span class="tbox" aria-hidden="true"></span>`}</td><td>${src(u)}</td><td class="tt">${esc(u.t)}${u.kind === "key" && u.tk.champion ? `<span class="tn">${esc(u.tk.champion)}</span>` : ""}</td><td class="nt">${esc(u.note || (u.starts ? "starts this day" : ""))}</td><td>${st(u)}</td><td class="n">${esc(tDate(due(u)))}</td><td class="n">${tLeft(due(u))}</td></tr>`;
+    const COLS = `<colgroup><col style="width:40px"><col style="width:${W_REF}px"><col><col style="width:190px"><col style="width:${W_STATUS}px"><col style="width:${W_DUE}px"><col style="width:${W_LEFT}px"></colgroup>`;
+    const HEAD = `<thead><tr><th></th><th>Source</th><th>Task</th><th>Note</th><th>Status</th><th>Due</th><th>Days left</th></tr></thead>`;
+    const tbl = (body, empty) => body ? `<table class="rt bd td-t">${COLS}${HEAD}<tbody>${body}</tbody></table>` : `<p class="mm-small" style="margin:0">${empty}</p>`;
+    const dayAway = (d) => { const n = daysFrom(d, t0); return `${n} day${n === 1 ? "" : "s"} away`; };
+
+    // Option 1: day columns, past/today greyed, Weinam table without Today's tasks
+    let h1 = "";
+    weeks.forEach((mon, wi) => {
+      const ds = Array.from({ length: NDAYS }, (_, d) => isoOf(addDays(mon, d)));
+      let g = `<div class="wb mb"><div class="wn-t">${wi === 0 ? "Rest of this week" : "Next week"}<small>WK ${pad(isoWeek(mon).wk)} · ${short(mon)} – ${short(addDays(mon, 4))}</small></div><div class="hh"></div>` +
+        ds.map((iso, i) => `<div class="hh${iso <= t0 ? " pv-dim" : ""}">${DAYS[i].slice(0, 3)} ${dateOf(iso).getDate()}</div>`).join("") + `<div class="ml">My minutes</div>`;
+      ds.forEach((iso) => {
+        if (iso <= t0) { g += `<div class="mc pv-gone">${iso === t0 ? "Today · see above" : "In Today"}</div>`; return; }
+        const its = up.filter((u) => u.d === iso && (u.kind === "me" || u.kind === "mtg" || u.kind === "ma"));
+        g += `<div class="mc">${its.length ? `<ul>${its.map((u) => `<li class="${u.act ? "act" : ""}${u.kind !== "me" ? " mtg" : ""}"><button type="button" tabindex="-1"><i class="bx"></i><span><span class="tx">${esc(u.t)}</span>${u.note && u.kind === "me" ? `<span class="nt">${esc(u.note)}</span>` : u.kind !== "me" ? `<span class="sub">${u.kind === "mtg" ? "Meeting" : "My meeting action"}</span>` : ""}</span></button></li>`).join("")}</ul>` : `<span class="nn">Nothing yet</span>`}</div>`;
+      });
+      const from = wi === 0 ? isoOf(addDays(new Date(), 1)) : ds[0], wn = up.filter((u) => (u.kind === "wn" || u.kind === "key") && u.d >= from && u.d <= ds[4]);
+      g += `<div class="rt-wrap"><div class="rt-h"><span>Weinam ${wi === 0 ? "rest of this week" : "next week"} · ${wn.length}</span></div>` + (wn.length ? `<div style="overflow-x:auto"><table class="rt la-t"><colgroup>${colsStd()}${colsTail}</colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>${wn.map((u) => `<tr><td>${src(u)}</td><td class="wrap">${esc(u.t)}</td><td>${st(u)}</td><td class="n">${tStart(u.tk.start)}</td><td class="n">${esc(tDate(due(u)))}</td><td class="n">${tLeft(due(u))}</td></tr>`).join("")}</tbody></table></div>` : `<div class="rt-none">Nothing new from Weinam. In-progress, overdue and due-today tasks are in Today.</div>`) + `</div>`;
+      h1 += g + `</div>`;
+    });
+    $("#pv1").innerHTML = h1;
+
+    // Option 2: one dated list
+    const byDay = new Map(); up.forEach((u) => { if (!byDay.has(u.d)) byDay.set(u.d, []); byDay.get(u.d).push(u); });
+    $("#pv2").innerHTML = tbl([...byDay].map(([d, l]) => `<tr class="grp"><td colspan="7">${esc(tDate(d))} <b style="font-weight:500;color:var(--muted)">· ${dayAway(d)}</b></td></tr>` + l.map(upRow).join("")).join(""), "Nothing coming up in the next two weeks beyond what's in Today.");
+
+    // Option 3: tabs (Today / Rest of week / Later)
+    const fri = isoOf(addDays(mondayOf(new Date()), 4));
+    const rest = up.filter((u) => u.d <= fri), later = up.filter((u) => u.d > fri);
+    const todayTable = $("#tdList").innerHTML;
+    pvPanes = [todayTable, tbl(rest.map(upRow).join(""), "Nothing else this week."), tbl(later.map(upRow).join(""), "Nothing in the following week yet.")];
+    const counts = [$("#tdList").querySelectorAll("tbody tr:not(.grp):not(.done)").length, rest.length, later.length];
+    $("#pv3tabs").innerHTML = ["Today", "Rest of week", "Later"].map((n, i) => `<button type="button" role="tab" data-pv="${i}" aria-selected="${i === pvTab}">${n} <b>${counts[i]}</b></button>`).join("");
+    $("#pv3").innerHTML = pvPanes[pvTab];
+
+    // Option 4: Weinam only
+    const w4 = up.filter((u) => u.kind === "wn" || u.kind === "key");
+    $("#pv4").innerHTML = w4.length ? `<table class="rt bd la-t"><colgroup>${colsStd()}${colsTail}</colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>${w4.map((u) => `<tr><td>${src(u)}</td><td class="wrap">${esc(u.t)}${u.starts ? `<span class="tn">starts ${esc(tDate(u.d))}</span>` : ""}</td><td>${st(u)}</td><td class="n">${tStart(u.tk.start)}</td><td class="n">${esc(tDate(due(u)))}</td><td class="n">${tLeft(due(u))}</td></tr>`).join("")}</tbody></table>` : `<p class="mm-small" style="margin:0">No Weinam dates in the next two weeks beyond what's in Today.</p>`;
+    const undated = openTw.filter((t) => !t.start && !t.due && t.status !== "In Progress");
+    $("#pvNoDate").textContent = undated.length ? `In every option, Weinam tasks with no dates set would still be listed underneath: ${undated.map((t) => t.ref + " " + t.task).join(" · ")}.` : "";
+  }
+  $("#pv3tabs") && $("#pv3tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-pv]"); if (!b) return; pvTab = +b.dataset.pv; $("#pv3tabs").querySelectorAll("[data-pv]").forEach((x) => x.setAttribute("aria-selected", String(+x.dataset.pv === pvTab))); $("#pv3").innerHTML = pvPanes[pvTab]; });
   $("#laGrid").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-la]"); if (!b) return;
     const ev = laItems[+b.dataset.la]; if (!ev) return;
