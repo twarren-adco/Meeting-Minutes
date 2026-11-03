@@ -373,6 +373,8 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
   .grid-wrap { overflow-x: auto; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+  #grid tr.flash td { animation: rowflash 2.6s ease-out; }
+  @keyframes rowflash { 0%, 35% { background: #cfe0ff; box-shadow: inset 0 0 0 9999px rgba(0,71,187,.10); } 100% { } }
 </style>
 
 <header class="band">
@@ -955,12 +957,27 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     }).join("") : `<li><span class="m-sub">${loaded ? "No key dates yet." : "Loading…"}</span></li>`;
     $("#datesHint").hidden = !canWrite || !loaded;
   }
-  function gotoTask(id) {
+  function gotoTask(id, flash) {
     if (!tasks.has(id)) return;
     if (tasks.get(id).status === "Complete" && filters.hideDone) setHideDone(false);
     clearFilters();
     if (location.hash !== "#checklist") location.hash = "#checklist";
-    requestAnimationFrame(() => { sel = { id, c: 0 }; paintSel(); focusGrid(); });
+    requestAnimationFrame(() => {
+      sel = { id, c: 0 }; paintSel(false); focusGrid();
+      const tr = document.querySelector(`#grid tr[data-id="${CSS.escape(id)}"]`);
+      if (!tr) return;
+      tr.scrollIntoView({ block: "center" });
+      if (flash) { tr.classList.remove("flash"); void tr.offsetWidth; tr.classList.add("flash"); setTimeout(() => tr.classList.remove("flash"), 2600); }
+    });
+  }
+  // Deep link from the personal dashboard: #task=<id> (or ?task=<id>) opens the Checklist on that task.
+  const linkedTask = () => { const m = `${location.hash}&${location.search}`.match(/[#?&]task=([A-Za-z0-9_-]+)/); return m ? decodeURIComponent(m[1]) : null; };
+  let pendingTask = linkedTask();
+  function tryPendingTask() {
+    if (!pendingTask || !loaded || !metaLoaded) return;
+    const id = pendingTask; pendingTask = null;
+    if (tasks.has(id)) gotoTask(id, true);
+    else { if (location.hash !== "#checklist") location.hash = "#checklist"; toast("That task is no longer on the checklist."); }
   }
   // Category (checklist group) and Section dropdowns; the Checklist and Timeline copies stay in sync.
   function renderGroupSectionFilters() {
@@ -2054,7 +2071,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   }
 
   // The Dashboard is the landing page; the other views are reached by their #hash.
-  const currentView = () => ({ "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[location.hash] || "dashboard");
+  const currentView = () => (location.hash.startsWith("#task=") ? "checklist" : { "#checklist": "checklist", "#timeline": "timeline", "#contacts": "contacts" }[location.hash] || "dashboard");
   function route() {
     const v = currentView();
     $("#viewChecklist").hidden = v !== "checklist"; $("#viewDashboard").hidden = v !== "dashboard"; $("#viewTimeline").hidden = v !== "timeline"; $("#viewContacts").hidden = v !== "contacts";
@@ -2068,7 +2085,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (v === "timeline") renderTimeline();
     if (v === "contacts") renderContactsNow();
   }
-  window.addEventListener("hashchange", route);
+  window.addEventListener("hashchange", () => { const t = linkedTask(); if (t) { pendingTask = t; route(); tryPendingTask(); } else route(); });
 
   // ---------- boot ----------
   let dbResolved = false;
@@ -2097,7 +2114,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       else if (!meta) meta = { project: "", title: "", keyNotes: "", groups: [] };
       if (!snap.metadata.fromCache) firstLive = true;
       if (editing && editing.group) return;
-      renderAll(); setLive();
+      renderAll(); setLive(); tryPendingTask();
     }, () => { lastError = true; setLive(); });
 
     db.collection("contacts").onSnapshot((snap) => {
@@ -2113,7 +2130,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       loaded = true;
       if (!snap.metadata.fromCache) firstLive = true;
       if (editing && !editing.group && !tasks.has(editing.id)) { editing = null; }
-      renderAll(); setLive();
+      renderAll(); setLive(); tryPendingTask();
     }, (e) => {
       lastError = true; setLive();
       if (e.code !== "revoked") toast("Lost the live connection. Reload the page to reconnect.");

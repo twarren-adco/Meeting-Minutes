@@ -1014,6 +1014,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
      data/users/<you>/weinam-tw by a scheduled Claude task (the two pages can't read each other's data) ---------- */
   let weinam = null, unwatchWeinam = null;
   const WEINAM_URL = "https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#checklist";
+  // Deep link: the Weinam page opens its Checklist on this task and highlights the row.
+  const wnTaskUrl = (t) => (t && t.id ? `https://claude.ai/artifact/4NontSLKALcwM1iqVr6VQb#task=${encodeURIComponent(t.id)}` : WEINAM_URL);
   const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const isoPlus = (n) => { const d = addDays(new Date(), n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const fmtIso = (iso) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y.slice(2)}`; };
@@ -1053,7 +1055,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const n = it.date ? days(it.date) : null, late = !done && !na && t.due && t.due < t0;
       const when = !it.date ? "No date set" : done ? "Complete" : na ? "N/A" : late ? `Overdue by ${-n} day${n === -1 ? "" : "s"}` : rel(n);
       const sub = [t.ref ? "Task " + t.ref : "", t.champion, when].filter(Boolean).map(esc).join(" · ");
-      return `<li class="is-task${late ? " late" : ""}${done ? " done" : ""}"><span class="m-name"><span class="m-star" aria-hidden="true">★</span>${esc(it.name)}</span><span class="m-date">${it.date ? longDate(it.date) : ""}</span><span class="m-sub${late ? " late" : ""}">${sub}</span></li>`;
+      return `<li class="is-task${late ? " late" : ""}${done ? " done" : ""}"><span class="m-name"><span class="m-star" aria-hidden="true">★</span><a class="wn-link" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open this task in Weinam">${esc(it.name)}</a></span><span class="m-date">${it.date ? longDate(it.date) : ""}</span><span class="m-sub${late ? " late" : ""}">${sub}</span></li>`;
     }).join("");
   }
   function renderWeinam() {
@@ -1087,7 +1089,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         rows.map((t) => {
           const [cls, label] = PILL[t.status || ""] || PILL[""];
           const dueCls = t.due && t.due < t0 ? "od-date" : t.due && t.due <= t7 ? "soon-date" : "";
-          return `<tr class="${t.status === "In Progress" ? "act" : ""}"><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${WEINAM_URL}" target="_blank" rel="noopener">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
+          return `<tr class="${t.status === "In Progress" ? "act" : ""}"><td>${esc(t.ref || "")}</td><td class="l">${t.key ? `<span class="wn-star" title="Key task">★</span>` : ""}<a class="wn-link" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open this task in Weinam">${esc(t.task || "Untitled task")}</a>${t.notes ? `<div class="wn-note">${esc(t.notes)}</div>` : ""}</td>` +
             `<td class="l"><span class="pill ${cls}">${label}</span></td><td>${fmtIso(t.start)}</td><td><span class="${dueCls}">${fmtIso(t.due)}${dueCls === "od-date" ? " · overdue" : ""}</span></td><td class="l">${esc(t.group || "")}</td></tr>`;
         }).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">No open Weinam actions with TW as Champion.${done ? ` ${done} complete.` : ""}</td></tr></tbody>`;
@@ -1844,7 +1846,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const act = t.status === "In Progress";
       if (!act && (!t.due || t.due > t0)) return;
       const late = t.due && t.due < t0 ? -daysFrom(t.due, t0) : 0;
-      items.push({ kind: "wn", text: t.task, ref: t.ref, act, late, sort: late ? 0 : 1, due: t.due });
+      items.push({ kind: "wn", text: t.task, ref: t.ref, act, late, sort: late ? 0 : 1, due: t.due, link: wnTaskUrl(t) });
     });
     allActions().forEach(({ m, a, i, j }) => {
       if (!mine(a.by) || !a.due || a.due > t0 || a.sent) return;
@@ -1859,7 +1861,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#tdHead").innerHTML = `Today · ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${open} to do${late ? ` · ${late} overdue` : ""}${done ? ` · ${done} done` : ""}</small>`;
     $("#tdList").innerHTML = items.length ? items.map((x, n) => {
       const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
-      if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam to update">↗</a><span class="tt"><a href="${WEINAM_LINK}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
+      if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${x.link}" target="_blank" rel="noopener" title="Open this task in Weinam">↗</a><span class="tt"><a href="${x.link}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
       if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
       return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
     }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
@@ -1941,8 +1943,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const cells = new Map(); laItems = [];
     const add = (iso, ev) => { if (!iso || iso < from || iso > to) return; if (!cells.has(iso)) cells.set(iso, []); ev.n = laItems.length; laItems.push(ev); cells.get(iso).push(ev); };
     if (weinam) {
-      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", text: "★ " + t.task, link: WEINAM_LINK, rank: 0 }));
-      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: (t.status === "In Progress" ? "tw act" : "tw") + (t.due < t0 ? " late" : ""), text: t.task, link: WEINAM_LINK, rank: 1 }); });
+      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", text: "★ " + t.task, link: wnTaskUrl(t), rank: 0 }));
+      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: (t.status === "In Progress" ? "tw act" : "tw") + (t.due < t0 ? " late" : ""), text: t.task, link: wnTaskUrl(t), rank: 1 }); });
     }
     for (const m of meetings.values()) {
       add(m.date, { cls: "mt", text: (m.time ? m.time + " " : "") + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
