@@ -1,0 +1,195 @@
+<title>Today Panel Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: four stacked option boards, each a version of the Today panel with the same items. */
+:root {
+  --brand: #0047BB; --bg: #F2F5FC; --surface: #ffffff; --surface-2: #EBF0FA; --line: #CCDAF1; --ink: #1f2937; --muted: #4A5464; --faint: #8b95a7;
+  --act: #b94e00; --act-bg: #fff0dc; --act-line: #f08a1c; --red: #c81e1e; --red-bg: #fdecec; --ok: #1d7a46; --mt: #6a3fb5;
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; --red: #ff8a80; --red-bg: #3a1716; --ok: #5fd08f; --mt: #b99af0; color-scheme: dark; } }
+:root[data-theme="dark"] { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; --red: #ff8a80; --red-bg: #3a1716; --ok: #5fd08f; --mt: #b99af0; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 30px; }
+h1, h2, h3 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--brand); margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; } h3 { font-size: 15px; }
+.intro p { margin: 6px 0 0; max-width: 78ch; color: var(--muted); }
+.opt { display: grid; gap: 10px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; } .opt-head span { color: var(--muted); }
+.why { margin: 0; padding-left: 18px; max-width: 92ch; display: grid; gap: 2px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+.ph { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 12px; }
+.ph h3 { font-size: 18px; } .ph small { color: var(--muted); font-size: 13px; }
+.ph .late { color: var(--red); font-weight: 700; }
+.scroll { overflow-x: auto; }
+.bx { width: 15px; height: 15px; border: 1.5px solid var(--faint); border-radius: 3px; display: inline-block; background: var(--surface); flex: none; }
+.bx.ip { border-color: var(--act); background: linear-gradient(135deg, var(--act-line) 50%, var(--surface) 50%); }
+.ext { color: var(--brand); font-weight: 700; text-decoration: none; display: inline-block; width: 15px; text-align: center; }
+.note { color: var(--red); }
+.pl { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 0 8px; line-height: 19px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pl.ip { background: var(--act-bg); color: var(--act); }
+.pl.late { background: var(--red-bg); color: var(--red); }
+.pl.due { background: color-mix(in srgb, #e2a400 20%, var(--surface)); color: #8a5a00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pl.due { color: #f2c66b; } }
+:root[data-theme="dark"] .pl.due { color: #f2c66b; }
+.src { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 0 6px; line-height: 18px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.src.w { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+
+/* table */
+.tt { width: 100%; border-collapse: collapse; font-size: 13.5px; table-layout: fixed; min-width: 760px; }
+.tt th { text-align: left; font-family: var(--f-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 11.5px; color: var(--brand); padding: 6px 10px; border-bottom: 2px solid var(--brand); white-space: nowrap; }
+.tt td { padding: 7px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 75%, transparent); vertical-align: top; }
+.tt td.c { white-space: nowrap; }
+.tt tr.ip td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
+.tt tr.grp td { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; }
+.tt tr.grp td b { color: var(--ink); margin-left: 4px; }
+.tt tr.grp.r td { color: var(--red); }
+.tt .nt { color: var(--red); font-size: 12.5px; }
+
+/* B: lanes */
+.lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.lane { border: 1px solid var(--line); border-radius: 4px; min-width: 0; }
+.lane > h4 { margin: 0; padding: 8px 12px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.lane.r > h4 { color: var(--red); background: var(--red-bg); }
+.lane.o > h4 { color: var(--act); background: var(--act-bg); }
+.lane.b > h4 { color: var(--brand); background: var(--surface-2); }
+.lane ul { list-style: none; margin: 0; padding: 4px 12px 8px; }
+.lane li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px dashed color-mix(in srgb, var(--line) 70%, transparent); font-size: 13.5px; line-height: 1.32; }
+.lane li:last-child { border-bottom: 0; }
+.lane .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 3px; font-size: 12px; color: var(--muted); align-items: center; }
+.lane .meta .note { font-size: 12px; }
+
+/* C: cards by source */
+.two { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; }
+.blk h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); display: flex; gap: 8px; }
+.blk h4 b { color: var(--ink); }
+.blk + .blk { margin-top: 14px; }
+.row { display: grid; grid-template-columns: 15px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 6px; background: var(--surface); }
+.row.ip { border-left: 4px solid var(--act-line); }
+.row .t { font-size: 13.5px; line-height: 1.32; } .row .t .note { display: block; font-size: 12.5px; }
+.row .r { display: flex; gap: 6px; align-items: center; }
+.row .sub { display: block; font-size: 12px; color: var(--muted); }
+
+/* D: focus */
+.focus { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
+.big { list-style: none; margin: 0; padding: 0; counter-reset: n; }
+.big li { display: grid; grid-template-columns: 26px 15px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.big li::before { counter-increment: n; content: counter(n); font-family: var(--f-display); font-weight: 700; font-size: 18px; color: var(--brand); line-height: 1; }
+.big .note { display: block; font-size: 12.5px; }
+.side { border-left: 1px solid var(--line); padding-left: 16px; display: grid; gap: 14px; align-content: start; }
+.side h4 { margin: 0 0 4px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.side li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 8px; }
+.side li .sub { display: block; font-size: 12px; color: var(--muted); }
+.sum { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.sum span { border: 1px solid var(--line); border-radius: 14px; padding: 2px 10px; font-size: 12.5px; background: var(--surface); }
+.sum b { margin-left: 3px; }
+@media (max-width: 860px) { .lanes, .two, .focus { grid-template-columns: minmax(0, 1fr); } .side { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Today panel: four layouts</h1>
+    <p>Each one uses the items from your screenshot (Wednesday 4 Nov: 17 to do, 9 carried over). The red note, such as "emailed 2/11/26", gets its own space instead of running on after the task. Tick boxes and links would work as they do now.</p>
+  </header>
+
+  <section class="opt" aria-labelledby="a">
+    <div class="opt-head"><h2 id="a">A · Grouped table</h2><span>One table, split into Carried over, Weinam, and Today.</span></div>
+    <ul class="why">
+      <li>Fixed columns: tick, task, note, status, from, source. Everything lines up down the page.</li>
+      <li>Three groups with counts: lines carried over from earlier days (red heading), Weinam tasks, then today's own lines.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Today · Wed 4 Nov</h3><small>17 to do · <span class="late">9 carried over</span> · 2 Weinam due today</small></div><div class="scroll" id="oa"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="b">
+    <div class="opt-head"><h2 id="b">B · Three lanes</h2><span>Side by side: carried over, in progress, to do today.</span></div>
+    <ul class="why">
+      <li>Lanes sort by what you need to do: chase up what's carried over, keep in-progress items moving, start today's new lines.</li>
+      <li>Weinam tasks go in the lane that fits (in progress or due today) with a blue Weinam tag.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Today · Wed 4 Nov</h3><small>17 to do</small></div><div class="lanes" id="ob"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="c">
+    <div class="opt-head"><h2 id="c">C · My minutes and Weinam side by side</h2><span>Your lines on the left, project tasks on the right.</span></div>
+    <ul class="why">
+      <li>Left: your minutes as card rows, carried-over lines first with "2 days" on the right.</li>
+      <li>Right: Weinam tasks due today or in progress, with due date and days left.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Today · Wed 4 Nov</h3><small>17 to do · 9 carried over</small></div><div class="two" id="oc"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="d">
+    <div class="opt-head"><h2 id="d">D · Due today first, everything else beside it</h2><span>A numbered list of what's due today, with the rest in a side column.</span></div>
+    <ul class="why">
+      <li>Main list: today's lines and Weinam tasks due today, numbered.</li>
+      <li>Side column: carried-over lines and in-progress Weinam tasks, smaller, so they're visible but don't crowd today.</li>
+    </ul>
+    <div class="panel"><div class="sum"><span>To do <b>17</b></span><span style="color:var(--red)">Carried over <b>9</b></span><span style="color:var(--act)">In progress <b>9</b></span><span>Weinam due today <b>2</b></span></div><div class="focus" id="od"></div></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const carried = [
+    ["Update Weinam program", "", "Mon"],
+    ["Sort out Weinam fencing", "waiting TEA quote 3/11/26", "Mon"],
+    ["Chase EMM (Adrian) for an updated Condong heritage sign design", "emailed 2/11/26", "Mon"],
+    ["Send email to consultants about BA drawings we require", "", "Mon"],
+    ["Update program with workback date for demo, civil & piling", "", "Mon"],
+    ["Speak to Caporn & Kellers about worst case scenario piling rig options", "spoke to & emailed 2/11/26", "Mon"],
+    ["Chase Borderline to fix Condong filter", "spoke to 2/11/26", "Mon"],
+    ["Chase Modscape Tumbi principal door replacement", "emailed 2/11/26", "Mon"],
+    ["Call Jesse McDonald (Lucid Consulting) re peer review", "emailed 2/11/26", "Tue"],
+  ].map(([t, n, f]) => ({ t, n, f, ip: !!n, age: f === "Mon" ? 2 : 1 }));
+  const weinam = [
+    { ref: "1.14", t: "Traffic Control Plan – council approval", ip: false, due: "Today", left: "Due today" },
+    { ref: "5.2", t: "Temp carpark closes & cars removed", ip: true, due: "Today", left: "Due today" },
+    { ref: "3.6", t: "Chase pilers for rig / load info", ip: true, due: "Fri 6 Nov", left: "2 days left" },
+    { ref: "3.5", t: "ADG to develop revised carpark arrangements", ip: true, due: "Fri 20 Nov", left: "16 days left" },
+  ];
+  const today = ["Status consultants defect reports", "Submit LSPS FRNSW schedule to BM+G", "Issue BM+G performance solutions to SINSW for approval", "Update BM+G rev 2 list"].map((t) => ({ t, n: "", ip: false }));
+  const st = (x) => (x.ip ? `<span class="pl ip">In progress</span>` : `<span class="pl">To do</span>`);
+  const box = (x) => `<i class="bx${x.ip ? " ip" : ""}"></i>`;
+
+  // A
+  let a = `<table class="tt"><colgroup><col style="width:34px"><col><col style="width:200px"><col style="width:110px"><col style="width:110px"><col style="width:110px"></colgroup><thead><tr><th></th><th>Task</th><th>Note</th><th>Status</th><th>From / due</th><th>Source</th></tr></thead><tbody>`;
+  a += `<tr class="grp r"><td colspan="6">Carried over <b>${carried.length}</b></td></tr>`;
+  a += carried.map((x) => `<tr class="${x.ip ? "ip" : ""}"><td>${box(x)}</td><td>${esc(x.t)}</td><td class="nt">${esc(x.n)}</td><td>${st(x)}</td><td class="c"><span class="pl late">From ${x.f} · ${x.age}d</span></td><td><span class="src">My minutes</span></td></tr>`).join("");
+  a += `<tr class="grp"><td colspan="6">Weinam due today or in progress <b>${weinam.length}</b></td></tr>`;
+  a += weinam.map((x) => `<tr class="${x.ip ? "ip" : ""}"><td><a class="ext" href="#" title="Open in Weinam">↗</a></td><td>${esc(x.t)}</td><td></td><td>${x.ip ? `<span class="pl ip">In progress</span>` : `<span class="pl">Not started</span>`}</td><td class="c">${x.due === "Today" ? `<span class="pl due">Due today</span>` : `<span class="pl">${esc(x.left)}</span>`}</td><td><span class="src w">Weinam ${x.ref}</span></td></tr>`).join("");
+  a += `<tr class="grp"><td colspan="6">Today <b>${today.length}</b></td></tr>`;
+  a += today.map((x) => `<tr><td>${box(x)}</td><td>${esc(x.t)}</td><td></td><td>${st(x)}</td><td class="c"></td><td><span class="src">My minutes</span></td></tr>`).join("");
+  document.getElementById("oa").innerHTML = a + `</tbody></table>`;
+
+  // B
+  const li = (x, meta) => `<li>${x.ref ? `<a class="ext" href="#">↗</a>` : box(x)}<span>${esc(x.t)}<span class="meta">${meta}</span></span></li>`;
+  const ipAll = carried.filter((x) => x.ip).map((x) => ({ ...x, m: `${x.n ? `<span class="note">${esc(x.n)}</span>` : ""}<span>from ${x.f}</span>` }))
+    .concat(weinam.filter((x) => x.ip).map((x) => ({ ...x, m: `<span class="src w">Weinam ${x.ref}</span>${x.due === "Today" ? `<span class="pl due">Due today</span>` : `<span>${esc(x.left)}</span>`}` })));
+  const carriedTodo = carried.filter((x) => !x.ip);
+  const todo = today.map((x) => ({ ...x, m: "" })).concat(weinam.filter((x) => !x.ip).map((x) => ({ ...x, m: `<span class="src w">Weinam ${x.ref}</span><span class="pl due">Due today</span>` })));
+  document.getElementById("ob").innerHTML =
+    `<div class="lane r"><h4><span>Carried over, not started</span><span>${carriedTodo.length}</span></h4><ul>${carriedTodo.map((x) => li(x, `<span class="pl late">From ${x.f} · ${x.age} days</span>`)).join("")}</ul></div>` +
+    `<div class="lane o"><h4><span>In progress</span><span>${ipAll.length}</span></h4><ul>${ipAll.map((x) => li(x, x.m)).join("")}</ul></div>` +
+    `<div class="lane b"><h4><span>To do today</span><span>${todo.length}</span></h4><ul>${todo.map((x) => li(x, x.m)).join("")}</ul></div>`;
+
+  // C
+  const row = (x, right) => `<div class="row${x.ip ? " ip" : ""}">${x.ref ? `<a class="ext" href="#">↗</a>` : box(x)}<span class="t">${esc(x.t)}${x.n ? `<span class="note">${esc(x.n)}</span>` : ""}${x.sub ? `<span class="sub">${x.sub}</span>` : ""}</span><span class="r">${right}</span></div>`;
+  document.getElementById("oc").innerHTML =
+    `<div><div class="blk"><h4>Carried over <b>${carried.length}</b></h4>${carried.map((x) => row(x, `${x.ip ? `<span class="pl ip">In progress</span>` : ""}<span class="pl late">${x.age} day${x.age === 1 ? "" : "s"}</span>`)).join("")}</div>` +
+    `<div class="blk"><h4>Today <b>${today.length}</b></h4>${today.map((x) => row(x, "")).join("")}</div></div>` +
+    `<div><div class="blk"><h4>Weinam <b>${weinam.length}</b></h4>${weinam.map((x) => row({ ...x, sub: `<span class="src w">Weinam ${x.ref}</span> due ${esc(x.due)}` }, `${x.ip ? `<span class="pl ip">In progress</span>` : ""}${x.due === "Today" ? `<span class="pl due">Due today</span>` : `<span class="pl">${esc(x.left)}</span>`}`)).join("")}</div></div>`;
+
+  // D
+  const main = today.concat(weinam.filter((x) => x.due === "Today"));
+  document.getElementById("od").innerHTML =
+    `<div><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Due today</h4><ol class="big">${main.map((x) => `<li>${x.ref ? `<a class="ext" href="#">↗</a>` : box(x)}<span>${esc(x.t)}</span><span>${x.ref ? `<span class="src w">Weinam ${x.ref}</span> ` : ""}${x.ip ? `<span class="pl ip">In progress</span>` : ""}</span></li>`).join("")}</ol></div>` +
+    `<div class="side"><div><h4 style="color:var(--red)">Carried over · ${carried.length}</h4><ul>${carried.map((x) => `<li>${box(x)}<span>${esc(x.t)}<span class="sub">${x.n ? `<span class="note">${esc(x.n)}</span> · ` : ""}from ${x.f}</span></span></li>`).join("")}</ul></div>` +
+    `<div><h4 style="color:var(--act)">Weinam in progress · ${weinam.filter((x) => x.ip && x.due !== "Today").length}</h4><ul>${weinam.filter((x) => x.ip && x.due !== "Today").map((x) => `<li><a class="ext" href="#">↗</a><span>${esc(x.t)}<span class="sub">Weinam ${x.ref} · ${esc(x.left)}</span></span></li>`).join("")}</ul></div></div>`;
+})();
+</script>
