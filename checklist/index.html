@@ -259,6 +259,21 @@ tr.is-key td.c-task { background-image: linear-gradient(90deg, rgba(242,169,0,.1
 .dash .wide { grid-column: 1 / -1; }
 .urgent-panel { border-left: 4px solid var(--urg); }
 .urgent-panel h2 small { font-family: var(--f-body); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
+#teamPanel h2 small { font-family: var(--f-body); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 6px; }
+.team-sub { margin: -6px 0 12px; font-size: 13px; color: var(--muted); max-width: 90ch; }
+.tm-g + .tm-g { margin-top: 16px; }
+.tm-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 6px; font-size: 13px; color: var(--muted); }
+.tm-h .who { font-size: 13px; }
+.tm-h .late-n { color: var(--urg); font-weight: 700; }
+.tm-t { width: 100%; min-width: 680px; table-layout: fixed; }
+.tm-t td.l { white-space: normal; overflow-wrap: anywhere; }
+.tm-t td, .tm-t th { padding: 6px 10px; }
+.tm-t td.l a { color: inherit; }
+.tm-t tr.late td { background: color-mix(in srgb, var(--urg) 8%, var(--surface)); }
+.tm-t tr.late td.left { color: var(--urg); font-weight: 700; }
+.tm-t tr.ip td:first-child { box-shadow: inset 3px 0 0 #f59e57; }
+.tm-t td.left { font-weight: 600; }
+.tm-t .ref { font-variant-numeric: tabular-nums; color: var(--head); font-weight: 600; }
 .mine-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--accent, #0047BB); background: var(--surface); font-size: 13px; }
 .linkbtn { font: inherit; font-weight: 600; color: var(--accent, #0047BB); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .panel h2 { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; text-wrap: balance; }
@@ -534,6 +549,11 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
     <section class="panel wide urgent-panel">
       <h2>Urgent tasks <small id="urgentCount"></small></h2>
       <div class="tbl-wrap"><table class="dt" id="urgentTable"></table></div>
+    </section>
+    <section class="panel wide" id="teamPanel">
+      <h2>Team tasks started or due this week <small id="teamCount"></small></h2>
+      <p class="team-sub" id="teamSub"></p>
+      <div id="teamList"></div>
     </section>
     <section class="panel wide">
       <h2>Status by section</h2>
@@ -1083,6 +1103,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     const urgent = all.filter(([, t]) => t.status === "Urgent").sort((a, b) => (a[1].due || "9") < (b[1].due || "9") ? -1 : 1);
     $("#urgentCount").textContent = urgent.length ? `${urgent.length} open` : "";
     $("#urgentTable").innerHTML = list(urgent, "No tasks are marked Urgent.");
+    renderTeam(all, refs);
     $("#overdueTable").innerHTML = list(all.filter(([, t]) => isOverdue(t)).sort(byDue), "Nothing is overdue.");
     const t0 = today(), t14 = addDays(t0, 14);
     $("#soonTable").innerHTML = list(all.filter(([, t]) => t.due && !isClosed(t) && t.due >= t0 && t.due <= t14).sort(byDue), "Nothing is due in the next 14 days.");
@@ -1123,6 +1144,33 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
   });
   $("#mineAll").addEventListener("click", () => { clearFilters(); $("#mineNote").hidden = true; });
   $("#mineOff").addEventListener("click", () => { setOpenOn("dash"); clearFilters(); $("#mineNote").hidden = true; toast("Next time this page opens on the Dashboard."); });
+  // Team tasks: open tasks with a champion that have started (start date passed or In Progress) or are due by Sunday.
+  function renderTeam(all, refs) {
+    const t0 = today(), dow = (new Date().getDay() + 6) % 7, sun = addDays(t0, 6 - dow);
+    const sunTxt = (() => { const [y, m, d] = sun.split("-").map(Number); const dt = new Date(y, m - 1, d); return `Sun ${dt.getDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][dt.getMonth()]}`; })();
+    const groups = new Map();
+    for (const [id, t] of all) {
+      const who = (t.champion || "").trim();
+      if (!who || isClosed(t)) continue;
+      const started = (t.start && t.start <= t0) || t.status === "In Progress";
+      if (!started && !(t.due && t.due <= sun)) continue;
+      const k = who.toUpperCase();
+      if (!groups.has(k)) groups.set(k, { who, items: [] });
+      groups.get(k).items.push([id, t]);
+    }
+    const days = (iso) => { const [y, m, d] = iso.split("-").map(Number), [a, b, c] = t0.split("-").map(Number); return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(a, b - 1, c)) / 864e5); };
+    const left = (iso) => { if (!iso) return "No due date"; const n = days(iso); return n < 0 ? `${-n} day${n === -1 ? "" : "s"} over` : n === 0 ? "Due today" : `${n} day${n === 1 ? "" : "s"} left`; };
+    const gs = [...groups.values()].map((g) => ({ ...g, items: g.items.sort((a, b) => (a[1].due || "9999").localeCompare(b[1].due || "9999")), late: g.items.filter(([, t]) => isOverdue(t)).length }))
+      .sort((a, b) => b.late - a.late || b.items.length - a.items.length || a.who.localeCompare(b.who));
+    const total = gs.reduce((n, g) => n + g.items.length, 0), late = gs.reduce((n, g) => n + g.late, 0);
+    $("#teamCount").textContent = total ? `${total} open${late ? ` · ${late} overdue` : ""}` : "";
+    $("#teamSub").textContent = `Open tasks, grouped by Champion, that have started or are due by ${sunTxt}. Tasks not started yet and due later are left out. Click a task to open it in the Checklist.`;
+    $("#teamList").innerHTML = gs.length ? gs.map((g) => `<div class="tm-g"><div class="tm-h"><span class="who">${esc(g.who)}</span><span>${g.items.length} open${g.late ? ` · <span class="late-n">${g.late} overdue</span>` : ""}</span></div>` +
+      `<div class="tbl-wrap"><table class="dt tm-t"><colgroup><col style="width:64px"><col><col style="width:150px"><col style="width:100px"><col style="width:120px"><col style="width:120px"></colgroup><thead><tr><th>#</th><th class="l">Task</th><th class="l">Status</th><th>Started</th><th>Complete by</th><th>Days left</th></tr></thead><tbody>` +
+      g.items.map(([id, t]) => `<tr class="link${isOverdue(t) ? " late" : t.status === "In Progress" ? " ip" : ""}" data-goto="${esc(id)}" tabindex="0"><td class="ref">${refs.get(id) || ""}</td><td class="l">${t.key ? "★ " : ""}${esc(t.task || "Untitled task")}</td><td class="l">${cellHTML(COLS[1], t)}</td><td>${t.start ? fmtDate(t.start) : "–"}</td><td>${t.due ? fmtDate(t.due) : "–"}</td><td class="left">${left(t.due)}</td></tr>`).join("") +
+      `</tbody></table></div></div>`).join("") : `<p class="team-sub" style="margin:0">No open tasks have started or are due this week.</p>`;
+  }
+  $("#teamList").addEventListener("keydown", (e) => { const r = e.target.closest("[data-goto]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); gotoTask(r.dataset.goto, true); } });
   function renderAll() {
     renderHeader(); renderSummary(); renderMilestones(); renderPeople(); renderGrid(); renderDashboard(); renderTimeline(); renderContacts();
   }
