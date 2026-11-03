@@ -1,0 +1,190 @@
+<title>Today and Coming Up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the Today panel once for reference, then four options for the panel that follows it, each built to avoid repeating anything Today already shows. */
+:root {
+  --brand: #0047BB; --bg: #F2F5FC; --surface: #ffffff; --surface-2: #EBF0FA; --line: #CCDAF1; --ink: #1f2937; --muted: #4A5464; --faint: #8b95a7;
+  --act: #b94e00; --act-bg: #fff0dc; --act-line: #f08a1c; --red: #c81e1e; --warn-ink: #8a5a00; --ok: #1d7a46; --mt: #6a3fb5; --key: #9a6500; --today: #e8f3fd;
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; --red: #ff8a80; --warn-ink: #f2d38c; --ok: #5fd08f; --mt: #b99af0; --key: #f2bf4d; --today: #15294a; color-scheme: dark; } }
+:root[data-theme="dark"] { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffad5c; --act-bg: #3b2610; --act-line: #f59a3a; --red: #ff8a80; --warn-ink: #f2d38c; --ok: #5fd08f; --mt: #b99af0; --key: #f2bf4d; --today: #15294a; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--brand); margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; } h3 { font-size: 18px; }
+.intro p { margin: 6px 0 0; max-width: 80ch; color: var(--muted); }
+.opt { display: grid; gap: 10px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; } .opt-head span { color: var(--muted); }
+.why { margin: 0; padding-left: 18px; max-width: 92ch; display: grid; gap: 2px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; min-width: 0; }
+.ph { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 12px; } .ph small { color: var(--muted); font-size: 13px; }
+.scroll { overflow-x: auto; }
+.ref-note { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+
+/* shared table */
+.rt { width: 100%; border-collapse: collapse; font-size: 13.5px; table-layout: fixed; border: 1px solid var(--line); background: var(--surface); }
+.rt th { text-align: left; font-family: var(--f-display); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); padding: 6px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.rt td { padding: 7px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: middle; overflow-wrap: anywhere; }
+.rt td.n { white-space: nowrap; font-variant-numeric: tabular-nums; overflow-wrap: normal; }
+.rt tr.grp td { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; }
+.rt tr.grp td b { color: var(--ink); margin-left: 4px; } .rt tr.grp.r td { color: var(--red); }
+.rt tr.act td { background: color-mix(in srgb, var(--act-bg) 55%, var(--surface)); } .rt tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
+.rt tr.late td { background: color-mix(in srgb, var(--red) 8%, var(--surface)); } .rt tr.late td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.rt tr.dayh td { background: color-mix(in srgb, var(--brand) 7%, var(--surface)); color: var(--brand); font-weight: 700; font-size: 13px; }
+.rt tr.dayh td span { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 6px; }
+.rt .nt { color: var(--red); font-size: 12.5px; }
+.rf { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 0 6px; line-height: 18px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.rf.w { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 45%, transparent); }
+.rf.k { color: var(--key); border-color: #e29a00; background: color-mix(in srgb, #ffd466 18%, var(--surface)); }
+.rf.m { color: var(--mt); border-color: color-mix(in srgb, #7c4dcc 45%, transparent); }
+.pl { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 0 8px; line-height: 19px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pl.act { background: var(--act-bg); color: var(--act); } .pl.mtg { background: color-mix(in srgb, #7c4dcc 12%, var(--surface)); color: var(--mt); } .pl.done { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); color: var(--ok); }
+.left { font-weight: 600; white-space: nowrap; } .left.over { color: var(--red); } .left.today { color: var(--warn-ink); } .carried { color: var(--red); font-weight: 600; }
+.bx { width: 16px; height: 16px; border: 1.5px solid var(--faint); border-radius: 3px; display: inline-block; vertical-align: middle; background: var(--surface); }
+.bx.ip { border-color: var(--act); background: linear-gradient(135deg, var(--act-line) 50%, var(--surface) 50%); }
+.ext { color: var(--brand); font-weight: 700; text-decoration: none; }
+.ex { font-size: 10.5px; font-weight: 700; color: var(--muted); border: 1px dashed var(--faint); border-radius: 3px; padding: 0 4px; margin-left: 6px; }
+
+/* day columns */
+.wb { display: grid; grid-template-columns: 118px repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; min-width: 820px; }
+.wb > div { border-right: 1px solid color-mix(in srgb, var(--line) 60%, transparent); border-bottom: 1px solid var(--line); min-width: 0; }
+.wb .wt { grid-column: 1 / -1; background: var(--surface-2); color: var(--brand); font-family: var(--f-display); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 14px; padding: 6px 10px; }
+.wb .wt small { font-family: var(--f-body); font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 8px; font-size: 12.5px; }
+.wb .hh { background: var(--brand); color: #fff; font-family: var(--f-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 6px 8px; }
+.wb .hh.dim { background: color-mix(in srgb, var(--brand) 45%, var(--surface)); }
+.wb .ml { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; }
+.wb .mc { padding: 8px; display: grid; gap: 7px; align-content: start; }
+.wb .mc.gone { background: repeating-linear-gradient(135deg, var(--surface-2) 0 6px, var(--surface) 6px 12px); color: var(--muted); font-size: 12.5px; display: flex; align-items: center; justify-content: center; text-align: center; }
+.wb .mc .it { display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 7px; font-size: 13px; line-height: 1.3; }
+.wb .mc .it i { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; }
+.wb .mc .it .sub { display: block; font-size: 12px; color: var(--muted); }
+.wb .mc .nn { color: var(--faint); font-size: 12.5px; }
+.wb .tw { grid-column: 1 / -1; padding: 0; border-right: 0; }
+.wb .tw .tl { display: flex; justify-content: space-between; padding: 8px 10px 4px; background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.wb .tw .rt { border: 0; }
+
+/* tabs */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--line); margin-bottom: 12px; }
+.tabs button { font: inherit; font-family: var(--f-display); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; color: var(--muted); background: none; border: 0; padding: 8px 16px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tabs button[aria-selected="true"] { color: var(--brand); border-bottom-color: var(--brand); }
+.tabs button:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.tabs button b { font-family: var(--f-body); font-size: 12px; color: var(--muted); margin-left: 4px; }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Today and the look-ahead, without doubling up</h1>
+    <p>Example day: Wednesday 4 Nov. The Today panel stays as it is now (shown first, for reference). Each option below is a different second panel that shows only what Today doesn't. Items marked <span class="ex">example</span> are made up to show where future lines would go.</p>
+  </header>
+
+  <section class="opt" aria-labelledby="t">
+    <div class="opt-head"><h2 id="t">For reference · Today, as it is now</h2><span>Everything live: carried over, today, and Weinam tasks due, overdue or in progress.</span></div>
+    <div class="panel"><div class="ph"><h3>Today · Wed 4 Nov</h3><small>13 to do · 9 carried over</small></div><div class="scroll" id="today"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o1">
+    <div class="opt-head"><h2 id="o1">1 · Coming up: day columns from tomorrow</h2><span>The same week-block layout you have now, starting tomorrow.</span></div>
+    <ul class="why">
+      <li>Shows the rest of this week (Thu, Fri) and all of next week. Past days and today are greyed out with "In Today".</li>
+      <li>The Weinam table under each week lists only tasks due or starting then that <b>aren't already in Today</b>. In-progress and overdue tasks stay in Today only.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Coming up</h3><small>Thu 5 – Fri 13 Nov</small></div><div class="scroll"><div style="display:grid;gap:14px;min-width:820px" id="o1b"></div></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o2">
+    <div class="opt-head"><h2 id="o2">2 · Coming up: one dated list</h2><span>A single table in the same style as Today, grouped by day.</span></div>
+    <ul class="why">
+      <li>Every upcoming item, minutes, meetings, Weinam due dates and key dates, in one table with the same columns as Today. Each day gets a heading row.</li>
+      <li>Days with nothing on are skipped, so the list stays short. Weinam tasks already in Today are left out.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Coming up</h3><small>next two weeks · Thu 5 – Wed 18 Nov</small></div><div class="scroll" id="o2b"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o3">
+    <div class="opt-head"><h2 id="o3">3 · One panel with tabs: Today, Rest of week, Later</h2><span>Today and the look-ahead merged into one panel, one view at a time.</span></div>
+    <ul class="why">
+      <li>A single panel with three tabs. Today is the default. The other tabs show the same table for later days.</li>
+      <li>Nothing can repeat, because you only see one window at a time. The counts on the tabs tell you what's waiting. The tabs work in this mock-up.</li>
+    </ul>
+    <div class="panel"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="0">Today <b>13</b></button><button role="tab" aria-selected="false" data-tab="1">Rest of week <b>3</b></button><button role="tab" aria-selected="false" data-tab="2">Later <b>4</b></button></div><div class="scroll" id="o3b"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="o4">
+    <div class="opt-head"><h2 id="o4">4 · Weinam schedule only</h2><span>Drop your minutes from the look-ahead and keep it for project dates.</span></div>
+    <ul class="why">
+      <li>Today covers your minutes. The look-ahead becomes a Weinam-only schedule: tasks starting or due in the next two weeks, and key dates, not already in Today.</li>
+      <li>The simplest, with the least to read. You'd see future minutes lines in the My minutes tab.</li>
+    </ul>
+    <div class="panel"><div class="ph"><h3>Weinam coming up</h3><small>next two weeks · not already in Today</small></div><div class="scroll" id="o4b"></div></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const COLS = `<colgroup><col style="width:40px"><col style="width:104px"><col><col style="width:190px"><col style="width:118px"><col style="width:118px"><col style="width:116px"></colgroup>`;
+  const HEAD = `<thead><tr><th></th><th>Source</th><th>Task</th><th>Note</th><th>Status</th><th>Due</th><th>Days left</th></tr></thead>`;
+  const pill = { ip: `<span class="pl act">In progress</span>`, todo: `<span class="pl">To do</span>`, ns: `<span class="pl">Not started</span>`, mtg: `<span class="pl mtg">Meeting</span>`, key: `<span class="pl">Key date</span>` };
+  const row = (r) => `<tr class="${r.cls || ""}"><td>${r.w ? `<a class="ext" href="#">↗</a>` : `<i class="bx${r.ip ? " ip" : ""}"></i>`}</td><td><span class="rf ${r.sc || ""}">${esc(r.src)}</span></td><td>${esc(r.t)}${r.ex ? `<span class="ex">example</span>` : ""}</td><td class="nt">${esc(r.n || "")}</td><td>${r.st}</td><td class="n">${r.due}</td><td class="n">${r.left}</td></tr>`;
+  const tbl = (body) => `<table class="rt" style="min-width:820px">${COLS}${HEAD}<tbody>${body}</tbody></table>`;
+
+  // Today (unchanged)
+  const C = [["Update Weinam program", ""], ["Sort out Weinam fencing", "waiting TEA quote 3/11/26"], ["Chase EMM (Adrian) for an updated Condong heritage sign design", "emailed 2/11/26"], ["Send email to consultants about BA drawings we require", ""], ["Update program with workback date for demo, civil & piling", ""], ["Speak to Caporn & Kellers about worst case piling rig options", "spoke to & emailed 2/11/26"], ["Chase Borderline to fix Condong filter", "spoke to 2/11/26"], ["Chase Modscape Tumbi principal door replacement", "emailed 2/11/26"]];
+  let td = `<tr class="grp r"><td colspan="7">Carried over <b>9</b></td></tr>` +
+    C.map(([t, n]) => row({ t, n, ip: !!n, cls: n ? "act" : "", src: "My minutes", st: n ? pill.ip : pill.todo, due: `<span class="carried">From Mon</span>`, left: `<span class="left over">2 days over</span>` })).join("") +
+    row({ t: "Call Jesse McDonald (Lucid Consulting) re peer review", n: "emailed 2/11/26", ip: true, cls: "act", src: "My minutes", st: pill.ip, due: `<span class="carried">From Tue</span>`, left: `<span class="left over">1 day over</span>` }) +
+    `<tr class="grp"><td colspan="7">Weinam due today or in progress <b>4</b></td></tr>` +
+    row({ w: 1, t: "Traffic Control Plan – council approval", src: "Weinam 1.14", sc: "w", st: pill.ns, due: "Wed 4 Nov", left: `<span class="left today">Due today</span>` }) +
+    row({ w: 1, t: "Temp carpark closes & cars removed", src: "Weinam 5.2", sc: "w", cls: "act", st: pill.ip, due: "Wed 4 Nov", left: `<span class="left today">Due today</span>` }) +
+    row({ w: 1, t: "Chase pilers for rig / load info", src: "Weinam 3.6", sc: "w", cls: "act", st: pill.ip, due: "Fri 6 Nov", left: `<span class="left">2 days left</span>` }) +
+    row({ w: 1, t: "ADG to develop revised carpark arrangements", src: "Weinam 3.5", sc: "w", cls: "act", st: pill.ip, due: "Fri 20 Nov", left: `<span class="left">16 days left</span>` }) +
+    `<tr class="grp"><td colspan="7">Today <b>4</b></td></tr>` +
+    ["Status consultants defect reports", "Submit LSPS FRNSW schedule to BM+G", "Issue BM+G performance solutions to SINSW for approval", "Update BM+G rev 2 list"].map((t) => row({ t, src: "My minutes", st: pill.todo, due: "Wed 4 Nov", left: `<span class="left today">Due today</span>` })).join("");
+  document.getElementById("today").innerHTML = tbl(td);
+
+  // Upcoming items (not in Today)
+  const UP = [
+    { d: "Thu 5 Nov", di: 3, wk: 0, t: "Balance Weinam carpark PCR", src: "My minutes", st: pill.todo, left: "1 day left" },
+    { d: "Fri 6 Nov", di: 4, wk: 0, t: "Weinam PCG meeting · 10:00", src: "Meeting", sc: "m", st: pill.mtg, left: "2 days left", ex: true },
+    { d: "Tue 10 Nov", di: 1, wk: 1, t: "Bronze – ECI Submission (Concept Cost Plan)", src: "★ Weinam 4.3", sc: "k", st: pill.key, left: "6 days left", w: 1, n: "" },
+    { d: "Wed 11 Nov", di: 2, wk: 1, t: "Site walk with EDQ", src: "My minutes", st: pill.todo, left: "7 days left", ex: true },
+    { d: "Mon 16 Nov", di: null, t: "Update site establishment plan", src: "Weinam 3.1", sc: "w", st: pill.ns, left: "12 days left", w: 1, started: "02/11/26" },
+    { d: "Mon 16 Nov", di: null, t: "Bottom out 2 x tower crane possibility", src: "Weinam 3.4", sc: "w", st: pill.ns, left: "12 days left", w: 1, started: "02/11/26" },
+  ];
+  const upRow = (u) => row({ w: u.w, t: u.t, ex: u.ex, src: u.src, sc: u.sc, st: u.st, due: u.d, left: `<span class="left">${u.left}</span>` });
+
+  // 1: day columns from tomorrow
+  const days = [["Mon 2", "Tue 3", "Wed 4", "Thu 5", "Fri 6"], ["Mon 9", "Tue 10", "Wed 11", "Thu 12", "Fri 13"]];
+  const wbt = (wi) => {
+    let g = `<div class="wb"><div class="wt">${wi ? "Next week" : "Rest of this week"}<small>${wi ? "WK 46 · 9 – 13 Nov" : "WK 45 · Thu 5 – Fri 6 Nov"}</small></div><div class="hh"></div>` + days[wi].map((d, i) => `<div class="hh${!wi && i < 3 ? " dim" : ""}">${d}</div>`).join("") + `<div class="ml">My minutes</div>`;
+    for (let i = 0; i < 5; i++) {
+      if (!wi && i < 3) { g += `<div class="mc gone">${i === 2 ? "Today · see above" : "In Today"}</div>`; continue; }
+      const its = UP.filter((u) => u.wk === wi && u.di === i && !u.w);
+      g += `<div class="mc">${its.length ? its.map((u) => `<div class="it"><i></i><span>${esc(u.t)}${u.ex ? `<span class="ex">example</span>` : ""}${u.src === "Meeting" ? `<span class="sub">Meeting</span>` : ""}</span></div>`).join("") : `<span class="nn">Nothing yet</span>`}</div>`;
+    }
+    const wn = wi ? UP.filter((u) => u.w) : [];
+    g += `<div class="tw"><div class="tl"><span>Weinam ${wi ? "next week" : "rest of this week"} · ${wn.length}</span></div>` + (wn.length ? `<table class="rt"><colgroup><col style="width:104px"><col><col style="width:118px"><col style="width:92px"><col style="width:118px"><col style="width:116px"></colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>${wn.map((u) => `<tr><td><span class="rf ${u.sc}">${esc(u.src)}</span></td><td>${esc(u.t)}</td><td>${u.st}</td><td class="n">${u.started || "–"}</td><td class="n">${u.d}</td><td class="n"><span class="left">${u.left}</span></td></tr>`).join("")}</tbody></table>` : `<div style="padding:8px 10px;color:var(--faint);font-size:12.5px">Nothing new from Weinam. In-progress and overdue tasks are in Today.</div>`) + `</div>`;
+    return g + `</div>`;
+  };
+  document.getElementById("o1b").innerHTML = wbt(0) + wbt(1);
+
+  // 2: one dated list
+  const byDay = {}; UP.forEach((u) => (byDay[u.d] = byDay[u.d] || []).push(u));
+  document.getElementById("o2b").innerHTML = tbl(Object.entries(byDay).map(([d, list]) => `<tr class="dayh"><td colspan="7">${d}<span>${list[0].left}</span></td></tr>` + list.map(upRow).join("")).join(""));
+
+  // 3: tabs
+  const panes = [td, UP.filter((u) => u.wk === 0).map(upRow).join(""), UP.filter((u) => u.wk === 1 || u.di === null).map(upRow).join("")];
+  const o3 = document.getElementById("o3b"); const show = (i) => { o3.innerHTML = tbl(panes[i]); document.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-selected", String(+b.dataset.tab === i))); };
+  document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) show(+b.dataset.tab); });
+  show(0);
+
+  // 4: Weinam only
+  const W4 = UP.filter((u) => u.w).concat([{ d: "Wed 18 Nov", t: "Site establishment - Submit package to client", src: "Weinam 2.4", sc: "w", st: pill.ns, left: "14 days left", w: 1, started: "18/11/26 (starts)" }]);
+  document.getElementById("o4b").innerHTML = `<table class="rt" style="min-width:760px"><colgroup><col style="width:104px"><col><col style="width:118px"><col style="width:120px"><col style="width:118px"><col style="width:116px"></colgroup><thead><tr><th>Ref</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` +
+    W4.map((u) => `<tr><td><span class="rf ${u.sc}">${esc(u.src)}</span></td><td>${esc(u.t)}</td><td>${u.st}</td><td class="n">${u.started || "–"}</td><td class="n">${u.d}</td><td class="n"><span class="left">${u.left}</span></td></tr>`).join("") + `</tbody></table>`;
+})();
+</script>
