@@ -1907,6 +1907,17 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       if (!groups.has(k)) groups.set(k, { by, items: [] });
       groups.get(k).items.push({ ...x, late: x.a.due && x.a.due < t0 ? -daysFrom(x.a.due, t0) : 0 });
     });
+    // Weinam checklist tasks owned by others: already started and not closed out, or due by the end of this week.
+    const weekEnd = isoOf(addDays(mondayOf(new Date()), 6));
+    if (weinam && Array.isArray(weinam.others)) weinam.others.forEach((t) => {
+      const by = (t.champion || "").trim();
+      if (!by || mine(by) || t.status === "Complete" || t.status === "N/A this project") return;
+      const started = (t.start && t.start <= t0) || t.status === "In Progress";
+      if (!started && !(t.due && t.due <= weekEnd)) return;
+      const k = by.toUpperCase();
+      if (!groups.has(k)) groups.set(k, { by, items: [] });
+      groups.get(k).items.push({ wn: t, a: { text: t.task || "Untitled task", due: t.due || "" }, late: t.due && t.due < t0 ? -daysFrom(t.due, t0) : 0 });
+    });
     waitGroups = [...groups.values()].map((g) => ({ ...g, person: personFor(g.by), items: g.items.sort((a, b) => b.late - a.late || (a.a.due || "9").localeCompare(b.a.due || "9")) }))
       .sort((a, b) => (b.items[0].late || 0) - (a.items[0].late || 0) || b.items.length - a.items.length);
     const total = waitGroups.reduce((n, g) => n + g.items.length, 0), late = waitGroups.reduce((n, g) => n + g.items.filter((x) => x.late).length, 0);
@@ -1914,8 +1925,10 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#woList").innerHTML = waitGroups.length ? waitGroups.map((g, gi) => {
       const ini = g.by.length <= 4 ? g.by.toUpperCase() : g.by.split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase();
       return `<div class="who-g"><div class="who-h"><span class="ini">${esc(ini)}</span><b>${esc(g.person.name)}</b>${g.person.company ? `<span class="mm-small">${esc(g.person.company)}</span>` : ""}<button class="btn" type="button" data-chase="${gi}">Copy chase-up</button></div>` +
-        g.items.map((x, n) => `<div class="w-row"><span><a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a> <span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span>${x.late ? `<span class="tag od">${x.late} day${x.late === 1 ? "" : "s"} overdue</span>` : x.a.due ? `<span class="tag dt">Due ${shortIso(x.a.due)}</span>` : `<span class="tag">No due date</span>`}</div>`).join("") + `</div>`;
-    }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything from your meetings right now. Actions assigned to other people in Meeting minutes show up here.</p>`;
+        g.items.map((x, n) => `<div class="w-row${x.wn && x.wn.status === "In Progress" ? " act" : ""}"><span>${x.wn
+          ? `<a href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam">${esc(x.a.text)}</a> <span class="tag">Weinam ${esc(x.wn.ref || "")}</span>${x.wn.status === "In Progress" ? ` <span class="tag act">In progress</span>` : ""}`
+          : `<a href="#" data-wo-open="${gi}:${n}">${esc(x.a.text)}</a> <span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span>`}</span>${x.late ? `<span class="tag od">${x.late} day${x.late === 1 ? "" : "s"} overdue</span>` : x.a.due ? `<span class="tag dt">Due ${shortIso(x.a.due)}</span>` : `<span class="tag">No due date</span>`}</div>`).join("") + `</div>`;
+    }).join("") : `<p class="mm-small" style="margin:0">Nobody owes you anything right now. Actions assigned to other people in Meeting minutes, and Weinam tasks other people have started or have due this week, show up here.</p>`;
   }
   async function copyText(text, label) {
     try { await navigator.clipboard.writeText(text); toast(label); return true; }
@@ -1932,8 +1945,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     if (!c) return;
     const g = waitGroups[+c.dataset.chase]; if (!g) return;
     const first = (g.person.name || g.by).split(/\s+/)[0];
-    const lines = g.items.map((x) => `- ${x.a.text} (${x.m.title || x.m.type + " meeting"}${x.m.date ? " " + shortIso(x.m.date) : ""}, item ${x.i + 1}.${x.j + 1}${x.a.due ? `, due ${shortIso(x.a.due)}` : ""}${x.late ? ` – ${x.late} day${x.late === 1 ? "" : "s"} overdue` : ""})`);
-    copyText(`Hi ${first},\n\nJust following up on the open action${g.items.length === 1 ? "" : "s"} from our meetings:\n\n${lines.join("\n")}\n\nCould you please let me know where ${g.items.length === 1 ? "this is" : "these are"} at?\n\nThanks,\n${(myName || "Tom").split(/\s+/)[0]}`, `Chase-up for ${first} copied. Paste it into an email or Teams.`);
+    const lines = g.items.map((x) => x.wn ? `- ${x.a.text} (Weinam checklist ${x.wn.ref || ""}${x.a.due ? `, due ${shortIso(x.a.due)}` : ""}${x.late ? ` – ${x.late} day${x.late === 1 ? "" : "s"} overdue` : ""})` : `- ${x.a.text} (${x.m.title || x.m.type + " meeting"}${x.m.date ? " " + shortIso(x.m.date) : ""}, item ${x.i + 1}.${x.j + 1}${x.a.due ? `, due ${shortIso(x.a.due)}` : ""}${x.late ? ` – ${x.late} day${x.late === 1 ? "" : "s"} overdue` : ""})`);
+    copyText(`Hi ${first},\n\nJust following up on the open item${g.items.length === 1 ? "" : "s"} below:\n\n${lines.join("\n")}\n\nCould you please let me know where ${g.items.length === 1 ? "this is" : "these are"} at?\n\nThanks,\n${(myName || "Tom").split(/\s+/)[0]}`, `Chase-up for ${first} copied. Paste it into an email or Teams.`);
   });
 
   // #8 3-week look-ahead: this week and the next two, Monday to Friday.
