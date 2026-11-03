@@ -25,7 +25,7 @@ https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
 - Approved productivity features (see `personal/mockup.html`):
   - **Today** (Dashboard): today's My minutes items plus unticked ones from earlier this week, Weinam TW items due/overdue, and your meeting actions due/overdue, overdue first, tickable in place.
   - **Waiting on others** (Dashboard): open meeting actions owned by anyone else, grouped by person, with a Copy chase-up message.
-  - **3-week look-ahead** (Dashboard): this week and the next two, combining Weinam key dates and TW due dates, meetings, your meeting actions and My minutes.
+  - **2-week look-ahead** (Dashboard): this week and the next two, combining Weinam key dates and TW due dates, meetings, your meeting actions and My minutes.
   - **Recurring tasks** (My minutes › ↻ Recurring): weekly, fortnightly or first/last-weekday-of-month tasks, stored in the private `recurring` document and added once per week from the current week on.
   - **Copy email** (each meeting): email-ready summary with open actions grouped by person.
   - **Export action register** (Meeting minutes list): every action from every meeting in one styled .xlsx with filters.

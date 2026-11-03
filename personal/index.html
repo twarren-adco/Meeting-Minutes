@@ -338,21 +338,42 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .who-h .btn { margin-left: auto; height: 28px; font-size: 12px; }
 .w-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13.5px; padding-left: 38px; }
 .w-row a { color: var(--ink); text-decoration: none; } .w-row a:hover { text-decoration: underline; color: var(--head); }
-.la-wrap { overflow-x: auto; }
-.la { display: grid; grid-template-columns: 64px repeat(5, minmax(120px, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; min-width: 700px; }
-.la > div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px; min-height: 66px; display: grid; align-content: start; gap: 4px; min-width: 0; }
-.la .hd { background: var(--thead); color: var(--thead-ink); min-height: 0; font-family: var(--f-display); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
-.la .wk { background: var(--surface-2); color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 13px; }
-.la .d { font-size: 11.5px; color: var(--muted); }
-.la .now { box-shadow: inset 0 3px 0 var(--sky); }
-.la .past { background: var(--bg); }
-.ev { font-size: 11.5px; font-weight: 600; border-radius: 3px; padding: 2px 5px; line-height: 1.25; border: 0; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
-.ev.key { background: #fff4d6; color: #7a5200; box-shadow: inset 3px 0 0 #e29a00; }
-.ev.tw { background: #e1eafb; color: #0047bb; }
-.ev.mt { background: #efe8fb; color: #6a3fb5; }
-.ev.me { background: var(--surface-2); color: var(--ink); }
-.ev.late { box-shadow: inset 3px 0 0 var(--red); }
-.ev.more { background: none; color: var(--muted); font-weight: 500; padding: 0; cursor: default; }
+.la { display: grid; grid-template-columns: 92px repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.la > div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px; min-height: 90px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.la .hd { background: var(--thead); color: var(--thead-ink); min-height: 0; padding: 7px 8px; font-family: var(--f-display); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+.la .wk { background: var(--surface-2); color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: 14px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.15; }
+.la .wk small { display: block; font-family: var(--f-body); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.la .d { font-size: 12px; font-weight: 600; color: var(--muted); }
+.la .d .wd { display: none; }
+.la .now { background: color-mix(in srgb, var(--sky) 9%, var(--surface)); box-shadow: inset 0 3px 0 var(--sky); }
+.la .now .d { color: var(--head); }
+.la .past > .ev { opacity: .78; }
+.la .none { font-size: 12px; color: var(--faint); }
+.ev { display: block; font: inherit; font-size: 13px; line-height: 1.3; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--line-strong); border-radius: 4px; padding: 5px 7px 6px; text-align: left; cursor: pointer; overflow-wrap: anywhere; text-decoration: none; width: 100%; }
+.ev:hover { border-color: var(--line-strong); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.ev .src { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.ev .b { font-size: 10px; font-weight: 700; letter-spacing: .04em; border-radius: 3px; padding: 0 4px; line-height: 15px; border: 1px solid; }
+.ev .b.act { color: var(--act); border-color: var(--act-line); background: var(--act-bg); }
+.ev .b.late { color: var(--red); border-color: color-mix(in srgb, var(--red) 55%, transparent); }
+.ev.key { border-left-color: #e29a00; background: color-mix(in srgb, #ffd466 16%, var(--surface)); } .ev.key .src { color: #9a6500; }
+.ev.tw { border-left-color: #0047bb; } .ev.tw .src { color: var(--head); }
+.ev.mt { border-left-color: #7c4dcc; } .ev.mt .src { color: #6a3fb5; }
+.ev.me { border-left-color: var(--faint); }
+.ev.act { border-left-color: var(--act-line); background: var(--act-bg); }
+.ev.late { border-left-color: var(--red); }
+.legend i.lg { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--line); border-left: 4px solid; }
+.lg.key { border-left-color: #e29a00 !important; } .lg.tw { border-left-color: #0047bb !important; } .lg.mt { border-left-color: #7c4dcc !important; } .lg.me { border-left-color: var(--faint) !important; }
+.lg.act { border-left-color: var(--act-line) !important; background: var(--act-bg); } .lg.late { border-left-color: var(--red) !important; }
+.la-legend { margin: -4px 0 10px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ev.key .src { color: #f2bf4d; } :root:not([data-theme="light"]) .ev.mt .src { color: #b99af0; } }
+:root[data-theme="dark"] .ev.key .src { color: #f2bf4d; } :root[data-theme="dark"] .ev.mt .src { color: #b99af0; }
+@media (max-width: 760px) {
+  .la { grid-template-columns: minmax(0, 1fr); }
+  .la .hd { display: none; }
+  .la > div { min-height: 0; }
+  .la .d .wd { display: inline; }
+  .la .empty { display: none; }
+}
 .rec-rule { display: grid; grid-template-columns: minmax(0, 1fr) 130px 120px 120px 28px; gap: 8px; align-items: center; }
 .rec-rule input, .rec-rule select { height: 32px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 8px; min-width: 0; }
 .row.rec .task::after { content: " ↻"; color: var(--ok); font-weight: 700; }
@@ -455,18 +476,14 @@ table.mm-t { width: 100%; border-collapse: collapse; }
         <h2 id="tdHead">Today</h2>
         <ul class="today-list" id="tdList"></ul>
       </section>
-      <section class="panel wide" aria-label="3-week look-ahead">
-        <h2 id="laHead">3-week look-ahead</h2>
-        <div class="la-wrap"><div class="la" id="laGrid"></div></div>
-        <div class="legend"><span><i style="background:#fff4d6;box-shadow:inset 3px 0 0 #e29a00"></i>Weinam key date</span><span><i style="background:#e1eafb"></i>Weinam TW due</span><span><i style="background:#efe8fb"></i>Meeting / my meeting action</span><span><i style="background:var(--surface-2)"></i>My minutes</span></div>
+      <section class="panel wide" aria-label="2-week look-ahead">
+        <h2 id="laHead">2-week look-ahead</h2>
+        <div class="legend la-legend"><span><i class="lg key"></i>Weinam key date</span><span><i class="lg tw"></i>Weinam task (TW)</span><span><i class="lg mt"></i>Meeting / my meeting action</span><span><i class="lg me"></i>My minutes</span><span><i class="lg act"></i>In action</span><span><i class="lg late"></i>Overdue</span></div>
+        <div class="la" id="laGrid"></div>
       </section>
-      <section class="panel" aria-label="Waiting on others">
+      <section class="panel wide" aria-label="Waiting on others">
         <h2 id="woHead">Waiting on others</h2>
         <div id="woList"></div>
-      </section>
-      <section class="panel">
-        <h2>Open actions this week</h2>
-        <div class="tbl-wrap"><table class="dt" id="dOpen"></table></div>
       </section>
       <section class="panel wide" aria-label="My Weinam actions">
         <div class="wn-head">
@@ -1122,11 +1139,6 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     $("#dDays").innerHTML = `<thead><tr><th>Day</th><th class="l">Date</th><th>Total</th><th>Done</th><th>In action</th><th>Open</th><th>Breakdown</th></tr></thead><tbody>` +
       lists.map((d) => `<tr class="link${d.date && sameDay(d.date, today) ? " today" : ""}" data-go="${d.scope}"><td>${d.name}${d.date && sameDay(d.date, today) ? " · Today" : ""}</td><td class="l">${d.date ? short(d.date) : "No fixed day"}</td><td><b>${d.n}</b></td><td>${num(d.k)}</td><td>${d.a ? `<b style="color:var(--act)">${d.a}</b>` : num(0)}</td><td>${num(d.n - d.k - d.a)}</td><td class="bar-cell"><div class="bar">${barHtml(d.k, d.n - d.k - d.a, d.a)}</div></td></tr>`).join("") + `</tbody>`;
 
-    const openRows = [];
-    lists.forEach((d) => d.list.forEach((t, i) => { if (!t.h && t.t.trim() && !t.done) openRows.push({ d, t, i }); }));
-    $("#dOpen").innerHTML = openRows.length
-      ? `<thead><tr><th>Day</th><th class="l">Action</th></tr></thead><tbody>` + openRows.map((o) => `<tr class="link" data-go="${o.d.scope}" data-idx="${o.i}"><td><span class="daytag">${o.d.name === "Overflow" ? "Overflow" : o.d.name.slice(0, 3)}</span></td><td class="l">${taskHtml(o.t)}${isAct(o.t) ? ` <span class="tag act">In action</span>` : ""}</td></tr>`).join("") + `</tbody>`
-      : `<tbody><tr><td class="l" style="color:var(--muted)">${total ? "Everything this week is ticked off." : "Nothing logged this week yet."}</td></tr></tbody>`;
 
     // Group the misc list under its headings ("No heading" for lines above the first one).
     const shown = []; let g = { name: "", n: 0, k: 0 };
@@ -1823,7 +1835,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const my = ++prodToken;
     if (!meetLoaded) await loadMeetings();
     const thisMon = mondayOf(new Date());
-    const weeks = [thisMon, addDays(thisMon, 7), addDays(thisMon, 14)];
+    const weeks = [thisMon, addDays(thisMon, 7)];
     const data = await Promise.all(weeks.map((m) => (sameDay(m, monday) ? week : readWeek(m))));
     if (my !== prodToken) return;
     renderToday(data[0], thisMon); renderWaiting(); renderLookahead(weeks, data);
@@ -1949,32 +1961,36 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     copyText(`Hi ${first},\n\nJust following up on the open item${g.items.length === 1 ? "" : "s"} below:\n\n${lines.join("\n")}\n\nCould you please let me know where ${g.items.length === 1 ? "this is" : "these are"} at?\n\nThanks,\n${(myName || "Tom").split(/\s+/)[0]}`, `Chase-up for ${first} copied. Paste it into an email or Teams.`);
   });
 
-  // #8 3-week look-ahead: this week and the next two, Monday to Friday.
+  // #8 2-week look-ahead: this week and next, Monday to Friday.
   let laItems = [];
   function renderLookahead(weeks, data) {
-    const t0 = isoToday(), from = isoOf(weeks[0]), to = isoOf(addDays(weeks[2], 4));
+    weeks = weeks.slice(0, 2); data = data.slice(0, 2);
+    const t0 = isoToday(), from = isoOf(weeks[0]), to = isoOf(addDays(weeks[1], 4));
     const cells = new Map(); laItems = [];
     const add = (iso, ev) => { if (!iso || iso < from || iso > to) return; if (!cells.has(iso)) cells.set(iso, []); ev.n = laItems.length; laItems.push(ev); cells.get(iso).push(ev); };
     if (weinam) {
-      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", text: "★ " + t.task, link: wnTaskUrl(t), rank: 0 }));
-      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; add(t.due, { cls: (t.status === "In Progress" ? "tw act" : "tw") + (t.due < t0 ? " late" : ""), text: t.task, link: wnTaskUrl(t), rank: 1 }); });
+      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", src: `★ Key date${t.ref ? " · Weinam " + t.ref : ""}`, text: t.task, link: wnTaskUrl(t), rank: 0, done: t.status === "Complete" }));
+      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; const act = t.status === "In Progress", late = t.due < t0; add(t.due, { cls: "tw" + (act ? " act" : "") + (late ? " late" : ""), src: `Weinam ${t.ref || ""}`, act, late, text: t.task, link: wnTaskUrl(t), rank: 1 }); });
     }
     for (const m of meetings.values()) {
-      add(m.date, { cls: "mt", text: (m.time ? m.time + " " : "") + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
-      if (m.next.date && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) add(m.next.date, { cls: "mt", text: "Next: " + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
+      add(m.date, { cls: "mt", src: "Meeting" + (m.time ? " · " + m.time : ""), text: m.title || m.type + " meeting", meet: m.id, rank: 2 });
+      if (m.next.date && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) add(m.next.date, { cls: "mt", src: "Next meeting" + (m.next.time ? " · " + m.next.time : ""), text: m.title || m.type + " meeting", meet: m.id, rank: 2 });
     }
-    allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent) add(a.due, { cls: "mt" + (a.due < t0 ? " late" : ""), text: a.text, meet: m.id, rank: 3 }); });
-    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) add(isoOf(addDays(mon, d)), { cls: isAct(t) ? "me act" : "me", text: (t.rec ? "↻ " : "") + t.t, mon, scope: String(d), idx, rank: 4 }); })));
-    $("#laHead").innerHTML = `3-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[2], 4))}</small>`;
+    allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent) { const late = a.due < t0; add(a.due, { cls: "mt" + (late ? " late" : ""), src: "My meeting action", late, text: a.text, meet: m.id, rank: 3 }); } });
+    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) { const act = isAct(t); add(isoOf(addDays(mon, d)), { cls: act ? "me act" : "me", src: t.rec ? "My minutes · ↻ recurring" : "My minutes", act, text: t.t, mon, scope: String(d), idx, rank: 4 }); } })));
+    $("#laHead").innerHTML = `2-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[1], 4))}</small>`;
+    const card = (ev) => {
+      const badges = (ev.act ? `<span class="b act">In action</span>` : "") + (ev.late ? `<span class="b late">Overdue</span>` : "");
+      const inner = `<span class="src">${esc(ev.src)}${badges}</span>${esc(ev.text)}`;
+      return ev.link ? `<a class="ev ${ev.cls}" href="${ev.link}" target="_blank" rel="noopener" title="Open in Weinam">${inner}</a>` : `<button class="ev ${ev.cls}" type="button" data-la="${ev.n}">${inner}</button>`;
+    };
     let h = `<div class="hd">Week</div>` + DAYS.map((d) => `<div class="hd">${d.slice(0, 3)}</div>`).join("");
-    weeks.forEach((mon) => {
-      h += `<div class="wk">WK ${pad(isoWeek(mon).wk)}</div>`;
+    weeks.forEach((mon, wi) => {
+      h += `<div class="wk">${wi === 0 ? "This week" : "Next week"}<small>WK ${pad(isoWeek(mon).wk)}</small></div>`;
       for (let d = 0; d < NDAYS; d++) {
-        const iso = isoOf(addDays(mon, d)), evs = (cells.get(iso) || []).sort((a, b) => a.rank - b.rank);
-        const shown = evs.slice(0, 4), more = evs.length - shown.length;
-        h += `<div class="${iso === t0 ? "now" : iso < t0 ? "past" : ""}"><span class="d">${short(addDays(mon, d))}</span>` +
-          shown.map((ev) => (ev.link ? `<a class="ev ${ev.cls}" href="${ev.link}" target="_blank" rel="noopener" style="text-decoration:none">${esc(ev.text)}</a>` : `<button class="ev ${ev.cls}" type="button" data-la="${ev.n}">${esc(ev.text)}</button>`)).join("") +
-          (more ? `<span class="ev more">+${more} more</span>` : "") + `</div>`;
+        const day = addDays(mon, d), iso = isoOf(day), evs = (cells.get(iso) || []).sort((a, b) => a.rank - b.rank);
+        h += `<div class="${iso === t0 ? "now" : iso < t0 ? "past" : ""}${evs.length ? "" : " empty"}"><span class="d"><span class="wd">${DAYS[d]} </span>${short(day)}${iso === t0 ? " · Today" : ""}</span>` +
+          (evs.length ? evs.map(card).join("") : `<span class="none">Nothing scheduled</span>`) + `</div>`;
       }
     });
     $("#laGrid").innerHTML = h;
