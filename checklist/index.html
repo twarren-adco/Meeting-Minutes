@@ -2150,7 +2150,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (!db) { renderAll(); setLive(); return; }
     if (user) {
       myId = await user.id();
-      try { myName = ((await user.me()) || {}).name || ""; } catch {}
+      Promise.resolve().then(() => user.me()).then((m) => { myName = (m && m.name) || ""; renderDashboard(); }, () => {});
       const can = await user.can("data.write");
       canWrite = can !== false;
       if (can === true) confirmedWriter = true;
