@@ -365,6 +365,49 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .lg.key { border-left-color: #e29a00 !important; } .lg.tw { border-left-color: #0047bb !important; } .lg.mt { border-left-color: #7c4dcc !important; } .lg.me { border-left-color: var(--faint) !important; }
 .lg.act { border-left-color: var(--act-line) !important; background: var(--act-bg); } .lg.late { border-left-color: var(--red) !important; }
 .la-legend { margin: -4px 0 10px; }
+/* B2 look-ahead: one block per week, Weinam bars on top, my minutes under the same five day columns */
+.la-scroll { overflow-x: auto; }
+.lab { display: grid; gap: 16px; min-width: 860px; }
+.wb { display: grid; grid-template-columns: 240px repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.wb > div { border-bottom: 1px solid var(--line); border-right: 1px solid color-mix(in srgb, var(--line) 60%, transparent); min-width: 0; }
+.wb .wn-t { grid-column: 1 / -1; background: var(--surface-2); color: var(--head); font-family: var(--f-display); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 14px; padding: 6px 10px; display: flex; gap: 10px; align-items: baseline; }
+.wb .wn-t small { font-family: var(--f-body); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 12.5px; color: var(--muted); }
+.wb .hh { background: var(--thead); color: var(--thead-ink); font-family: var(--f-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 6px 8px; }
+.wb .hh.now { box-shadow: inset 0 -3px 0 var(--sky); }
+.wb .rl { display: flex; align-items: center; gap: 7px; padding: 4px 10px; font-size: 13px; min-width: 0; }
+.wb .rl a { color: var(--ink); text-decoration: none; overflow: hidden; min-width: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.wb .rl a:hover { text-decoration: underline; color: var(--head); }
+.wb .rl .rf { flex: none; font-size: 11px; font-weight: 700; color: var(--head); border: 1px solid color-mix(in srgb, var(--head) 40%, transparent); border-radius: 3px; padding: 0 5px; line-height: 18px; }
+.wb .rl .rf.k { color: var(--key-ink, #9a6500); border-color: #e29a00; background: color-mix(in srgb, #ffd466 18%, var(--surface)); }
+.wb .sp { padding: 4px; display: flex; align-items: center; }
+.wb .sp.now, .wb .gp.now { background: color-mix(in srgb, var(--sky) 6%, transparent); }
+.wbar { width: 100%; height: 22px; border-radius: 3px; font-size: 11.5px; font-weight: 600; padding: 0 7px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; text-decoration: none; background: color-mix(in srgb, #0047bb 16%, var(--surface)); border: 1px solid color-mix(in srgb, #0047bb 50%, transparent); color: var(--head); }
+.wbar:hover { filter: brightness(.97); }
+.wbar.act { background: var(--act-bg); border-color: var(--act-line); color: var(--act); }
+.wbar.late { background: color-mix(in srgb, var(--red) 12%, var(--surface)); border-color: color-mix(in srgb, var(--red) 55%, transparent); color: var(--red); }
+.wbar.cont { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 2px dashed currentColor; }
+.wbar.pre { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 2px dashed currentColor; }
+.kd { display: inline-block; width: 11px; height: 11px; background: #e29a00; transform: rotate(45deg); flex: none; }
+.wb .kdc { display: flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; color: var(--key-ink, #9a6500); text-decoration: none; }
+.wb .ml { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; }
+.wb .mc { padding: 8px; background: var(--surface); }
+.wb .mc.now { background: color-mix(in srgb, var(--sky) 8%, var(--surface)); }
+.wb .mc ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.wb .mc li button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 7px; font-size: 13px; line-height: 1.3; color: var(--ink); width: 100%; overflow-wrap: anywhere; }
+.wb .mc li button:hover .tx { text-decoration: underline; color: var(--head); }
+.wb .mc li button:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; border-radius: 2px; }
+.wb .mc .bx { width: 12px; height: 12px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; }
+.wb .mc li.act .bx { border-color: var(--act); background: var(--act-line); }
+.wb .mc li.mtg .bx { border-color: #7c4dcc; border-radius: 50%; }
+.wb .mc .nt { display: block; color: var(--act); font-size: 12px; }
+.wb .mc .sub { display: block; color: var(--muted); font-size: 11.5px; }
+.wb .mc .nn { color: var(--faint); font-size: 12px; }
+.wb .mc.past .tx { color: var(--muted); }
+.wb .nowb { padding: 8px 10px; color: var(--faint); font-size: 12.5px; grid-column: 1 / -1; }
+.legend i.kd { width: 10px; height: 10px; border-radius: 0; }
+@media (max-width: 760px) { .lab { min-width: 720px; } .wb { grid-template-columns: 170px repeat(5, minmax(0, 1fr)); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --key-ink: #f2bf4d; } }
+:root[data-theme="dark"] { --key-ink: #f2bf4d; }
 .la .wk { grid-row: span 2; }
 .la .band { grid-column: 2 / -1; min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 7px 8px; background: var(--surface-2); }
 .la .band .bl { font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
@@ -493,8 +536,8 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       </section>
       <section class="panel wide" aria-label="2-week look-ahead">
         <h2 id="laHead">2-week look-ahead</h2>
-        <div class="legend la-legend"><span><i class="lg key"></i>Weinam key date</span><span><i class="lg tw"></i>Weinam task (TW)</span><span><i class="lg mt"></i>Meeting / my meeting action</span><span><i class="lg me"></i>My minutes</span><span><i class="lg act"></i>In action</span><span><i class="lg late"></i>Overdue</span></div>
-        <div class="la" id="laGrid"></div>
+        <div class="legend la-legend"><span><i class="lg tw"></i>Weinam task (TW), start to due</span><span><i class="lg act"></i>In action</span><span><i class="lg late"></i>Overdue</span><span><i class="kd" aria-hidden="true"></i>Key date</span><span><i class="lg mt"></i>Meeting / my meeting action</span></div>
+        <div class="la-scroll"><div class="lab" id="laGrid"></div></div>
         <div class="la-nodate" id="laNoDate" hidden></div>
       </section>
       <section class="panel wide" aria-label="Waiting on others">
@@ -1860,6 +1903,15 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const late = -daysFrom(a.due, t0);
       items.push({ kind: "mt", m, a, i, j, text: a.text, done: a.done, late, sort: a.done ? 3 : late ? 0 : 1, due: a.due });
     });
+    // One entry per job: a My minutes line that repeats a Weinam task keeps the tickable line and takes the Weinam tag.
+    const wnItems = items.filter((x) => x.kind === "wn");
+    for (const x of items) {
+      if (x.kind !== "me") continue;
+      const w = sameAsWeinam(x.text, wnItems.map((y) => ({ task: y.text, y })));
+      if (!w) continue;
+      x.wn = w.y; x.act = x.act || w.y.act; w.y.merged = true;
+    }
+    for (let i = items.length - 1; i >= 0; i--) if (items[i].merged) items.splice(i, 1);
     items.sort((x, y) => x.sort - y.sort || y.late - x.late);
     todayItems = items;
     const open = items.filter((x) => !x.done).length, late = items.filter((x) => !x.done && x.late).length, done = items.length - open;
@@ -1869,7 +1921,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
       if (x.kind === "wn") return `<li class="${x.act ? "act" : ""}"><a class="ext" href="${x.link}" target="_blank" rel="noopener" title="Open this task in Weinam">↗</a><span class="tt"><a href="${x.link}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
       if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
-      return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
+      return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}${x.wn ? `<a class="tag" href="${x.wn.link}" target="_blank" rel="noopener" title="Also on the Weinam checklist">Weinam ${esc(x.wn.ref)}</a>` : `<span class="tag">My minutes</span>`}</span></li>`;
     }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
   }
   $("#tdList").addEventListener("click", async (e) => {
@@ -1957,54 +2009,87 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 
   // #8 2-week look-ahead: this week and next, Monday to Friday.
   let laItems = [];
+  // A My minutes line counts as the same item as a Weinam task when its wording starts with the task's wording
+  // (the minutes copy often adds a note such as "- emailed 2/11/26").
+  const normTxt = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  function sameAsWeinam(text, wnTasks) {
+    const a = normTxt(text); if (a.length < 6) return null;
+    return wnTasks.find((t) => { const b = normTxt(t.task); return b.length >= 6 && (a === b || a.startsWith(b + " ") || (b.startsWith(a + " ") && a.length >= 12)); }) || null;
+  }
+  // Split a minutes line into its main text and the red note (e.g. "emailed 2/11/26").
+  function splitNote(t) {
+    if (!t.r) return { main: t.t, note: "" };
+    const box = document.createElement("div"); box.innerHTML = clean(t.r);
+    const note = [...box.querySelectorAll(".red")].map((e) => e.textContent.trim()).filter(Boolean).join(" ");
+    if (!note) return { main: t.t, note: "" };
+    let main = t.t; for (const e of box.querySelectorAll(".red")) main = main.replace(e.textContent, " ");
+    main = main.replace(/\s+/g, " ").replace(/[\s\-–:,]+$/, "").trim();
+    return main ? { main, note } : { main: t.t, note: "" };
+  }
   function renderLookahead(weeks, data) {
     weeks = weeks.slice(0, 2); data = data.slice(0, 2);
-    const t0 = isoToday(), from = isoOf(weeks[0]), to = isoOf(addDays(weeks[1], 4));
-    const cells = new Map(); laItems = [];
-    const add = (iso, ev) => { if (!iso || iso < from || iso > to) return; if (!cells.has(iso)) cells.set(iso, []); ev.n = laItems.length; laItems.push(ev); cells.get(iso).push(ev); };
-    if (weinam) {
-      (weinam.keyTasks || []).forEach((t) => add(t.due || t.start, { cls: "key", src: `★ Key date${t.ref ? " · Weinam " + t.ref : ""}`, text: t.task, link: wnTaskUrl(t), rank: 0, done: t.status === "Complete" }));
-      (weinam.tasks || []).forEach((t) => { if (t.status === "Complete" || t.status === "N/A this project" || t.key) return; const act = t.status === "In Progress", late = t.due < t0; add(t.due, { cls: "tw" + (act ? " act" : "") + (late ? " late" : ""), src: `Weinam ${t.ref || ""}`, act, late, text: t.task, link: wnTaskUrl(t), rank: 1 }); });
-    }
-    for (const m of meetings.values()) {
-      add(m.date, { cls: "mt", src: "Meeting" + (m.time ? " · " + m.time : ""), text: m.title || m.type + " meeting", meet: m.id, rank: 2 });
-      if (m.next.date && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) add(m.next.date, { cls: "mt", src: "Next meeting" + (m.next.time ? " · " + m.next.time : ""), text: m.title || m.type + " meeting", meet: m.id, rank: 2 });
-    }
-    allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent) { const late = a.due < t0; add(a.due, { cls: "mt" + (late ? " late" : ""), src: "My meeting action", late, text: a.text, meet: m.id, rank: 3 }); } });
-    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) { const act = isAct(t); add(isoOf(addDays(mon, d)), { cls: act ? "me act" : "me", src: t.rec ? "My minutes · ↻ recurring" : "My minutes", act, text: t.t, mon, scope: String(d), idx, rank: 4 }); } })));
-    $("#laHead").innerHTML = `2-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[1], 4))}</small>`;
-    const card = (ev) => {
-      const badges = (ev.act ? `<span class="b act">In action</span>` : "") + (ev.late ? `<span class="b late">Overdue</span>` : "");
-      const inner = `<span class="src">${esc(ev.src)}${badges}</span>${esc(ev.text)}`;
-      return ev.link ? `<a class="ev ${ev.cls}" href="${ev.link}" target="_blank" rel="noopener" title="Open in Weinam">${inner}</a>` : `<button class="ev ${ev.cls}" type="button" data-la="${ev.n}">${inner}</button>`;
-    };
-    let h = `<div class="hd">Week</div>` + DAYS.map((d) => `<div class="hd">${d.slice(0, 3)}</div>`).join("");
-    // Weinam TW tasks that run across the week: started (or starting) by Friday but due after it.
+    const t0 = isoToday(); laItems = [];
     const openTw = weinam ? (weinam.tasks || []).filter((t) => t.status !== "Complete" && t.status !== "N/A this project") : [];
-    const ongoing = (mon) => {
-      const m0 = isoOf(mon), fri = isoOf(addDays(mon, 4));
-      return openTw.filter((t) => (t.start || (t.status === "In Progress" ? m0 : "")) && (t.start || m0) <= fri && (!t.due || t.due > fri))
-        .sort((a, b) => (a.status === "In Progress" ? 0 : 1) - (b.status === "In Progress" ? 0 : 1) || (a.due || "9").localeCompare(b.due || "9"));
-    };
-    const ogChip = (t, mon) => {
-      const act = t.status === "In Progress", m0 = isoOf(mon);
-      const when = t.start && t.start > m0 && t.start > isoToday() ? `starts ${DAYS[daysFrom(t.start, m0)]?.slice(0, 3) || shortIso(t.start)}${t.due ? " · due " + shortIso(t.due) : ""}` : t.due ? "due " + shortIso(t.due) : "no due date";
-      return `<a class="og${act ? " act" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam"><b>Weinam ${esc(t.ref || "")}${act ? " · In action" : ""}</b><span>${esc(t.task || "Untitled task")}</span><i>${esc(when)}</i></a>`;
-    };
+    const keys = weinam ? (weinam.keyTasks || []).filter((t) => t.status !== "N/A this project" && (t.due || t.start)) : [];
+    $("#laHead").innerHTML = `2-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[1], 4))}</small>`;
+    const dayIso = (mon) => Array.from({ length: NDAYS }, (_, d) => isoOf(addDays(mon, d)));
+    let h = "";
     weeks.forEach((mon, wi) => {
-      h += `<div class="wk">${wi === 0 ? "This week" : "Next week"}<small>WK ${pad(isoWeek(mon).wk)}</small></div>`;
-      const og = ongoing(mon);
-      h += `<div class="band"><span class="bl">Ongoing ${wi === 0 ? "this" : "next"} week</span>${og.length ? og.map((t) => ogChip(t, mon)).join("") : `<span class="none">No Weinam tasks running across the week</span>`}</div>`;
+      const ds = dayIso(mon), m0 = ds[0], fri = ds[4], first = wi === 0;
+      // Weinam rows: anything open whose start-to-due span touches this week; overdue tasks show on this week only.
+      const rows = [];
+      openTw.forEach((t) => {
+        const act = t.status === "In Progress";
+        let a = t.start || t.due || (act ? m0 : ""), b = t.due || "";
+        if (!a) return;
+        if (!b) b = "9999-12-31";
+        if (b < m0) { if (!first) return; rows.push({ t, act, late: true, a: m0, b: t0 < m0 ? m0 : t0 > fri ? fri : t0, pre: true }); return; }
+        if (a > fri) return;
+        rows.push({ t, act, late: false, a: a < m0 ? m0 : a, b: b > fri ? fri : b, pre: a < m0, cont: b > fri });
+      });
+      rows.sort((x, y) => (x.late ? 0 : 1) - (y.late ? 0 : 1) || (x.act ? 0 : 1) - (y.act ? 0 : 1) || (x.t.due || "9").localeCompare(y.t.due || "9"));
+      const now = (i) => (ds[i] === t0 ? " now" : "");
+      let g = `<div class="wb"><div class="wn-t">${first ? "This week" : "Next week"}<small>WK ${pad(isoWeek(mon).wk)} · ${short(mon)} – ${short(addDays(mon, 4))}</small></div>` +
+        `<div class="hh">Weinam (TW)</div>` + ds.map((iso, i) => `<div class="hh${now(i)}">${DAYS[i].slice(0, 3)} ${dateOf(iso).getDate()}${iso === t0 ? " · Today" : ""}</div>`).join("");
+      rows.forEach((r) => {
+        const t = r.t, url = wnTaskUrl(t), ia = ds.indexOf(r.a), ib = ds.indexOf(r.b);
+        const label = r.late ? `Overdue · was due ${shortIso(t.due)}` : (r.act ? "In action · " : "") + (r.cont ? (t.due ? "continues · due " + shortIso(t.due) : "continues · no due date") : t.due ? "due " + DAYS[ib].slice(0, 3) + " " + dateOf(t.due).getDate() : "");
+        g += `<div class="rl"><span class="rf">${esc(t.ref || "W")}</span><a href="${url}" target="_blank" rel="noopener" title="${esc(t.task)}">${esc(t.task || "Untitled task")}</a></div>`;
+        for (let i = 0; i < ia; i++) g += `<div class="gp${now(i)}"></div>`;
+        g += `<div class="sp" style="grid-column: span ${ib - ia + 1}"><a class="wbar${r.late ? " late" : r.act ? " act" : ""}${r.cont ? " cont" : ""}${r.pre && !r.late ? " pre" : ""}" href="${url}" target="_blank" rel="noopener" title="Open in Weinam">${esc(label)}</a></div>`;
+        for (let i = ib + 1; i < NDAYS; i++) g += `<div class="gp${now(i)}"></div>`;
+      });
+      keys.filter((t) => { const d = t.due || t.start; return d >= m0 && d <= fri; }).forEach((t) => {
+        const d = ds.indexOf(t.due || t.start), url = wnTaskUrl(t);
+        g += `<div class="rl"><span class="rf k">★ ${esc(t.ref || "")}</span><a href="${url}" target="_blank" rel="noopener" title="${esc(t.task)}"><b>${esc(t.task || "Key date")}</b></a></div>`;
+        for (let i = 0; i < NDAYS; i++) g += i === d ? `<div class="sp${now(i)}"><a class="kdc" href="${url}" target="_blank" rel="noopener"><i class="kd"></i>${t.status === "Complete" ? "Done" : "Key date"}${t.champion && t.champion.toUpperCase() !== "TW" ? " · " + esc(t.champion) : ""}</a></div>` : `<div class="gp${now(i)}"></div>`;
+      });
+      if (!rows.length && !keys.some((t) => { const d = t.due || t.start; return d >= m0 && d <= fri; })) g += `<div class="nowb">No Weinam tasks or key dates this week.</div>`;
+      // My minutes (plus meetings and my meeting actions) under the same day columns.
+      const shownTw = rows.map((r) => r.t);
+      g += `<div class="ml">My minutes</div>`;
       for (let d = 0; d < NDAYS; d++) {
-        const day = addDays(mon, d), iso = isoOf(day), evs = (cells.get(iso) || []).sort((a, b) => a.rank - b.rank);
-        h += `<div class="${iso === t0 ? "now" : iso < t0 ? "past" : ""}${evs.length ? "" : " empty"}"><span class="d"><span class="wd">${DAYS[d]} </span>${short(day)}${iso === t0 ? " · Today" : ""}</span>` +
-          (evs.length ? evs.map(card).join("") : `<span class="none">Nothing scheduled</span>`) + `</div>`;
+        const iso = ds[d], li = [];
+        for (const m of meetings.values()) {
+          if (m.date === iso) { laItems.push({ meet: m.id }); li.push(`<li class="mtg"><button type="button" data-la="${laItems.length - 1}"><i class="bx"></i><span><span class="tx">${esc(m.title || m.type + " meeting")}</span><span class="sub">Meeting${m.time ? " · " + esc(m.time) : ""}</span></span></button></li>`); }
+          if (m.next.date === iso && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) { laItems.push({ meet: m.id }); li.push(`<li class="mtg"><button type="button" data-la="${laItems.length - 1}"><i class="bx"></i><span><span class="tx">${esc(m.title || m.type + " meeting")}</span><span class="sub">Next meeting${m.next.time ? " · " + esc(m.next.time) : ""}</span></span></button></li>`); }
+        }
+        allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent && a.due === iso) { laItems.push({ meet: m.id }); li.push(`<li class="mtg"><button type="button" data-la="${laItems.length - 1}"><i class="bx"></i><span><span class="tx">${esc(a.text)}</span><span class="sub">My meeting action${a.due < t0 ? " · overdue" : ""}</span></span></button></li>`); } });
+        data[wi].days[d].forEach((t, idx) => {
+          if (t.h || !t.t.trim() || t.done) return;
+          if (sameAsWeinam(t.t, shownTw)) return; // already shown as a Weinam bar above
+          const { main, note } = splitNote(t), act = isAct(t);
+          laItems.push({ mon, scope: String(d), idx });
+          li.push(`<li class="${act ? "act" : ""}"><button type="button" data-la="${laItems.length - 1}"><i class="bx"></i><span><span class="tx">${t.rec ? "↻ " : ""}${esc(main)}</span>${note ? `<span class="nt">${esc(note)}</span>` : ""}</span></button></li>`);
+        });
+        g += `<div class="mc${now(d)}${iso < t0 ? " past" : ""}">${li.length ? `<ul>${li.join("")}</ul>` : `<span class="nn">Nothing yet</span>`}</div>`;
       }
+      h += g + `</div>`;
     });
     $("#laGrid").innerHTML = h;
-    const undated = openTw.filter((t) => !t.start && !t.due);
+    const undated = openTw.filter((t) => !t.start && !t.due && t.status !== "In Progress");
     $("#laNoDate").hidden = !undated.length;
-    $("#laNoDate").innerHTML = undated.length ? `<span class="bl">Weinam tasks with no dates set</span>` + undated.map((t) => `<a class="og${t.status === "In Progress" ? " act" : ""}" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam to add dates"><b>Weinam ${esc(t.ref || "")}</b><span>${esc(t.task || "Untitled task")}</span></a>`).join("") : "";
+    $("#laNoDate").innerHTML = undated.length ? `<span class="bl">Weinam tasks with no dates set</span>` + undated.map((t) => `<a class="og" href="${wnTaskUrl(t)}" target="_blank" rel="noopener" title="Open in Weinam to add dates"><b>Weinam ${esc(t.ref || "")}</b><span>${esc(t.task || "Untitled task")}</span></a>`).join("") : "";
   }
   $("#laGrid").addEventListener("click", async (e) => {
     const b = e.target.closest("[data-la]"); if (!b) return;
