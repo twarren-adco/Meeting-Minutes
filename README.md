@@ -29,4 +29,5 @@ https://claude.ai/artifact/TJRF8a1YwAwFGHv5cVFxVz
   - **Recurring tasks** (My minutes › ↻ Recurring): weekly, fortnightly or first/last-weekday-of-month tasks, stored in the private `recurring` document and added once per week from the current week on.
   - **Copy email** (each meeting): email-ready summary with open actions grouped by person.
   - **Export action register** (Meeting minutes list): every action from every meeting in one styled .xlsx with filters.
+- **In action** (option A from `personal/mockup-inaction.html`): any unticked My minutes line with red text is In action: orange half-filled box, light orange row and label, counted separately on the Dashboard (chip, progress bar, Status by day, Today, look-ahead). Removing the red (right-click › Plain) sets it back to open.
 - **Back up / Restore** use the same file format as the old board, so a backup from the old board can be restored here.

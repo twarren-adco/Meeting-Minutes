@@ -356,6 +356,19 @@ table.mm-t { width: 100%; border-collapse: collapse; }
 .rec-rule { display: grid; grid-template-columns: minmax(0, 1fr) 130px 120px 120px 28px; gap: 8px; align-items: center; }
 .rec-rule input, .rec-rule select { height: 32px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 8px; min-width: 0; }
 .row.rec .task::after { content: " ↻"; color: var(--ok); font-weight: 700; }
+/* In action: any open line containing red text */
+:root { --act: #c2410c; --act-bg: #fff1e6; --act-line: #f59e57; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; } }
+:root[data-theme="dark"] { --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; }
+.row.act { background: var(--act-bg); box-shadow: inset 3px 0 0 var(--act-line); }
+.row.act .tick { border-color: var(--act); background: linear-gradient(135deg, var(--act) 50%, var(--surface) 50%); }
+.act-pill { display: none; margin: 3px 0 1px 27px; width: max-content; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: 3px; padding: 0 5px; line-height: 17px; color: var(--act); background: var(--surface); border: 1px solid var(--act-line); white-space: nowrap; }
+.row.act .act-pill { display: block; }
+.today-list .red, .goal-list .red { color: var(--red); }
+.today-list li.act { background: var(--act-bg); box-shadow: inset 3px 0 0 var(--act-line); }
+.today-list li.act .tbox { border-color: var(--act); background: linear-gradient(135deg, var(--act) 50%, var(--surface) 50%); }
+.tag.act { color: var(--act); background: var(--surface); border-color: var(--act-line); text-transform: uppercase; letter-spacing: .04em; font-size: 10.5px; font-weight: 700; }
+.ev.act { background: var(--act-bg); color: var(--act); box-shadow: inset 3px 0 0 var(--act-line); }
 .copybox { width: 100%; min-height: 220px; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; border: 1px solid var(--line-strong); border-radius: 4px; padding: 10px; background: var(--surface-2); color: var(--ink); }
 @media (max-width: 860px) { .w-row { padding-left: 0; } .rec-rule { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .today-list li { grid-template-columns: 22px minmax(0, 1fr); } .today-list .srcs { grid-column: 2; justify-content: flex-start; } }
 
@@ -465,7 +478,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       <section class="panel wide">
         <h2>Status by day</h2>
         <div class="tbl-wrap"><table class="dt" id="dDays"></table></div>
-        <div class="legend"><span><i style="background:var(--ok)"></i>Done</span><span><i style="background:var(--faint)"></i>Open</span></div>
+        <div class="legend"><span><i style="background:var(--ok)"></i>Done</span><span><i style="background:var(--act-line)"></i>In action</span><span><i style="background:var(--faint)"></i>Open</span></div>
       </section>
       <section class="panel">
         <h2>Misc list</h2>
@@ -797,18 +810,22 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   }
   function plain(html) { const box = document.createElement("div"); box.innerHTML = String(html ?? ""); return box.textContent || ""; }
 
+  // In action = open (not ticked), not a heading, and some of the line is red.
+  const isAct = (t) => !!t && !t.done && !t.h && !!t.t.trim() && typeof t.r === "string" && /class="red"/.test(t.r);
+
   /* ---------- render ---------- */
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   function rowHTML(scope, idx, task) {
     const empty = !task || !task.t, head = !!(task && task.h && task.t);
-    return `<div class="row${empty ? " empty" : ""}${head ? " heading" : ""}${task && task.done && !head ? " done" : ""}${task && task.rec && !empty ? " rec" : ""}" data-scope="${scope}" data-idx="${idx}">` +
+    return `<div class="row${empty ? " empty" : ""}${head ? " heading" : ""}${task && task.done && !head ? " done" : ""}${task && task.rec && !empty ? " rec" : ""}${isAct(task) ? " act" : ""}" data-scope="${scope}" data-idx="${idx}">` +
       `<button class="tick" type="button" aria-label="Tick off"></button>` +
       `<div class="acts">` +
         (scope === "m" ? `<button class="hbtn" type="button" title="Make this line a heading (or start it with # )">H</button>` : "") +
         `<button class="grab" type="button" title="Drag to move" aria-label="Drag to move"></button>` +
         `<button class="del" type="button" title="Delete" aria-label="Delete">&#215;</button>` +
       `</div>` +
-      `<div class="task" contenteditable="true" spellcheck="true" role="textbox" aria-label="Task">${empty ? "" : (task.r || esc(task.t))}</div></div>`;
+      `<div class="task" contenteditable="true" spellcheck="true" role="textbox" aria-label="Task">${empty ? "" : (task.r || esc(task.t))}</div>` +
+      `<span class="act-pill" title="Has red text, so it's In action. Remove the red (right-click › Plain) to set it back to open.">In action</span></div>`;
   }
   function rowsHTML(scope, min = minRows(scope)) {
     const list = listFor(scope); let out = "";
@@ -874,6 +891,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const r = clean(el.innerHTML);
     if (r) list[idx].r = r; else delete list[idx].r;
     row.classList.toggle("empty", !text);
+    row.classList.toggle("act", isAct(list[idx]));
     tally(); queueSave();
     return list[idx];
   }
@@ -915,6 +933,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       endTyping(); pushUndo(list[idx].done ? "untick" : "tick");
       list[idx].done = !list[idx].done;
       row.classList.toggle("done", list[idx].done);
+      row.classList.toggle("act", isAct(list[idx]));
       tally(); queueSave();
       syncActionFromTask(list[idx]);
       return;
@@ -980,8 +999,13 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   window.addEventListener("hashchange", () => setView(viewFromHash()));
 
   /* ---------- dashboard: an overview of your minutes, laid out like the Weinam dashboard ---------- */
-  const count = (list) => { let n = 0, k = 0; list.forEach((t) => { if (t.h || !t.t.trim()) return; n++; if (t.done) k++; }); return [n, k]; };
-  const barHtml = (done, open) => (done + open ? (done ? `<span style="width:${(done / (done + open)) * 100}%;background:var(--ok)" title="Done: ${done}"></span>` : "") + (open ? `<span style="width:${(open / (done + open)) * 100}%;background:var(--faint)" title="Open: ${open}"></span>` : "") : "");
+  const count = (list) => { let n = 0, k = 0, a = 0; list.forEach((t) => { if (t.h || !t.t.trim()) return; n++; if (t.done) k++; else if (isAct(t)) a++; }); return [n, k, a]; };
+  // Done (green), In action (orange), Open (grey). `open` excludes the in-action ones.
+  const barHtml = (done, open, act = 0) => {
+    const tot = done + open + act; if (!tot) return "";
+    const seg = (v, c, l) => (v ? `<span style="width:${(v / tot) * 100}%;background:${c}" title="${l}: ${v}"></span>` : "");
+    return seg(done, "var(--ok)", "Done") + seg(act, "var(--act-line)", "In action") + seg(open, "var(--faint)", "Open");
+  };
   const num = (n) => (n ? n : `<span class="zero">0</span>`);
   const taskHtml = (t) => (t.r ? clean(t.r) || esc(t.t) : esc(t.t));
   /* ---------- Weinam actions: a copy of the Weinam tasks where Champion = TW, written hourly into
@@ -1075,27 +1099,28 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     const cur = sameDay(thisMon, monday) ? week : await readWeek(thisMon);
     if (my !== dashToken) return;
     const lists = cur.days.map((l, i) => ({ name: DAYS[i], date: addDays(thisMon, i), list: l, scope: String(i) })).concat([{ name: "Overflow", date: null, list: cur.extra, scope: "x" }]);
-    let total = 0, done = 0;
-    lists.forEach((d) => { [d.n, d.k] = count(d.list); total += d.n; done += d.k; });
-    const open = total - done, [mn, mk] = count(misc), ovOpen = lists[5].n - lists[5].k;
+    let total = 0, done = 0, act = 0;
+    lists.forEach((d) => { [d.n, d.k, d.a] = count(d.list); total += d.n; done += d.k; act += d.a; });
+    const open = total - done - act, [mn, mk] = count(misc), ovOpen = lists[5].n - lists[5].k;
     $("#dPct").textContent = total ? Math.round((done / total) * 100) + "%" : "–";
-    $("#dPctNote").textContent = total ? `complete · ${done} of ${total} actions ticked off` : "No actions logged this week yet";
-    $("#dBar").innerHTML = barHtml(done, open);
+    $("#dPctNote").textContent = total ? `complete · ${done} of ${total} done${act ? ` · ${act} in action` : ""}` : "No actions logged this week yet";
+    $("#dBar").innerHTML = barHtml(done, open, act);
     $("#dChips").innerHTML =
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--faint)"></span>Open <b>${open}</b></a>` +
+      `<a class="chip" href="#minutes"><span class="dot" style="background:var(--act-line)"></span>In action <b>${act}</b></a>` +
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--ok)"></span>Done <b>${done}</b></a>` +
       `<a class="chip" href="#minutes"><span class="dot" style="background:var(--brand)"></span>Overflow open <b>${ovOpen}</b></a>` +
       `<a class="chip" href="#misc"><span class="dot" style="background:var(--sky)"></span>Misc open <b>${mn - mk}</b></a>`;
     const goals = cur.goals.filter((g) => g.t.trim());
     $("#dGoals").innerHTML = goals.length ? goals.map((g) => `<li class="${g.done ? "done" : ""}">${taskHtml(g)}</li>`).join("") : `<li class="muted">No goals set for this week. Add them at the top of My minutes.</li>`;
 
-    $("#dDays").innerHTML = `<thead><tr><th>Day</th><th class="l">Date</th><th>Total</th><th>Done</th><th>Open</th><th>Breakdown</th></tr></thead><tbody>` +
-      lists.map((d) => `<tr class="link${d.date && sameDay(d.date, today) ? " today" : ""}" data-go="${d.scope}"><td>${d.name}${d.date && sameDay(d.date, today) ? " · Today" : ""}</td><td class="l">${d.date ? short(d.date) : "No fixed day"}</td><td><b>${d.n}</b></td><td>${num(d.k)}</td><td>${num(d.n - d.k)}</td><td class="bar-cell"><div class="bar">${barHtml(d.k, d.n - d.k)}</div></td></tr>`).join("") + `</tbody>`;
+    $("#dDays").innerHTML = `<thead><tr><th>Day</th><th class="l">Date</th><th>Total</th><th>Done</th><th>In action</th><th>Open</th><th>Breakdown</th></tr></thead><tbody>` +
+      lists.map((d) => `<tr class="link${d.date && sameDay(d.date, today) ? " today" : ""}" data-go="${d.scope}"><td>${d.name}${d.date && sameDay(d.date, today) ? " · Today" : ""}</td><td class="l">${d.date ? short(d.date) : "No fixed day"}</td><td><b>${d.n}</b></td><td>${num(d.k)}</td><td>${d.a ? `<b style="color:var(--act)">${d.a}</b>` : num(0)}</td><td>${num(d.n - d.k - d.a)}</td><td class="bar-cell"><div class="bar">${barHtml(d.k, d.n - d.k - d.a, d.a)}</div></td></tr>`).join("") + `</tbody>`;
 
     const openRows = [];
     lists.forEach((d) => d.list.forEach((t, i) => { if (!t.h && t.t.trim() && !t.done) openRows.push({ d, t, i }); }));
     $("#dOpen").innerHTML = openRows.length
-      ? `<thead><tr><th>Day</th><th class="l">Action</th></tr></thead><tbody>` + openRows.map((o) => `<tr class="link" data-go="${o.d.scope}" data-idx="${o.i}"><td><span class="daytag">${o.d.name === "Overflow" ? "Overflow" : o.d.name.slice(0, 3)}</span></td><td class="l">${taskHtml(o.t)}</td></tr>`).join("") + `</tbody>`
+      ? `<thead><tr><th>Day</th><th class="l">Action</th></tr></thead><tbody>` + openRows.map((o) => `<tr class="link" data-go="${o.d.scope}" data-idx="${o.i}"><td><span class="daytag">${o.d.name === "Overflow" ? "Overflow" : o.d.name.slice(0, 3)}</span></td><td class="l">${taskHtml(o.t)}${isAct(o.t) ? ` <span class="tag act">In action</span>` : ""}</td></tr>`).join("") + `</tbody>`
       : `<tbody><tr><td class="l" style="color:var(--muted)">${total ? "Everything this week is ticked off." : "Nothing logged this week yet."}</td></tr></tbody>`;
 
     // Group the misc list under its headings ("No heading" for lines above the first one).
@@ -1155,6 +1180,29 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   document.addEventListener("mousedown", (e) => { if (!e.target.closest("#ctx")) hideCtx(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") { hideCtx(); if (!$("#confirmBar").hidden) closeConfirm(false); } });
   window.addEventListener("scroll", hideCtx, true);
+  // "Plain": strip red and italic from just the highlighted words. (The browser's removeFormat leaves
+  // class-based red in place, so the selection is rebuilt as plain text instead.)
+  function plainSelection(el, range) {
+    const S = "\uE000", E = "\uE001";
+    const end = range.cloneRange(); end.collapse(false); end.insertNode(document.createTextNode(E));
+    const start = range.cloneRange(); start.collapse(true); start.insertNode(document.createTextNode(S));
+    const runs = []; let inside = false;
+    (function walk(node, em, red) {
+      for (let n = node.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) {
+          for (const part of n.nodeValue.split(/([\uE000\uE001])/)) {
+            if (part === S) { inside = true; continue; }
+            if (part === E) { inside = false; continue; }
+            if (part) runs.push({ t: part, em: !inside && em, red: !inside && red });
+          }
+        } else if (n.nodeType === 1) {
+          const tag = n.tagName.toLowerCase(), st = n.getAttribute("style") || "";
+          walk(n, em || tag === "em" || tag === "i" || /font-style\s*:\s*italic/i.test(st), red || n.classList.contains("red") || /color\s*:/i.test(st) || (tag === "font" && !!n.getAttribute("color")));
+        }
+      }
+    })(el, false, false);
+    el.innerHTML = runs.map((r) => { let h = esc(r.t); if (r.red) h = `<span class="red">${h}</span>`; if (r.em) h = `<em>${h}</em>`; return h; }).join("");
+  }
   function applyFormat(cmd) {
     const el = fmtEl, range = fmtRange; if (!el || !range) return;
     endTyping(); pushUndo(cmd === "clear" ? "formatting" : cmd);
@@ -1163,7 +1211,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
       if (cmd === "italic") document.execCommand("italic");
       else if (cmd === "red") { document.execCommand("styleWithCSS", false, true); document.execCommand("foreColor", false, "#C0392B"); }
-      else document.execCommand("removeFormat");
+      else plainSelection(el, range);
     } catch (err) {}
     const r = clean(el.innerHTML);                     // normalise whatever the browser produced
     el.innerHTML = r || esc(el.textContent || "");
@@ -1785,7 +1833,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       cur.days[d].forEach((t, idx) => {
         if (t.h || !t.t.trim()) return;
         if (d < dow && t.done) return;
-        items.push({ kind: "me", mon: thisMon, scope: String(d), idx, text: t.t, done: t.done, rec: !!t.rec, late: d < dow ? dow - d : 0, sort: d < dow ? 0 : 2, tag: d < dow ? `From ${DAYS[d].slice(0, 3)}` : "" });
+        items.push({ kind: "me", mon: thisMon, scope: String(d), idx, text: t.t, html: t.r ? clean(t.r) : "", done: t.done, act: isAct(t), rec: !!t.rec, late: d < dow ? dow - d : 0, sort: d < dow ? 0 : 2, tag: d < dow ? `From ${DAYS[d].slice(0, 3)}` : "" });
       });
     }
     if (weinam && Array.isArray(weinam.tasks)) weinam.tasks.forEach((t) => {
@@ -1808,7 +1856,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       const lateTag = x.late && !x.done ? `<span class="tag od">Overdue ${x.late} day${x.late === 1 ? "" : "s"}</span>` : x.due === t0 && !x.done ? `<span class="tag dt">Due today</span>` : "";
       if (x.kind === "wn") return `<li><a class="ext" href="${WEINAM_LINK}" target="_blank" rel="noopener" title="Open in Weinam to update">↗</a><span class="tt"><a href="${WEINAM_LINK}" target="_blank" rel="noopener">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag">Weinam ${esc(x.ref)}</span></span></li>`;
       if (x.kind === "mt") return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${lateTag}<span class="tag mt">${esc(mRef(x.m, x.i, x.j))}</span></span></li>`;
-      return `<li class="${x.done ? "done" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${esc(x.text)}</a></span><span class="srcs">${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
+      return `<li class="${x.done ? "done" : ""}${x.act ? " act" : ""}"><button class="tbox" type="button" data-td="${n}" aria-label="Tick off"></button><span class="tt"><a href="#" data-td-open="${n}">${x.html || esc(x.text)}</a></span><span class="srcs">${x.act ? `<span class="tag act">In action</span>` : ""}${x.late ? `<span class="tag od">${esc(x.tag)}</span>` : ""}${x.rec ? `<span class="tag rc">↻ Recurring</span>` : ""}<span class="tag">My minutes</span></span></li>`;
     }).join("") : `<li><span></span><span class="mm-small">${wkend ? "It's the weekend. Nothing due today." : "Nothing due today. Add tasks to today's column in My minutes."}</span></li>`;
   }
   $("#tdList").addEventListener("click", async (e) => {
@@ -1896,7 +1944,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       if (m.next.date && ![...meetings.values()].some((o) => o.date === m.next.date && o.type === m.type)) add(m.next.date, { cls: "mt", text: "Next: " + (m.title || m.type + " meeting"), meet: m.id, rank: 2 });
     }
     allActions().forEach(({ m, a }) => { if (mine(a.by) && !a.done && !a.sent) add(a.due, { cls: "mt" + (a.due < t0 ? " late" : ""), text: a.text, meet: m.id, rank: 3 }); });
-    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) add(isoOf(addDays(mon, d)), { cls: "me", text: (t.rec ? "↻ " : "") + t.t, mon, scope: String(d), idx, rank: 4 }); })));
+    weeks.forEach((mon, wi) => data[wi].days.forEach((list, d) => list.forEach((t, idx) => { if (!t.h && t.t.trim() && !t.done) add(isoOf(addDays(mon, d)), { cls: isAct(t) ? "me act" : "me", text: (t.rec ? "↻ " : "") + t.t, mon, scope: String(d), idx, rank: 4 }); })));
     $("#laHead").innerHTML = `3-week look-ahead <small style="font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;color:var(--muted);font-weight:500">${short(weeks[0])} – ${short(addDays(weeks[2], 4))}</small>`;
     let h = `<div class="hd">Week</div>` + DAYS.map((d) => `<div class="hd">${d.slice(0, 3)}</div>`).join("");
     weeks.forEach((mon) => {
