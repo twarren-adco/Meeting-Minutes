@@ -1,0 +1,203 @@
+<title>Running Row Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: stacked option boards; each shows a "running" area for multi-day Weinam tasks plus the My minutes day columns. */
+:root {
+  --brand: #0047BB; --bg: #F2F5FC; --surface: #ffffff; --surface-2: #EBF0FA; --line: #CCDAF1; --ink: #1f2937; --muted: #4A5464; --faint: #8b95a7;
+  --act: #c2410c; --act-bg: #fff1e6; --act-line: #f59e57; --red: #b42318; --red-bg: #fdeceb; --today: #e8f3fd; --ok: #1d7a46;
+  --f-display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif; --f-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --red-bg: #3a1716; --today: #15294a; --ok: #5fd08f; color-scheme: dark; } }
+:root[data-theme="dark"] { --brand: #7fa8ff; --bg: #0c1424; --surface: #121c30; --surface-2: #18243d; --line: #273756; --ink: #e5e9f2; --muted: #a6b0c3; --faint: #6f7b92; --act: #ffb27a; --act-bg: #3a2414; --act-line: #c2692a; --red: #ff8a80; --red-bg: #3a1716; --today: #15294a; --ok: #5fd08f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 28px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 30px; }
+h1, h2, h3 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .04em; color: var(--brand); margin: 0; text-wrap: balance; }
+h1 { font-size: 30px; } h2 { font-size: 22px; }
+.intro p { margin: 6px 0 0; max-width: 80ch; color: var(--muted); }
+.answer { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 4px; padding: 12px 16px; max-width: 92ch; }
+.answer h3 { font-size: 16px; margin-bottom: 4px; }
+.answer p { margin: 4px 0 0; }
+.opt { display: grid; gap: 10px; }
+.opt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.opt-head span { color: var(--muted); }
+.why { margin: 0; padding-left: 18px; max-width: 92ch; display: grid; gap: 2px; }
+.scroll { overflow-x: auto; }
+.wk { display: grid; grid-template-columns: 150px repeat(5, minmax(170px, 1fr)); min-width: 1000px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.wk.side { grid-template-columns: 300px repeat(5, minmax(150px, 1fr)); min-width: 1080px; }
+.wk > div { border-right: 1px solid var(--line); min-width: 0; }
+.wk .hd { background: var(--brand); color: #fff; font-family: var(--f-display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; padding: 6px 10px; border-right-color: color-mix(in srgb, #fff 25%, transparent); }
+.wk .lab { background: var(--surface-2); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px; }
+.wk .col { padding: 10px; display: grid; align-content: start; gap: 8px; }
+.wk .col.now { background: var(--today); }
+.wk .bandlab { background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 10px; }
+.wk .band { grid-column: 2 / -1; padding: 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.wk .sidebar { grid-row: 2 / span 1; background: var(--surface-2); padding: 10px; display: grid; align-content: start; gap: 8px; }
+.it { display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 7px; font-size: 13px; line-height: 1.32; }
+.it .bx { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; background: var(--surface); }
+.it.act .bx { border-color: var(--act); background: var(--act-line); }
+.it.late .bx { border-color: var(--red); background: var(--red-bg); }
+.it .nt { display: block; color: var(--act); font-size: 12px; }
+.it .sub { display: block; color: var(--muted); font-size: 12px; }
+.it .sub.due { color: var(--brand); font-weight: 600; }
+.it .sub.late { color: var(--red); font-weight: 600; }
+.wt { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 45%, transparent); border-radius: 3px; padding: 0 4px; line-height: 15px; margin-right: 5px; vertical-align: 1px; }
+.ex { font-size: 10.5px; font-weight: 700; color: var(--muted); border: 1px dashed var(--faint); border-radius: 3px; padding: 0 4px; margin-left: 4px; }
+.none { color: var(--faint); font-size: 12.5px; }
+
+/* A: three groups */
+.grp3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.grp3 h4 { margin: 0 0 6px; font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); display: flex; gap: 6px; align-items: baseline; }
+.grp3 h4.r { color: var(--red); } .grp3 h4 b { font-size: 12px; }
+.grp3 .g { display: grid; gap: 7px; align-content: start; }
+
+/* B: table */
+.rt { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--line); }
+.rt th { text-align: left; font-family: var(--f-display); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); padding: 5px 8px; border-bottom: 1px solid var(--line); }
+.rt td { padding: 5px 8px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: top; }
+.rt td.n { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rt tr.late td { background: var(--red-bg); } .rt tr.late .left { color: var(--red); font-weight: 700; }
+.rt tr.act td:first-child { box-shadow: inset 3px 0 0 var(--act-line); }
+.pill { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 10px; padding: 0 7px; line-height: 18px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill.act { background: var(--act-bg); color: var(--act); }
+.left { font-weight: 600; }
+
+/* C/D: progress lines */
+.pl { display: grid; gap: 3px; font-size: 13px; line-height: 1.3; }
+.pl .top { display: grid; grid-template-columns: 13px minmax(0, 1fr) auto; gap: 7px; align-items: start; }
+.pl .bx { width: 13px; height: 13px; border: 1.5px solid var(--faint); border-radius: 2px; margin-top: 2px; background: var(--surface); }
+.pl.act .bx { border-color: var(--act); background: var(--act-line); }
+.pl.late .bx { border-color: var(--red); background: var(--red-bg); }
+.pl .cd { font-size: 11.5px; font-weight: 700; white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pl.late .cd { color: var(--red); }
+.pl .trk { margin-left: 20px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden; }
+.pl .trk i { display: block; height: 100%; background: var(--brand); border-radius: 3px; }
+.pl.act .trk i { background: var(--act-line); }
+.pl.late .trk i { background: var(--red); }
+.pl .meta { margin-left: 20px; font-size: 11.5px; color: var(--muted); }
+.band .plgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 22px; }
+
+/* E: collapsible chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; border: 1px solid var(--line); border-radius: 14px; padding: 3px 10px; background: var(--surface); white-space: nowrap; }
+.chip.act { border-color: var(--act-line); background: var(--act-bg); color: var(--act); }
+.chip.late { border-color: var(--red); background: var(--red-bg); color: var(--red); font-weight: 600; }
+.chip .d { font-size: 11px; font-weight: 700; opacity: .85; }
+.tog { font: inherit; font-size: 12.5px; font-weight: 600; color: var(--brand); background: none; border: 0; cursor: pointer; padding: 3px 4px; text-decoration: underline; text-underline-offset: 2px; }
+.tog:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.exp { margin-top: 10px; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Running row: more options</h1>
+    <p>Variations on option 4: Weinam tasks that run over several days are listed once, above or beside your My minutes day columns, and appear in a day column only on the day they're due. Example week: today Tuesday 3 Nov, with your current TW tasks. I've added one made-up overdue task, marked <span class="ex">example</span>, to show how overdue work looks. None of your Weinam tasks are overdue right now.</p>
+  </header>
+
+  <div class="answer">
+    <h3>What happens to an overdue task?</h3>
+    <p>It stays in the running area until it's marked Complete (or N/A) in Weinam. It moves to the top, turns red and says how late it is, e.g. "Overdue 5 days · was due 29 Oct". It doesn't appear in a day column, because its due day has passed. It carries into next week's view too, so it can't drop off unnoticed.</p>
+  </div>
+
+  <section class="opt" aria-labelledby="a">
+    <div class="opt-head"><h2 id="a">4A · Grouped: overdue, due this week, runs on</h2><span>The running row split into three short lists.</span></div>
+    <ul class="why">
+      <li>Overdue first in red, then tasks due this week, then tasks that carry on past Friday.</li>
+      <li>Each group is a plain checklist, the same style as your minutes.</li>
+    </ul>
+    <div class="scroll"><div class="wk" id="oa"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="b">
+    <div class="opt-head"><h2 id="b">4B · Compact table</h2><span>The running row as a small table with a days-left column.</span></div>
+    <ul class="why">
+      <li>One row per task: ref, task, status, started, due, and days left (or days overdue).</li>
+      <li>Sorted by days left, so the most urgent is always first. Overdue rows are tinted red.</li>
+    </ul>
+    <div class="scroll"><div class="wk" id="ob"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="c">
+    <div class="opt-head"><h2 id="c">4C · Progress lines</h2><span>Each running task with a thin bar showing how far through its time it is.</span></div>
+    <ul class="why">
+      <li>The bar fills from start date to due date, so a nearly full bar means it's almost due. A countdown ("13 days left") sits on the right.</li>
+      <li>Overdue tasks show a full red bar and "5 days over".</li>
+    </ul>
+    <div class="scroll"><div class="wk" id="oc"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="d">
+    <div class="opt-head"><h2 id="d">4D · Side column</h2><span>Running tasks in a column on the left instead of a row on top.</span></div>
+    <ul class="why">
+      <li>The left column lists running tasks with countdowns and progress lines, and stays beside your five days.</li>
+      <li>Keeps the day columns starting at the top of the panel, so your minutes are visible straight away.</li>
+    </ul>
+    <div class="scroll"><div class="wk side" id="od"></div></div>
+  </section>
+
+  <section class="opt" aria-labelledby="e">
+    <div class="opt-head"><h2 id="e">4E · Summary chips you can expand</h2><span>A one-line summary that opens into the full list.</span></div>
+    <ul class="why">
+      <li>The row shows one chip per task with its days left, coloured by status. Overdue and In action chips stand out.</li>
+      <li>Click "Show details" for the full checklist lines. It's open in the mock-up; try the link.</li>
+    </ul>
+    <div class="scroll"><div class="wk" id="oe"></div></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const DAYS = ["Mon 2", "Tue 3", "Wed 4", "Thu 5", "Fri 6"], TODAY = 1;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const M = [
+    [["Update Weinam program"], ["Sort out Weinam fencing", "waiting TEA quote 3/11/26"], ["Chase EMM (Adrian) for an updated Condong heritage sign design", "emailed 2/11/26"], ["Send email to consultants about BA drawings we require"], ["Update program with workback date for demo, civil & piling"], ["Speak to Caporn & Kellers about worst case scenario piling rig options", "spoke to & emailed 2/11/26"], ["Chase Borderline to fix Condong filter", "Spoke to 2/11/26"], ["Chase Modscape Tumbi principal door replacement", "emailed 2/11/26"]],
+    [["Call Jesse McDonald (Lucid Consulting) re peer review", "emailed 2/11/26"]],
+    [["Status consultants defect reports"], ["Submit LSPS FRNSW schedule to BM+G"], ["Issue BM+G performance solutions to SINSW for approval"], ["Update BM+G rev 2 list"]],
+    [["Balance Weinam carpark PCR"]],
+    [],
+  ];
+  // e = due day index this week (null = due after Friday, -1 = overdue). left = days to due from today (negative = overdue).
+  const W = [
+    { ref: "2.9", t: "Issue site establishment drawings to client", ex: true, late: true, from: "20 Oct", due: "29 Oct", e: -1, left: -5, pct: 100 },
+    { ref: "5.2", t: "Temp carpark closes & cars removed", act: true, from: "28 Oct", due: "Wed 4 Nov", e: 2, left: 1, pct: 86 },
+    { ref: "1.14", t: "Traffic Control Plan – council approval", from: "29 Oct", due: "Wed 4 Nov", e: 2, left: 1, pct: 83 },
+    { ref: "3.6", t: "Chase pilers for rig / load info", act: true, from: "2 Nov", due: "Fri 6 Nov", e: 4, left: 3, pct: 25 },
+    { ref: "3.1", t: "Update site establishment plan", from: "2 Nov", due: "16 Nov", e: null, left: 13, pct: 7 },
+    { ref: "3.4", t: "Bottom out 2 x tower crane possibility (will need to be luffers if 2)", from: "2 Nov", due: "16 Nov", e: null, left: 13, pct: 7 },
+    { ref: "3.5", t: "ADG to develop revised carpark arrangements", act: true, from: "3 Nov", due: "20 Nov", e: null, left: 17, pct: 0 },
+  ];
+  const leftTxt = (w) => (w.left < 0 ? `${-w.left} days over` : w.left === 0 ? "due today" : `${w.left} day${w.left === 1 ? "" : "s"} left`);
+  const tag = (w) => `<span class="wt">${w.ref}</span>${esc(w.t)}${w.ex ? ` <span class="ex">example</span>` : ""}`;
+  const cls = (w) => (w.late ? " late" : w.act ? " act" : "");
+  const line = (w, sub, sc = "") => `<div class="it${cls(w)}"><i class="bx"></i><span>${tag(w)}${sub ? `<span class="sub ${sc}">${sub}</span>` : ""}</span></div>`;
+  const mine = (d) => M[d].map(([t, n]) => `<div class="it${n ? " act" : ""}"><i class="bx"></i><span>${esc(t)}${n ? `<span class="nt">${esc(n)}</span>` : ""}</span></div>`);
+  const cols = () => DAYS.map((_, d) => W.filter((w) => w.e === d).map((w) => line(w, d === TODAY ? "Due today" : "Due", "due")).concat(mine(d)));
+  const head = (first = "Week 45") => `<div class="hd">${first}</div>` + DAYS.map((d, i) => `<div class="hd">${d}${i === TODAY ? " · Today" : ""}</div>`).join("");
+  const body = () => `<div class="lab">My minutes</div>` + cols().map((c, i) => `<div class="col${i === TODAY ? " now" : ""}">${c.length ? c.join("") : `<span class="none">Nothing yet</span>`}</div>`).join("");
+  const sorted = [...W].sort((a, b) => a.left - b.left);
+  const lateSub = (w) => `Overdue ${-w.left} days · was due ${w.due}`;
+
+  // 4A
+  const g = (title, list, red) => `<div class="g"><h4 class="${red ? "r" : ""}">${title} <b>${list.length}</b></h4>${list.length ? list.map((w) => line(w, w.late ? lateSub(w) : `due ${w.due}${w.from ? " · started " + w.from : ""}`, w.late ? "late" : "")).join("") : `<span class="none">None</span>`}</div>`;
+  document.getElementById("oa").innerHTML = head() + `<div class="bandlab">Weinam running</div><div class="band"><div class="grp3">${g("Overdue", W.filter((w) => w.late), true)}${g("Due this week", W.filter((w) => !w.late && w.e !== null))}${g("Runs past Friday", W.filter((w) => w.e === null))}</div></div>` + body();
+
+  // 4B
+  document.getElementById("ob").innerHTML = head() + `<div class="bandlab">Weinam running</div><div class="band"><table class="rt"><thead><tr><th>#</th><th>Task</th><th>Status</th><th>Started</th><th>Due</th><th>Days left</th></tr></thead><tbody>` +
+    sorted.map((w) => `<tr class="${w.late ? "late" : w.act ? "act" : ""}"><td class="n"><span class="wt">${w.ref}</span></td><td>${esc(w.t)}${w.ex ? ` <span class="ex">example</span>` : ""}</td><td>${w.act ? `<span class="pill act">In action</span>` : `<span class="pill">Not started</span>`}</td><td class="n">${w.from}</td><td class="n">${w.due}</td><td class="n left">${leftTxt(w)}</td></tr>`).join("") + `</tbody></table></div>` + body();
+
+  // 4C
+  const prog = (w) => `<div class="pl${cls(w)}"><div class="top"><i class="bx"></i><span>${tag(w)}</span><span class="cd">${leftTxt(w)}</span></div><div class="trk"><i style="width:${Math.max(w.pct, 3)}%"></i></div><div class="meta">${w.late ? "was due " + w.due : w.from + " → " + w.due}</div></div>`;
+  document.getElementById("oc").innerHTML = head() + `<div class="bandlab">Weinam running</div><div class="band"><div class="plgrid">${sorted.map(prog).join("")}</div></div>` + body();
+
+  // 4D
+  document.getElementById("od").innerHTML = head("Weinam running") + `<div class="sidebar">${sorted.map(prog).join("")}</div>` + cols().map((c, i) => `<div class="col${i === TODAY ? " now" : ""}">${c.length ? c.join("") : `<span class="none">Nothing yet</span>`}</div>`).join("");
+
+  // 4E
+  const chips = sorted.map((w) => `<span class="chip${cls(w)}"><span class="wt" style="margin:0">${w.ref}</span>${esc(w.t.length > 30 ? w.t.slice(0, 28) + "…" : w.t)}<span class="d">${leftTxt(w)}</span></span>`).join("");
+  const exp = `<div class="exp" id="eExp">${sorted.map((w) => line(w, w.late ? lateSub(w) : `due ${w.due} · started ${w.from}`, w.late ? "late" : "")).join("")}</div>`;
+  document.getElementById("oe").innerHTML = head() + `<div class="bandlab">Weinam running</div><div class="band"><div class="chips">${chips}<button class="tog" type="button" id="eTog" aria-expanded="true" aria-controls="eExp">Hide details</button></div>${exp}</div>` + body();
+  document.getElementById("eTog").addEventListener("click", (e) => { const x = document.getElementById("eExp"); x.hidden = !x.hidden; e.target.textContent = x.hidden ? "Show details" : "Hide details"; e.target.setAttribute("aria-expanded", String(!x.hidden)); });
+})();
+</script>
