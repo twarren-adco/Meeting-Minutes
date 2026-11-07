@@ -71,7 +71,14 @@ button { cursor: pointer; }
 .eyebrow { font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; color: var(--band-muted); }
 .titles h1 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 30px; line-height: 1.15; letter-spacing: .01em; text-wrap: balance; }
 .titles .sub { color: var(--band-muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-.band-actions { display: flex; align-items: center; gap: 12px; justify-self: end; }
+.band-actions { display: flex; align-items: center; gap: 12px; justify-self: end; flex-wrap: wrap; justify-content: flex-end; }
+.sync-box { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.sync-btn { font: inherit; font-size: 13px; font-weight: 600; color: var(--band-ink, #fff); background: transparent; border: 1.5px solid color-mix(in srgb, var(--band-ink, #fff) 70%, transparent); border-radius: 4px; padding: 4px 12px; cursor: pointer; white-space: nowrap; }
+.sync-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--band-ink, #fff) 14%, transparent); }
+.sync-btn:focus-visible { outline: 2px solid var(--band-ink, #fff); outline-offset: 2px; }
+.sync-btn:disabled { opacity: .7; cursor: default; }
+.sync-note { font-size: 11.5px; color: var(--band-muted); white-space: nowrap; max-width: 340px; overflow: hidden; text-overflow: ellipsis; }
+.sync-note.err { color: #ffd2cc; white-space: normal; text-align: right; }
 .live { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--band-muted); white-space: nowrap; }
 .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--band-muted); }
 .live[data-state="ok"] i { background: #5fe39a; box-shadow: 0 0 0 3px rgba(95,227,154,.25); }
@@ -556,6 +563,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
     </div>
     <div class="band-actions">
       <span class="live" id="live" data-state="connecting"><i></i><span id="liveText">Connecting…</span></span>
+      <span class="sync-box"><button class="sync-btn" id="syncBtn" type="button" title="Reload your minutes and meetings, and pull the latest from the Weinam checklist">↻ Sync now</button><span class="sync-note" id="syncNote"></span></span>
     </div>
     <nav class="tabs" aria-label="Views">
       <a class="tab" href="#dashboard" id="tabDash">Dashboard</a>
@@ -1157,8 +1165,54 @@ table.mm-t { width: 100%; border-collapse: collapse; }
   const PILL = { "Complete": ["s-complete", "Complete"], "In Progress": ["s-act", "In progress"], "Urgent": ["s-urgent", "Urgent"], "Not Started": ["s-idle", "Not started"], "N/A this project": ["s-unset", "N/A"], "": ["s-unset", "Not set"] };
   function watchWeinam() {
     if (store.kind !== "db" || unwatchWeinam) return;
-    unwatchWeinam = db.doc(docPath("weinam-tw")).onSnapshot((snap) => { weinam = snap.exists ? snap.data() : null; renderWeinam(); if (view === "dash") renderProductivity(); }, () => {});
+    unwatchWeinam = db.doc(docPath("weinam-tw")).onSnapshot((snap) => { weinam = snap.exists ? snap.data() : null; renderWeinam(); if (view === "dash") renderProductivity(); syncSeen(); }, () => {});
   }
+  // ---------- Sync now: reload my own data, and ask the hourly Weinam sync task to run straight away ----------
+  // The dashboard can't read the Weinam page's data itself; the scheduled task copies it into weinam-tw.
+  // The button starts that task through the viewer's Claude Code Remote connector (fire_trigger only).
+  const SYNC_TASK = "trig_01C3PgfrHFpnwJZCTQJ52g7J", SYNC_SERVER = "Claude Code Remote";
+  let mcpNs = null, syncWaitFrom = null, syncGiveUp = null;
+  const syncedLabel = () => { if (!weinam || !weinam.syncedAt) return "Weinam not synced yet"; const w = new Date(weinam.syncedAt); return `Weinam synced ${pad(w.getHours())}:${pad(w.getMinutes())} ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][w.getDay()]}`; };
+  function syncNote(text, err) { const n = $("#syncNote"); n.textContent = text; n.classList.toggle("err", !!err); }
+  function syncDone(msg, err) { clearTimeout(syncGiveUp); syncWaitFrom = null; const b = $("#syncBtn"); b.disabled = false; b.textContent = "↻ Sync now"; syncNote(msg || syncedLabel(), err); }
+  function syncSeen() {
+    if (syncWaitFrom !== null && weinam && weinam.syncedAt && weinam.syncedAt !== syncWaitFrom) { syncDone(); toast("Weinam is up to date."); return; }
+    if (syncWaitFrom === null && !$("#syncNote").classList.contains("err")) syncNote(syncedLabel());
+  }
+  async function syncNow() {
+    const b = $("#syncBtn"); if (b.disabled) return;
+    b.disabled = true; b.textContent = "Syncing…"; syncNote("Reloading your minutes…");
+    // 1. My minutes, misc list and meetings: save anything pending, then re-read from the account.
+    try {
+      if (saveTimer) { clearTimeout(saveTimer); await save(); }
+      if (!editing()) { await load(); await loadMisc(); }
+      meetLoaded = false; await loadMeetings();
+      renderAll(); renderMisc(); if (view === "dash") renderDash();
+    } catch (e) { /* keep what's on screen */ }
+    // 2. Weinam: start the sync task now.
+    if (!mcpNs) { syncDone(`Minutes reloaded. Weinam updates hourly; Sync can't start it from this view. ${syncedLabel()}.`, true); return; }
+    syncNote("Minutes reloaded. Asking Weinam to sync…");
+    try {
+      await mcpNs.callTool(SYNC_SERVER, "fire_trigger", { trigger_id: SYNC_TASK }, { cache: false });
+      syncWaitFrom = (weinam && weinam.syncedAt) || "";
+      b.textContent = "Syncing Weinam…";
+      syncNote("Weinam sync started. New data usually arrives within a minute.");
+      clearTimeout(syncGiveUp);
+      syncGiveUp = setTimeout(() => { if (syncWaitFrom !== null) syncDone(`Weinam sync is taking longer than usual; it will appear when it finishes. ${syncedLabel()}.`, true); }, 180000);
+    } catch (e) {
+      const code = e && e.code;
+      const msg = code === "needs_reauth" ? "Minutes reloaded. To sync Weinam, reconnect Claude Code Remote in claude.ai Settings → Connectors."
+        : code === "server_not_connected" || code === "selection_required" ? "Minutes reloaded. To sync Weinam from here, add the Claude Code Remote connector in claude.ai Settings → Connectors."
+        : code === "approval_required" || code === "not_in_manifest" || code === "consent_required" ? "Minutes reloaded. Weinam sync needs your permission: click Sync now again and choose Allow."
+        : code === "blocked_by_policy" ? "Minutes reloaded. Your organisation's settings block starting the Weinam sync from here; it still runs hourly."
+        : code === "tool_error" ? `Minutes reloaded. The Weinam sync task couldn't start: ${e.message || "no reason given"}.`
+        : code === "not_granted" || code === "capability_disabled" || code === "capability_removed" ? "Minutes reloaded. Sync can't start Weinam from this view; it still runs hourly."
+        : "Minutes reloaded. Couldn't reach the Weinam sync service just now. It may still be running; check again in a few minutes.";
+      syncDone(msg, true);
+    }
+  }
+  $("#syncBtn").addEventListener("click", syncNow);
+
   // Weinam's key dates: its typed key-date notes plus every starred key task (any champion), soonest first.
   function renderKeyDates() {
     const box = $("#kdList");
@@ -2355,6 +2409,7 @@ table.mm-t { width: 100%; border-collapse: collapse; }
       C?.use ? C.use("user").catch(() => null) : null,
       C?.use ? C.use("downloads").catch(() => null) : null
     ]);
+    if (C?.use) C.use("mcp").then((m) => { mcpNs = m; }).catch(() => {});
     downloads = dlNs;
     $("#backup").hidden = !downloads;
     if (userNs) {
