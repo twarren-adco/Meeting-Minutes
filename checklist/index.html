@@ -164,6 +164,16 @@ table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-widt
 .grid tr.row:hover td { background-image: linear-gradient(var(--hover), var(--hover)); }
 .ref-btn { width: 100%; height: 100%; min-height: 34px; background: none; border: 0; color: var(--head); font-variant-numeric: tabular-nums; font-size: 12.5px; padding: 7px 2px; }
 .ref-btn:hover { color: var(--brand-ink); background: var(--brand); }
+.can-drag .ref-btn { cursor: grab; }
+/* drag to move tasks between groups */
+.grid tr.drag-src > td, .grid tr.drag-src > th { opacity: .35; }
+body.dragging-task, body.dragging-task * { cursor: grabbing !important; user-select: none; }
+.drag-ghost { position: fixed; z-index: 80; pointer-events: none; max-width: 420px; background: var(--surface); color: var(--ink); border: 1px solid var(--focus); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.22); padding: 7px 12px; font-size: 13.5px; display: flex; gap: 10px; align-items: baseline; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.drag-ghost b { color: var(--head); font-variant-numeric: tabular-nums; }
+.drag-ghost .to { color: var(--muted); font-size: 12px; margin-left: 4px; }
+.drop-line { position: fixed; z-index: 79; height: 3px; background: var(--focus); border-radius: 2px; pointer-events: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 25%, transparent); }
+.drop-line::before { content: ""; position: absolute; left: -5px; top: -4px; width: 11px; height: 11px; border-radius: 50%; background: var(--focus); }
+.grid tr.grp.drop-on th { box-shadow: inset 0 0 0 2px var(--focus); }
 .cell-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .c-detail .cell-text, .c-notes .cell-text { color: var(--ink); }
 .c-detail, .c-notes { font-size: 13.5px; }
@@ -480,7 +490,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <div class="status-bar" id="statusBar">
         <span id="sbCell">Select a cell</span>
         <span id="sbWho"></span>
-        <span class="sb-right" id="sbHelp"><kbd>Enter</kbd> edit · <kbd>Tab</kbd> next · <kbd>Del</kbd> clear · <kbd>Ctrl</kbd>+<kbd>V</kbd> paste from Excel · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo</span>
+        <span class="sb-right" id="sbHelp"><kbd>Enter</kbd> edit · <kbd>Tab</kbd> next · <kbd>Del</kbd> clear · <kbd>Ctrl</kbd>+<kbd>V</kbd> paste from Excel · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo · drag a task's number (or press and hold its row) to move it</span>
       </div>
     </div>
   </div>
@@ -893,6 +903,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
       h += `</tbody>`;
     }
     grid.insertAdjacentHTML("beforeend", h);
+    grid.classList.toggle("can-drag", !!canWrite);
     const empty = $("#gridEmpty");
     if (!loaded) {
       empty.hidden = false;
@@ -1598,6 +1609,102 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     e.preventDefault(); focusGrid();
     if (already && lastPointer === "touch" && !e.target.closest("[data-star]")) startEdit();
   });
+  // ---------- drag a task to another place or group (its number follows its position) ----------
+  // Grab the task number and move, or press and hold anywhere on the row. Drop on a row, or on a group heading
+  // to put it first in that group. Esc cancels; Ctrl+Z undoes the move.
+  let rowDrag = null;
+  const HOLD_MS = 350;
+  function rowDragPrep(e) {
+    if (!canWrite || e.button > 0) return;
+    const tr = e.target.closest("tr.row"); if (!tr || !wrap.contains(tr)) return;
+    if (e.target.closest("[data-star], td.editing, input, select, textarea")) return;
+    const handle = !!e.target.closest(".ref-btn");
+    rowDrag = { id: tr.dataset.id, x: e.clientX, y: e.clientY, handle, active: false, pid: e.pointerId, type: e.pointerType };
+    rowDrag.timer = setTimeout(() => { if (rowDrag && !rowDrag.active) rowDragBegin(); }, HOLD_MS);
+  }
+  function rowDragBegin() {
+    const d = rowDrag; if (!d || !tasks.has(d.id)) return;
+    clearTimeout(d.timer); d.active = true;
+    if (editing) commitEdit(null);
+    const t = tasks.get(d.id), ref = model.refs.get(d.id) || "";
+    d.ghost = document.createElement("div"); d.ghost.className = "drag-ghost"; d.ghost.innerHTML = `<b>${esc(ref)}</b><span>${esc(t.task || "Untitled task")}</span><span class="to"></span>`;
+    d.line = document.createElement("div"); d.line.className = "drop-line"; d.line.hidden = true;
+    document.body.append(d.ghost, d.line); document.body.classList.add("dragging-task");
+    wrap.querySelector(`tr.row[data-id="${CSS.escape(d.id)}"]`)?.classList.add("drag-src");
+    d.noScroll = (ev) => ev.preventDefault();
+    document.addEventListener("touchmove", d.noScroll, { passive: false });
+    rowDragMove(d.x, d.y);
+    if (navigator.vibrate && d.type === "touch") try { navigator.vibrate(15); } catch (_) {}
+  }
+  function rowDropTarget(x, y) {
+    const el = document.elementFromPoint(x, y); if (!el || !wrap.contains(el)) return null;
+    const head = el.closest("tr.grp");
+    if (head) { const gn = head.querySelector("[data-gname]"); if (!gn || gn.dataset.gname === "__none") return null; return { gid: gn.dataset.gname, beforeId: null, first: true, rect: head.getBoundingClientRect(), head }; }
+    const tr = el.closest("tr.row"); if (!tr) return null;
+    const r = tr.getBoundingClientRect(), after = y > r.top + r.height / 2;
+    const t = tasks.get(tr.dataset.id); if (!t) return null;
+    const known = new Set((meta?.groups || []).map((g) => g.id));
+    return { gid: known.has(t.group) ? t.group : "__none", overId: tr.dataset.id, after, rect: r };
+  }
+  function rowDragMove(x, y) {
+    const d = rowDrag; if (!d) return;
+    d.ghost.style.left = Math.min(x + 14, window.innerWidth - 40) + "px"; d.ghost.style.top = (y + 12) + "px";
+    wrap.querySelectorAll("tr.grp.drop-on").forEach((h) => h.classList.remove("drop-on"));
+    const tg = rowDropTarget(x, y); d.target = tg && tg.gid !== "__none" ? tg : null;
+    const wr = wrap.getBoundingClientRect();
+    if (d.target) {
+      const yLine = d.target.first ? d.target.rect.bottom - 1 : d.target.after ? d.target.rect.bottom - 1 : d.target.rect.top - 1;
+      d.line.hidden = false; d.line.style.left = Math.max(wr.left, 0) + 6 + "px"; d.line.style.width = Math.max(0, Math.min(wr.right, window.innerWidth) - Math.max(wr.left, 0) - 12) + "px"; d.line.style.top = yLine + "px";
+      if (d.target.head) d.target.head.classList.add("drop-on");
+      const g = (meta?.groups || []).find((x) => x.id === d.target.gid);
+      d.ghost.querySelector(".to").textContent = g ? "→ " + g.name : "";
+    } else { d.line.hidden = true; d.ghost.querySelector(".to").textContent = ""; }
+    // Scroll the page (and the grid, if it scrolls itself) when dragging near an edge.
+    const edge = 70, sp = y < edge ? -Math.ceil((edge - y) / 5) : y > window.innerHeight - edge ? Math.ceil((y - (window.innerHeight - edge)) / 5) : 0;
+    d.scrollV = sp; d.lastX = x; d.lastY = y;
+    if (sp && !d.raf) { const step = () => { if (!rowDrag || !rowDrag.scrollV) { if (rowDrag) rowDrag.raf = 0; return; } window.scrollBy(0, rowDrag.scrollV); if (wrap.scrollHeight > wrap.clientHeight) wrap.scrollTop += rowDrag.scrollV; rowDragMove(rowDrag.lastX, rowDrag.lastY); rowDrag.raf = requestAnimationFrame(step); }; d.raf = requestAnimationFrame(step); }
+  }
+  function rowDragEnd(drop) {
+    const d = rowDrag; rowDrag = null; if (!d) return;
+    clearTimeout(d.timer);
+    if (!d.active) return;
+    if (d.raf) cancelAnimationFrame(d.raf);
+    document.removeEventListener("touchmove", d.noScroll);
+    d.ghost.remove(); d.line.remove(); document.body.classList.remove("dragging-task");
+    wrap.querySelectorAll(".drag-src, tr.grp.drop-on").forEach((x) => x.classList.remove("drag-src", "drop-on"));
+    rowDragSuppress = true; setTimeout(() => (rowDragSuppress = false), 0);
+    if (!drop || !d.target || !tasks.has(d.id)) return;
+    const known = new Set((meta?.groups || []).map((g) => g.id));
+    const list = sortedIn(d.target.gid, known).filter(([k]) => k !== d.id);
+    let idx = 0;
+    if (!d.target.first) { const at = list.findIndex(([k]) => k === d.target.overId); if (at < 0) return; idx = d.target.after ? at + 1 : at; }
+    const orders = list.map(([, t]) => t.order ?? 0), prev = orders[idx - 1], next = orders[idx];
+    const order = prev === undefined && next === undefined ? 1000 : prev === undefined ? next - 1000 : next === undefined ? prev + 1000 : (prev + next) / 2;
+    const t = tasks.get(d.id), fromRef = model.refs.get(d.id);
+    if (t.group === d.target.gid && (list[idx - 1]?.[0] ?? null) === (sortedIn(d.target.gid, known).filter(([k]) => k !== d.id)[idx - 1]?.[0] ?? null) && sortedIn(d.target.gid, known).findIndex(([k]) => k === d.id) === idx) return; // dropped where it was
+    if (!saveTask(d.id, { group: d.target.gid, order })) return;
+    renderAll();
+    sel = { id: d.id, c: sel?.c ?? 0 }; paintSel(); focusGrid();
+    const g = (meta?.groups || []).find((x) => x.id === d.target.gid);
+    toast(`Moved ${fromRef} to ${g ? g.name : "the group"} as ${model.refs.get(d.id)}. Ctrl+Z to undo.`);
+  }
+  let rowDragSuppress = false;
+  wrap.addEventListener("pointerdown", rowDragPrep);
+  document.addEventListener("pointermove", (e) => {
+    const d = rowDrag; if (!d || e.pointerId !== d.pid) return;
+    if (!d.active) {
+      const moved = Math.hypot(e.clientX - d.x, e.clientY - d.y);
+      if (d.handle && moved > 5) rowDragBegin();
+      else if (!d.handle && moved > 8) { clearTimeout(d.timer); rowDrag = null; } // a normal click, select or scroll
+      return;
+    }
+    e.preventDefault(); rowDragMove(e.clientX, e.clientY);
+  });
+  document.addEventListener("pointerup", (e) => { if (rowDrag && e.pointerId === rowDrag.pid) rowDragEnd(true); });
+  document.addEventListener("pointercancel", (e) => { if (rowDrag && e.pointerId === rowDrag.pid) rowDragEnd(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rowDrag && rowDrag.active) { e.preventDefault(); e.stopPropagation(); rowDragEnd(false); toast("Move cancelled."); } }, true);
+  wrap.addEventListener("click", (e) => { if (rowDragSuppress) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  wrap.addEventListener("contextmenu", (e) => { if (rowDrag) e.preventDefault(); });
   wrap.addEventListener("dblclick", (e) => {
     if (e.target.closest("[data-star]")) return;
     const td = e.target.closest("td[data-c]"); if (td && !td.classList.contains("editing")) startEdit();
