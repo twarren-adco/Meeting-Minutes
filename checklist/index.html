@@ -154,7 +154,7 @@ main.wrap > * { min-width: 0; }
 table.grid { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; table-layout: fixed; background: var(--surface); border-left: 1px solid var(--line); }
 .grid thead th { top: env(safe-area-inset-top, 0px); }
 .grid th, .grid td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
-.grid thead th { position: sticky; top: 0; z-index: 3; background: var(--thead); font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; color: var(--thead-ink); border-right-color: rgba(255,255,255,.18); border-bottom: 1px solid var(--thead); white-space: nowrap; padding-block: 10px; }
+.grid thead th { position: sticky; top: 0; z-index: 3; background: var(--thead); font-family: var(--f-display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; color: var(--thead-ink); border-right-color: rgba(255,255,255,.18); border-bottom: 1px solid var(--thead); white-space: normal; line-height: 1.2; vertical-align: bottom; padding-block: 10px; }
 .grid thead th.col-task { left: 52px; z-index: 4; }
 .grid thead th.col-ref { left: 0; z-index: 4; }
 .grid tbody .ref { position: sticky; left: 0; z-index: 2; background: var(--surface-2); width: 52px; padding: 0; text-align: center; font-weight: 500; }
@@ -934,8 +934,35 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     renderAll();
     toast(t.key ? "Removed from key tasks." : "Added to key tasks.");
   }
+  // Column widths follow the content: short fixed-value columns keep a set width, and the free-text columns
+  // (Task, Action / Detail, Live notes) share the rest in proportion to how much text they hold.
+  const FIXED_W = { status: 9, champion: 6, support: 6.5, start: 6, due: 7, section: 8.5, updated: 7.5 };
+  const TEXT_COLS = ["task", "detail", "notes"], TEXT_MIN = 10, TEXT_MAX = 38;
+  let colSig = "";
+  function columnWidths() {
+    const fixed = Object.values(FIXED_W).reduce((a, b) => a + b, 0), room = 100 - fixed;
+    // How much text each column holds: characters per task, each cell capped so one long note can't take over.
+    const weight = Object.fromEntries(TEXT_COLS.map((k) => [k, 0]));
+    for (const t of tasks.values()) for (const k of TEXT_COLS) weight[k] += Math.min(String(t[k] || "").length, 220);
+    const total = TEXT_COLS.reduce((a, k) => a + weight[k], 0);
+    let w = Object.fromEntries(TEXT_COLS.map((k) => [k, total ? (weight[k] / total) * room : room / TEXT_COLS.length]));
+    // Keep every text column readable, then share out what's left so the total stays at 100%.
+    for (let i = 0; i < 4; i++) {
+      for (const k of TEXT_COLS) w[k] = Math.min(TEXT_MAX, Math.max(TEXT_MIN, w[k]));
+      const sum = TEXT_COLS.reduce((a, k) => a + w[k], 0), free = TEXT_COLS.filter((k) => w[k] > TEXT_MIN && w[k] < TEXT_MAX);
+      if (Math.abs(sum - room) < 0.1 || !free.length) break;
+      const adj = (room - sum) / free.length; for (const k of free) w[k] += adj;
+    }
+    return COLS.map((c) => Math.round((FIXED_W[c.key] ?? w[c.key] ?? c.w) * 2) / 2);
+  }
+  function applyColumnWidths() {
+    const ws = columnWidths(), sig = ws.join(",");
+    if (sig === colSig) return;
+    colSig = sig;
+    $("#cols").innerHTML = `<col style="width:52px">` + ws.map((w) => `<col style="width:${(w * 0.96).toFixed(2)}%">`).join("");
+  }
   function renderHead() {
-    $("#cols").innerHTML = `<col style="width:52px">` + COLS.map((c) => `<col style="width:${(c.w * 0.96).toFixed(2)}%">`).join("");
+    colSig = ""; applyColumnWidths();
     $("#headRow").innerHTML = `<th class="col-ref" scope="col" aria-label="Ref">#</th>` + COLS.map((c) => `<th scope="col" class="col-${c.key}">${esc(c.label)}</th>`).join("");
   }
   function renderGrid() {
@@ -964,6 +991,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     }
     grid.insertAdjacentHTML("beforeend", h);
     grid.classList.toggle("can-drag", !!canWrite);
+    applyColumnWidths();
     const empty = $("#gridEmpty");
     if (!loaded) {
       empty.hidden = false;
