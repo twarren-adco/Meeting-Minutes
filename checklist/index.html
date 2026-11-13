@@ -176,6 +176,33 @@ body.dragging-task, body.dragging-task * { cursor: grabbing !important; user-sel
 .grid tr.grp.drop-on th { box-shadow: inset 0 0 0 2px var(--focus); }
 .cell-text { white-space: pre-wrap; overflow-wrap: anywhere; }
 .c-detail .cell-text, .c-notes .cell-text { color: var(--ink); }
+/* People manager */
+.dlg-back { position: fixed; inset: 0; z-index: 90; background: rgba(10, 20, 40, .45); display: flex; align-items: flex-start; justify-content: center; padding: max(40px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); overflow: auto; }
+.dlg { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.25); width: min(760px, 100%); padding: 18px 20px; display: grid; gap: 10px; }
+.dlg-head { display: flex; justify-content: space-between; align-items: center; }
+.dlg-head h2 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; color: var(--head); }
+.dlg-x { background: none; border: 0; font-size: 18px; color: var(--muted); width: 32px; height: 32px; border-radius: 4px; cursor: pointer; }
+.dlg-x:hover { background: var(--surface-2); }
+.dlg-sub { margin: 0; color: var(--muted); font-size: 13px; }
+.dlg-body { overflow-x: auto; max-height: 55vh; overflow-y: auto; border: 1px solid var(--line); border-radius: 4px; }
+.ppl-t { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+.ppl-t th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-family: var(--f-display); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.ppl-t td { padding: 5px 10px; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); vertical-align: middle; }
+.ppl-t td.n { font-variant-numeric: tabular-nums; color: var(--muted); width: 1%; white-space: nowrap; text-align: center; }
+.ppl-t input { width: 100%; border: 1px solid transparent; border-radius: 4px; background: transparent; padding: 5px 7px; font: inherit; color: var(--ink); }
+.ppl-t input:hover { border-color: var(--line); } .ppl-t input:focus { border-color: var(--focus); outline: none; background: var(--surface); }
+.ppl-t input.code { font-weight: 700; color: var(--head); max-width: 110px; }
+.ppl-t tr.unlisted td:first-child::after { content: "not in list"; display: block; font-size: 11px; color: var(--muted); padding-left: 7px; }
+.ppl-t .rm { background: none; border: 1px solid transparent; color: var(--urg); font-weight: 600; font-size: 12.5px; border-radius: 4px; padding: 3px 8px; cursor: pointer; white-space: nowrap; }
+.ppl-t .rm:hover { border-color: var(--urg); }
+.ppl-t tr.confirm td { background: color-mix(in srgb, var(--urg) 7%, var(--surface)); }
+.ppl-conf { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13px; }
+.ppl-conf select { border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 4px 6px; font: inherit; }
+.ppl-conf button { border-radius: 4px; padding: 4px 10px; font-weight: 600; font-size: 12.5px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface); }
+.ppl-conf button.go { background: var(--urg); border-color: var(--urg); color: #fff; }
+.ppl-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.ppl-add input { border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); padding: 0 10px; height: 36px; font: inherit; color: var(--ink); min-width: 0; }
+.ppl-add input#pplNewCode { width: 150px; } .ppl-add input#pplNewName { flex: 1 1 200px; }
 /* dot points in Action / Detail and Live notes */
 .cell-text.rich { white-space: normal; }
 .cell-text.rich .ln { white-space: pre-wrap; min-height: 1.4em; }
@@ -488,6 +515,7 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
       <span class="spacer"></span>
       <span class="row-key" aria-label="Row colours"><span><i style="background:var(--row-ok)"></i>Complete</span><span><i style="background:var(--row-alert)"></i>Urgent or overdue</span><span><i style="background:var(--row-soon)"></i>Due within 7 days</span></span>
       <button class="btn primary" id="addGroup" type="button" hidden>+ Add group</button>
+      <button class="btn" id="peopleBtn" type="button" hidden title="Add, change or remove the people used as Champion and Support">People</button>
     </div>
     <div class="sheet" id="sheet">
       <div class="grid-wrap" id="gridWrap" tabindex="0" aria-label="Checklist grid. Use arrow keys to move, Enter to edit.">
@@ -594,6 +622,14 @@ button.tl-label:hover .tl-name { text-decoration: underline; color: var(--head);
 <datalist id="people"></datalist>
 <div class="menu" id="menu" hidden role="menu"></div>
 <div class="toast" id="toast" hidden role="status"></div>
+<div class="dlg-back" id="peopleDlg" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="peopleTitle">
+    <div class="dlg-head"><h2 id="peopleTitle">People</h2><button class="dlg-x" type="button" id="peopleClose" aria-label="Close">✕</button></div>
+    <p class="dlg-sub">The people you can pick as Champion or Support. Changing someone's initials updates every task they're on. Removing someone lets you hand their tasks to someone else.</p>
+    <div class="dlg-body"><table class="ppl-t"><thead><tr><th>Initials</th><th>Full name (optional)</th><th>Champion</th><th>Support</th><th></th></tr></thead><tbody id="peopleRows"></tbody></table></div>
+    <form class="ppl-add" id="peopleAdd"><input id="pplNewCode" placeholder="Initials, e.g. JB" maxlength="20" aria-label="New person's initials"><input id="pplNewName" placeholder="Full name (optional)" maxlength="80" aria-label="New person's full name"><button class="btn primary" type="submit">+ Add person</button></form>
+  </div>
+</div>
 <div class="tl-tip" id="tlTip" hidden></div>
 
 <script type="application/octet-stream" id="xlsxTemplate">
@@ -1071,11 +1107,17 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     if (g) filters.group = g.value; else filters.section = sct.value;
     renderGroupSectionFilters(); renderGrid(); renderTimeline();
   });
+  // The people list lives in project/meta.people ([{code, name}]); until someone edits it, it's the default initials.
+  function peopleList() {
+    const base = Array.isArray(meta?.people) ? meta.people.filter((p) => p && p.code) : DEFAULT_PEOPLE.map((code) => ({ code, name: "" }));
+    const seen = new Set(base.map((p) => p.code.toUpperCase())), extra = [];
+    for (const t of tasks.values()) for (const v of [t.champion, t.support]) { const c = (v || "").trim(); if (c && !seen.has(c.toUpperCase())) { seen.add(c.toUpperCase()); extra.push({ code: c, name: "", unlisted: true }); } }
+    return base.concat(extra);
+  }
   function renderPeople() {
-    const set = new Set(DEFAULT_PEOPLE);
-    for (const t of tasks.values()) { if (t.champion) set.add(t.champion); if (t.support) set.add(t.support); }
-    const list = [...set];
-    $("#people").innerHTML = list.map((p) => `<option value="${esc(p)}"></option>`).join("");
+    const people = peopleList();
+    const list = people.map((p) => p.code);
+    $("#people").innerHTML = people.map((p) => `<option value="${esc(p.code)}">${p.name ? esc(p.name) : ""}</option>`).join("");
     const pf = $("#personFilter"), cur = pf.value;
     const used = list.filter((p) => [...tasks.values()].some((t) => t.champion === p || t.support === p));
     pf.innerHTML = `<option value="">Everyone</option>` + used.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("");
@@ -1084,6 +1126,93 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     renderGroupSectionFilters();
     if (pf.value !== cur) filters.person = pf.value;
   }
+  // ---------- People manager ----------
+  const same = (a, b) => (a || "").trim().toUpperCase() === (b || "").trim().toUpperCase();
+  const usage = (code) => { let c = 0, s = 0; for (const t of tasks.values()) { if (same(t.champion, code)) c++; if (same(t.support, code)) s++; } return [c, s]; };
+  let pplConfirm = null;
+  function savePeople(list) { saveMeta({ people: list.map(({ code, name }) => ({ code, name: name || "" })) }); }
+  // Swap a person's initials on every task (Champion and Support), as one undo step.
+  function reassign(from, to) {
+    const ops = [];
+    for (const [id, t] of tasks) {
+      const patch = {};
+      if (same(t.champion, from)) patch.champion = to;
+      if (same(t.support, from)) patch.support = to;
+      if (Object.keys(patch).length) { const r = saveTask(id, patch, { noUndo: true }); if (r) ops.push({ kind: "update", ...r }); }
+    }
+    if (ops.length) undoStack.push(ops);
+    return ops.length;
+  }
+  function renderPeopleDlg() {
+    const rows = peopleList();
+    $("#peopleRows").innerHTML = rows.map((p, i) => {
+      const [c, s] = usage(p.code);
+      if (pplConfirm === p.code) {
+        const others = rows.filter((o) => !same(o.code, p.code));
+        return `<tr class="confirm" data-i="${i}"><td colspan="5"><div class="ppl-conf"><span>Remove <b>${esc(p.code)}</b>${c + s ? `. Their ${c + s} task${c + s === 1 ? "" : "s"} go to` : "?"}</span>` +
+          (c + s ? `<select id="pplTo" aria-label="Give their tasks to"><option value="">Nobody (leave blank)</option>${others.map((o) => `<option value="${esc(o.code)}">${esc(o.code)}${o.name ? " · " + esc(o.name) : ""}</option>`).join("")}</select>` : "") +
+          `<button type="button" class="go" data-rm-go="${i}">Remove</button><button type="button" data-rm-no>Cancel</button></div></td></tr>`;
+      }
+      return `<tr class="${p.unlisted ? "unlisted" : ""}" data-i="${i}"><td><input class="code" value="${esc(p.code)}" data-code="${i}" aria-label="Initials" maxlength="20"></td>` +
+        `<td><input value="${esc(p.name || "")}" data-name="${i}" placeholder="${p.unlisted ? "Add a name to keep in the list" : "Full name"}" aria-label="Full name for ${esc(p.code)}" maxlength="80"></td>` +
+        `<td class="n">${c}</td><td class="n">${s}</td><td><button type="button" class="rm" data-rm="${i}">Remove</button></td></tr>`;
+    }).join("");
+  }
+  function openPeople() { pplConfirm = null; renderPeopleDlg(); $("#peopleDlg").hidden = false; $("#pplNewCode").focus(); }
+  function closePeople() { $("#peopleDlg").hidden = true; pplConfirm = null; $("#peopleBtn").focus(); }
+  $("#peopleBtn").addEventListener("click", openPeople);
+  $("#peopleClose").addEventListener("click", closePeople);
+  $("#peopleDlg").addEventListener("mousedown", (e) => { if (e.target.id === "peopleDlg") closePeople(); });
+  $("#peopleDlg").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); if (pplConfirm) { pplConfirm = null; renderPeopleDlg(); } else closePeople(); }
+    if (e.key === "Enter" && e.target.matches("[data-code], [data-name]")) { e.preventDefault(); e.target.blur(); }
+  });
+  $("#peopleAdd").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const code = $("#pplNewCode").value.trim(), name = $("#pplNewName").value.trim();
+    if (!code) { $("#pplNewCode").focus(); return; }
+    const list = peopleList();
+    const hit = list.find((p) => same(p.code, code));
+    if (hit && !hit.unlisted) { toast(`${hit.code} is already in the list.`); return; }
+    savePeople(list.filter((p) => !p.unlisted).concat([{ code: hit ? hit.code : code, name }]));
+    $("#pplNewCode").value = ""; $("#pplNewName").value = "";
+    renderAll(); renderPeopleDlg(); $("#pplNewCode").focus();
+    toast(`Added ${code}${name ? " (" + name + ")" : ""}.`);
+  });
+  $("#peopleRows").addEventListener("change", (e) => {
+    const list = peopleList(), listed = () => list.filter((p) => !p.unlisted);
+    if (e.target.matches("[data-name]")) {
+      const p = list[+e.target.dataset.name]; if (!p) return;
+      p.name = e.target.value.trim(); delete p.unlisted;
+      savePeople(list.filter((x) => !x.unlisted)); renderAll(); renderPeopleDlg(); return;
+    }
+    if (e.target.matches("[data-code]")) {
+      const p = list[+e.target.dataset.code]; if (!p) return;
+      const to = e.target.value.trim(), from = p.code;
+      if (!to) { e.target.value = from; toast("Initials can't be blank. Use Remove instead."); return; }
+      if (to === from) return;
+      const clash = list.find((x) => x !== p && same(x.code, to));
+      const n = reassign(from, clash ? clash.code : to);
+      const next = list.filter((x) => !x.unlisted || x === p).filter((x) => !(clash && x === p)).map((x) => (x === p ? { code: to, name: p.name || "" } : x));
+      savePeople(next); renderAll(); renderPeopleDlg();
+      toast(clash ? `Merged ${from} into ${clash.code}: ${n} task${n === 1 ? "" : "s"} updated. Ctrl+Z undoes the task changes.` : `Changed ${from} to ${to}${n ? `: ${n} task${n === 1 ? "" : "s"} updated` : ""}.${n ? " Ctrl+Z undoes the task changes." : ""}`);
+    }
+  });
+  $("#peopleRows").addEventListener("click", (e) => {
+    const list = peopleList();
+    const rm = e.target.closest("[data-rm]");
+    if (rm) { const p = list[+rm.dataset.rm]; if (!p) return; pplConfirm = p.code; renderPeopleDlg(); ($("#pplTo") || $("[data-rm-go]")).focus(); return; }
+    if (e.target.closest("[data-rm-no]")) { pplConfirm = null; renderPeopleDlg(); return; }
+    const go = e.target.closest("[data-rm-go]");
+    if (go) {
+      const p = list[+go.dataset.rmGo]; if (!p) return;
+      const to = $("#pplTo") ? $("#pplTo").value : "";
+      const n = reassign(p.code, to);
+      savePeople(list.filter((x) => !x.unlisted && x !== p));
+      pplConfirm = null; renderAll(); renderPeopleDlg();
+      toast(`Removed ${p.code}${n ? `; ${n} task${n === 1 ? "" : "s"} ${to ? "given to " + to : "left without a name"}` : ""}.${n ? " Ctrl+Z undoes the task changes." : ""}`);
+    }
+  });
   function renderHeader() {
     const pn = $("#projectName"), st = $("#sheetTitle");
     if (document.activeElement !== pn) pn.value = meta?.project || "";
@@ -1091,6 +1220,7 @@ UEsDBBQAAgAIAMgKXV0SUmDdTgEAAKsFAAATAAAAW0NvbnRlbnRfVHlwZXNdLnhtbM2Uy27CMBBF9/2K
     pn.readOnly = st.readOnly = !canWrite;
     $("#editDates").hidden = !canWrite;
     $("#addGroup").hidden = !canWrite;
+    $("#peopleBtn").hidden = !canWrite;
     $("#sbHelp").hidden = !canWrite;
     document.body.classList.toggle("read-only", !canWrite);
     if (meta?.project) document.title = `${meta.project} Start-Up Checklist`;
